@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solargrafie Karte (Eva & Simon)</title>
+  
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #121212;
+      color: #ffffff;
+      overflow: hidden;
+    }
+    header {
+      height: 60px;
+      background-color: #1e1e1e;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 15px;
+      border-bottom: 1px solid #333;
+    }
+    header h1 { 
+      font-size: 1.05rem; 
+      font-weight: 500; 
+      letter-spacing: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Sprachumschalter */
+    .lang-switch {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    .lang-btn {
+      background: #2a2a2a;
+      color: #aaa;
+      border: 1px solid #444;
+      padding: 4px 6px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .lang-btn:hover { background: #3a3a3a; color: #fff; }
+    .lang-btn.active {
+      background: #3b82f6;
+      color: #fff;
+      border-color: #3b82f6;
+    }
+
+    #map { height: calc(100vh - 60px); width: 100vw; }
+
+    /* Foto Pins Styling */
+    .foto-pin {
+      border: 3px solid #fff;
+      border-radius: 50%;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      object-fit: cover;
+      transition: transform 0.2s ease, border-color 0.2s;
+      cursor: pointer;
+      background-color: #333;
+    }
+    .foto-pin:hover {
+      transform: scale(1.1) translateY(-5px);
+      border-color: #3b82f6;
+      z-index: 1000 !important;
+    }
+
+    /* Popup Styling */
+    .leaflet-popup-content-wrapper { 
+      background: #1e1e1e; 
+      color: #fff; 
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+    }
+    .leaflet-popup-tip { background: #1e1e1e; }
+    .popup-card { 
+      text-align: left; 
+      padding: 5px; 
+      color: #fff; 
+      max-width: 220px; 
+    }
+    .popup-card h3 { 
+      font-size: 0.95rem; 
+      margin-bottom: 6px; 
+      color: #3b82f6; 
+      text-align: center;
+    }
+    .popup-card img { 
+      width: 100%; 
+      height: 120px; 
+      object-fit: cover; 
+      border-radius: 6px; 
+      cursor: pointer; 
+      margin-bottom: 8px;
+      background-color: #2a2a2a;
+    }
+    .popup-details {
+      font-size: 0.78rem;
+      color: #ccc;
+      line-height: 1.4;
+      margin-bottom: 8px;
+      border-top: 1px solid #333;
+      padding-top: 6px;
+    }
+    .popup-details div { margin-bottom: 2px; }
+    .popup-btn { 
+      display: block; 
+      text-align: center;
+      padding: 6px 12px; 
+      background-color: #333; 
+      color: #3b82f6; 
+      border-radius: 4px; 
+      font-size: 0.8rem; 
+      text-decoration: none; 
+    }
+    .popup-btn:hover { background-color: #444; }
+
+    /* Lightbox Modal */
+    .modal { 
+      display: none; 
+      position: fixed; 
+      z-index: 2000; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%; 
+      background-color: rgba(0, 0, 0, 0.92); 
+      align-items: center; 
+      justify-content: center; 
+      flex-direction: column; 
+      padding: 20px; 
+    }
+    .modal.active { display: flex; }
+    .modal img { 
+      max-width: 90%; 
+      max-height: 65vh; 
+      border-radius: 6px; 
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8); 
+    }
+    .modal-info {
+      margin-top: 15px;
+      text-align: center;
+      max-width: 500px;
+    }
+    .modal-info h2 {
+      font-size: 1.2rem;
+      color: #3b82f6;
+      margin-bottom: 6px;
+    }
+    .modal-info p {
+      font-size: 0.9rem;
+      color: #bbb;
+      margin-bottom: 4px;
+    }
+    .modal-link { 
+      display: inline-block;
+      margin-top: 10px; 
+      color: #60a5fa; 
+      text-decoration: none; 
+      font-size: 0.9rem; 
+    }
+    .modal-close { 
+      position: absolute; 
+      top: 20px; 
+      right: 30px; 
+      font-size: 2rem; 
+      color: #fff; 
+      cursor: pointer; 
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1 id="header-title">SOLARGRAFIE PROJEKT (Eva & Simon)</h1>
+    <div class="lang-switch">
+      <button class="lang-btn active" onclick="setLanguage('de')">DE</button>
+      <button class="lang-btn" onclick="setLanguage('en')">EN</button>
+      <button class="lang-btn" onclick="setLanguage('fr')">FR</button>
+      <button class="lang-btn" onclick="setLanguage('it')">IT</button>
+      <button class="lang-btn" onclick="setLanguage('uk')">UK</button>
+      <button class="lang-btn" onclick="setLanguage('ru')">RU</button>
+    </div>
+  </header>
+
+  <div id="map"></div>
+
+  <!-- Detail-Modal -->
+  <div id="lightbox" class="modal" onclick="closeModal(event)">
+    <span class="modal-close">&times;</span>
+    <img id="modal-img" src="" alt="Großansicht">
+    <div class="modal-info">
+      <h2 id="modal-title"></h2>
+      <p id="modal-dates"></p>
+      <p id="modal-comment"></p>
+      <a id="modal-link" class="modal-link" href="#" target="_blank" rel="noopener">In Google Fotos öffnen &rarr;</a>
+    </div>
+  </div>
+
+  <!-- Bibliotheken -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+  <!-- Übersetzungsdatei -->
+  <script src="translations.js"></script>
+
+  <script>
+    let currentLang = 'de';
+    let currentModalIndex = null;
+
+    // Google Sheets CSV-Export-URL
+    const googleSheetCSV = "https://docs.google.com/spreadsheets/d/1zny1pBIQilY5wJXTN8eYEdIBoW3lJp9W13mKceeZbKI/export?format=csv";
+
+    // Karte initialisieren
+    const schweizGrenzen = L.latLngBounds(L.latLng(45.8179, 5.9559), L.latLng(47.8085, 10.4921));
+    const map = L.map('map', {
+      center: [46.8182, 8.2275],
+      zoom: 9, minZoom: 7, maxZoom: 18,
+      maxBounds: schweizGrenzen, maxBoundsViscosity: 1.0
+    });
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap &copy; CARTO'
+    }).addTo(map);
+
+    const markersGroup = L.markerClusterGroup({
+      spiderfyOnMaxZoom: true,
+      showCoverageOnHover: false,
+      zoomToBoundsOnClick: true
+    });
+
+    // Hilfsfunktion: Wandelt beliebige Google Drive Links in direkte Bild-URLs um
+    function getDirectImageUrl(url) {
+      if (!url) return '';
+      url = url.trim();
+
+      // Erkennt Google Drive URLs (open?id=..., file/d/.../view, uc?id=...)
+      if (url.includes('drive.google.com')) {
+        let fileId = '';
+        if (url.includes('id=')) {
+          fileId = url.split('id=')[1].split('&')[0];
+        } else if (url.includes('/d/')) {
+          fileId = url.split('/d/')[1].split('/')[0];
+        }
+        if (fileId) {
+          return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+        }
+      }
+      return url;
+    }
+
+    // Google Sheet CSV einlesen
+    Papa.parse(googleSheetCSV, {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete: function(results) {
+        window.solargrafieDaten = results.data;
+        renderMarkers();
+      },
+      error: function(err) {
+        console.error("Fehler beim Abrufen der Google Sheets Tabelle:", err);
+      }
+    });
+
+    function renderMarkers() {
+      markersGroup.clearLayers();
+      const t = (typeof translations !== 'undefined' && translations[currentLang]) 
+                ? translations[currentLang] 
+                : { placed: 'Placed', opened: 'Opened', note: 'Note', extId: 'Ext. ID', viewLarge: 'View' };
+
+      if (!window.solargrafieDaten) return;
+
+      window.solargrafieDaten.forEach((row, idx) => {
+        const getVal = (keyPart) => {
+          const foundKey = Object.keys(row).find(k => k.toLowerCase().includes(keyPart.toLowerCase()));
+          return foundKey ? row[foundKey] : '';
+        };
+
+        const pos = getVal('position');
+        if (!pos) return;
+
+        const parts = pos.split(',');
+        if (parts.length < 2) return;
+
+        const lat = parseFloat(parts[0].trim());
+        const lng = parseFloat(parts[1].trim());
+        if (isNaN(lat) || isNaN(lng)) return;
+
+        const id = getVal('id') || (idx + 1);
+        const titel = getVal('titel') || '';
+        const status = getVal('status') || '';
+        const placed = getVal('placed') || '';
+        const opened = getVal('opened') || '';
+        const comment = getVal('comment') || getVal('notiz') || '';
+        const extId = getVal('externe_id') || getVal('ext') || '';
+        const rawBild = getVal('bild') || '';
+        const bildUrl = getDirectImageUrl(rawBild);
+        const gPhotos = getVal('google') || getVal('url') || '';
+
+        const statusAnzeige = status ? `(${status})` : '';
+        const titelZusatz = `#${id} ${titel} ${statusAnzeige}`.trim();
+
+        const fotoIcon = L.icon({
+          iconUrl: bildUrl || 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+          iconSize: [60, 60],
+          iconAnchor: [30, 30],
+          popupAnchor: [0, -35],
+          className: 'foto-pin'
+        });
+
+        const marker = L.marker([lat, lng], { icon: fotoIcon });
+        
+        const popupContent = `
+          <div class="popup-card">
+            <h3>${titelZusatz}</h3>
+            ${bildUrl ? `<img src="${bildUrl}" alt="${titel}" onclick="openModalById('${idx}')">` : ''}
+            
+            <div class="popup-details">
+              ${placed ? `<div><strong>${t.placed}:</strong> ${placed}</div>` : ''}
+              ${opened ? `<div><strong>${t.opened}:</strong> ${opened}</div>` : ''}
+              ${comment ? `<div><strong>${t.note}:</strong> ${comment}</div>` : ''}
+              ${extId ? `<div><strong>${t.extId}:</strong> ${extId}</div>` : ''}
+            </div>
+
+            <a class="popup-btn" href="#" onclick="openModalById('${idx}'); return false;">${t.viewLarge}</a>
+          </div>
+        `;
+        
+        marker.bindPopup(popupContent);
+        markersGroup.addLayer(marker);
+      });
+
+      map.addLayer(markersGroup);
+    }
+
+    function setLanguage(lang) {
+      if (typeof translations === 'undefined' || !translations[lang]) return;
+      currentLang = lang;
+
+      document.getElementById('header-title').innerText = translations[lang].header;
+      
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.innerText.toLowerCase() === lang);
+      });
+
+      renderMarkers();
+
+      if (currentModalIndex !== null) {
+        openModalById(currentModalIndex);
+      }
+    }
+
+    function openModalById(index) {
+      currentModalIndex = index;
+      const row = window.solargrafieDaten[index];
+      if (!row) return;
+
+      const getVal = (keyPart) => {
+        const foundKey = Object.keys(row).find(k => k.toLowerCase().includes(keyPart.toLowerCase()));
+        return foundKey ? row[foundKey] : '';
+      };
+
+      const t = (typeof translations !== 'undefined' && translations[currentLang]) 
+                ? translations[currentLang] 
+                : { placed: 'Placed', opened: 'Opened', note: 'Note', openGPhotos: 'Open in Google Photos →' };
+
+      const id = getVal('id') || (parseInt(index) + 1);
+      const titel = getVal('titel') || '';
+      const status = getVal('status') || '';
+      const placed = getVal('placed') || '';
+      const opened = getVal('opened') || '';
+      const comment = getVal('comment') || getVal('notiz') || '';
+      const rawBild = getVal('bild') || '';
+      const bildUrl = getDirectImageUrl(rawBild);
+      const gPhotos = getVal('google') || getVal('url') || '';
+
+      const statusAnzeige = status ? `(${status})` : '';
+      
+      const imgElem = document.getElementById('modal-img');
+      imgElem.src = bildUrl;
+      imgElem.style.display = bildUrl ? 'block' : 'none';
+
+      document.getElementById('modal-title').innerText = `#${id} ${titel} ${statusAnzeige}`.trim();
+      
+      let datesText = [];
+      if (placed) datesText.push(`${t.placed}: ${placed}`);
+      if (opened) datesText.push(`${t.opened}: ${opened}`);
+      document.getElementById('modal-dates').innerText = datesText.join('  |  ');
+
+      document.getElementById('modal-comment').innerText = comment ? `${t.note}: ${comment}` : '';
+      
+      const linkElem = document.getElementById('modal-link');
+      linkElem.innerText = t.openGPhotos;
+      if (gPhotos && gPhotos.trim() !== "") {
+        linkElem.href = gPhotos;
+        linkElem.style.display = "inline-block";
+      } else {
+        linkElem.style.display = "none";
+      }
+
+      document.getElementById('lightbox').classList.add('active');
+    }
+
+    function closeModal(e) {
+      if (e.target.id === 'lightbox' || e.target.classList.contains('modal-close')) {
+        document.getElementById('lightbox').classList.remove('active');
+        currentModalIndex = null;
+      }
+    }
+  </script>
+
+</body>
+</html>
