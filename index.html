@@ -26,6 +26,7 @@
       justify-content: space-between;
       padding: 0 15px;
       border-bottom: 1px solid #333;
+      gap: 10px;
     }
     header h1 { 
       font-size: 1.05rem; 
@@ -36,28 +37,36 @@
       text-overflow: ellipsis;
     }
 
-    /* Sprachumschalter */
-    .lang-switch {
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Button-Gruppen für Region & Sprache */
+    .btn-group {
       display: flex;
       gap: 4px;
-      flex-wrap: wrap;
+      background: #141414;
+      padding: 3px;
+      border-radius: 6px;
+      border: 1px solid #333;
     }
-    .lang-btn {
-      background: #2a2a2a;
+    .toggle-btn {
+      background: transparent;
       color: #aaa;
-      border: 1px solid #444;
-      padding: 4px 6px;
+      border: none;
+      padding: 4px 8px;
       border-radius: 4px;
       cursor: pointer;
       font-size: 0.75rem;
       font-weight: 600;
       transition: all 0.2s;
     }
-    .lang-btn:hover { background: #3a3a3a; color: #fff; }
-    .lang-btn.active {
+    .toggle-btn:hover { color: #fff; background: #2a2a2a; }
+    .toggle-btn.active {
       background: #3b82f6;
       color: #fff;
-      border-color: #3b82f6;
     }
 
     #map { height: calc(100vh - 60px); width: 100vw; }
@@ -186,13 +195,24 @@
 
   <header>
     <h1 id="header-title">SOLARGRAFIE PROJEKT (Eva & Simon)</h1>
-    <div class="lang-switch">
-      <button class="lang-btn active" onclick="setLanguage('de')">DE</button>
-      <button class="lang-btn" onclick="setLanguage('en')">EN</button>
-      <button class="lang-btn" onclick="setLanguage('fr')">FR</button>
-      <button class="lang-btn" onclick="setLanguage('it')">IT</button>
-      <button class="lang-btn" onclick="setLanguage('uk')">UK</button>
-      <button class="lang-btn" onclick="setLanguage('ru')">RU</button>
+    
+    <div class="header-controls">
+      <!-- Regionsauswahl: Schweiz / Europa / Welt -->
+      <div class="btn-group">
+        <button id="btn-ch" class="toggle-btn active" onclick="setViewRegion('ch')">Schweiz</button>
+        <button id="btn-eu" class="toggle-btn" onclick="setViewRegion('eu')">Europa</button>
+        <button id="btn-world" class="toggle-btn" onclick="setViewRegion('world')">Welt</button>
+      </div>
+
+      <!-- Sprachumschalter -->
+      <div class="btn-group">
+        <button class="toggle-btn lang-btn active" onclick="setLanguage('de')">DE</button>
+        <button class="toggle-btn lang-btn" onclick="setLanguage('en')">EN</button>
+        <button class="toggle-btn lang-btn" onclick="setLanguage('fr')">FR</button>
+        <button class="toggle-btn lang-btn" onclick="setLanguage('it')">IT</button>
+        <button class="toggle-btn lang-btn" onclick="setLanguage('uk')">UK</button>
+        <button class="toggle-btn lang-btn" onclick="setLanguage('ru')">RU</button>
+      </div>
     </div>
   </header>
 
@@ -225,12 +245,12 @@
     // Google Sheets CSV-Export-URL
     const googleSheetCSV = "https://docs.google.com/spreadsheets/d/1zny1pBIQilY5wJXTN8eYEdIBoW3lJp9W13mKceeZbKI/export?format=csv";
 
-    // Karte initialisieren
-    const schweizGrenzen = L.latLngBounds(L.latLng(45.8179, 5.9559), L.latLng(47.8085, 10.4921));
+    // 1. Karte initialisieren
     const map = L.map('map', {
       center: [46.8182, 8.2275],
-      zoom: 9, minZoom: 7, maxZoom: 18,
-      maxBounds: schweizGrenzen, maxBoundsViscosity: 1.0
+      zoom: 9,
+      minZoom: 2,
+      maxZoom: 18
     });
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
@@ -243,12 +263,28 @@
       zoomToBoundsOnClick: true
     });
 
-    // Hilfsfunktion: Wandelt beliebige Google Drive Links in direkte Bild-URLs um
+    // 2. Regionen-Steuerung (Schweiz, Europa, Welt)
+    const regions = {
+      ch: { center: [46.8182, 8.2275], zoom: 9 },
+      eu: { center: [49.5, 12.0], zoom: 5 },
+      world: { center: [30.0, 10.0], zoom: 3 }
+    };
+
+    function setViewRegion(regKey) {
+      const reg = regions[regKey];
+      if (!reg) return;
+
+      map.flyTo(reg.center, reg.zoom, { duration: 1.2 });
+
+      document.getElementById('btn-ch').classList.toggle('active', regKey === 'ch');
+      document.getElementById('btn-eu').classList.toggle('active', regKey === 'eu');
+      document.getElementById('btn-world').classList.toggle('active', regKey === 'world');
+    }
+
+    // 3. Hilfsfunktion für Google Drive Bilder
     function getDirectImageUrl(url) {
       if (!url) return '';
       url = url.trim();
-
-      // Erkennt Google Drive URLs (open?id=..., file/d/.../view, uc?id=...)
       if (url.includes('drive.google.com')) {
         let fileId = '';
         if (url.includes('id=')) {
@@ -263,7 +299,7 @@
       return url;
     }
 
-    // Google Sheet CSV einlesen
+    // 4. Google Sheet CSV einlesen
     Papa.parse(googleSheetCSV, {
       download: true,
       header: true,
@@ -348,6 +384,7 @@
       map.addLayer(markersGroup);
     }
 
+    // 5. Sprachwechsel
     function setLanguage(lang) {
       if (typeof translations === 'undefined' || !translations[lang]) return;
       currentLang = lang;
@@ -358,6 +395,13 @@
         btn.classList.toggle('active', btn.innerText.toLowerCase() === lang);
       });
 
+      // Regionsbuttons übersetzen falls vorhanden
+      if (translations[lang].regions) {
+        document.getElementById('btn-ch').innerText = translations[lang].regions.ch;
+        document.getElementById('btn-eu').innerText = translations[lang].regions.eu;
+        document.getElementById('btn-world').innerText = translations[lang].regions.world;
+      }
+
       renderMarkers();
 
       if (currentModalIndex !== null) {
@@ -365,6 +409,7 @@
       }
     }
 
+    // 6. Großansicht / Lightbox
     function openModalById(index) {
       currentModalIndex = index;
       const row = window.solargrafieDaten[index];
