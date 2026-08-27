@@ -40,10 +40,10 @@
     .header-controls {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
-    /* Button-Gruppen für Region & Sprache */
+    /* Button-Gruppen */
     .btn-group {
       display: flex;
       gap: 4px;
@@ -69,9 +69,9 @@
       color: #fff;
     }
 
-    #map { height: calc(100vh - 60px); width: 100vw; }
+    #map { height: calc(100vh - 60px); width: 100vw; background: #121212; }
 
-    /* Foto Pins Styling */
+    /* Foto Pins */
     .foto-pin {
       border: 3px solid #fff;
       border-radius: 50%;
@@ -197,7 +197,7 @@
     <h1 id="header-title">SOLARGRAFIE PROJEKT (Eva & Simon)</h1>
     
     <div class="header-controls">
-      <!-- Regionsauswahl: Schweiz / Europa / Welt -->
+      <!-- Regionsauswahl -->
       <div class="btn-group">
         <button id="btn-ch" class="toggle-btn active" onclick="setViewRegion('ch')">Schweiz</button>
         <button id="btn-eu" class="toggle-btn" onclick="setViewRegion('eu')">Europa</button>
@@ -232,6 +232,7 @@
 
   <!-- Bibliotheken -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"></script>
   <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
@@ -253,8 +254,11 @@
       maxZoom: 18
     });
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OpenStreetMap &copy; CARTO'
+    // Frei zugängliche Dark-Matter Kacheln ohne API-Key-Sperre
+    L.tileLayer('https://a.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      maxZoom: 19,
+      subdomains: 'abcd'
     }).addTo(map);
 
     const markersGroup = L.markerClusterGroup({
@@ -263,7 +267,7 @@
       zoomToBoundsOnClick: true
     });
 
-    // 2. Regionen-Steuerung (Schweiz, Europa, Welt)
+    // 2. Regionen-Steuerung
     const regions = {
       ch: { center: [46.8182, 8.2275], zoom: 9 },
       eu: { center: [49.5, 12.0], zoom: 5 },
@@ -389,13 +393,15 @@
       if (typeof translations === 'undefined' || !translations[lang]) return;
       currentLang = lang;
 
+      // Header-Titel aktualisieren
       document.getElementById('header-title').innerText = translations[lang].header;
       
+      // Sprachbuttons umschalten
       document.querySelectorAll('.lang-btn').forEach(btn => {
         btn.classList.toggle('active', btn.innerText.toLowerCase() === lang);
       });
 
-      // Regionsbuttons übersetzen falls vorhanden
+      // Regionsbuttons dynamisch übersetzen
       if (translations[lang].regions) {
         document.getElementById('btn-ch').innerText = translations[lang].regions.ch;
         document.getElementById('btn-eu').innerText = translations[lang].regions.eu;
@@ -467,6 +473,9 @@
         currentModalIndex = null;
       }
     }
+
+    // Initiale Übersetzung auf Standard (DE) setzen
+    setLanguage('de');
   </script>
 
 </body>
