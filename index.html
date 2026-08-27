@@ -27,6 +27,8 @@
       padding: 0 15px;
       border-bottom: 1px solid #333;
       gap: 10px;
+      z-index: 1000;
+      position: relative;
     }
     header h1 { 
       font-size: 1.05rem; 
@@ -71,7 +73,7 @@
 
     #map { height: calc(100vh - 60px); width: 100vw; background: #121212; }
 
-    /* Dunkler Karten-Filter auf OSM (verhindert API-Key-Sperren) */
+    /* Dunkler Karten-Filter */
     .dark-tiles .leaflet-tile-pane {
       filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
     }
@@ -211,12 +213,12 @@
 
       <!-- Sprachumschalter -->
       <div class="btn-group">
-        <button class="toggle-btn lang-btn active" onclick="setLanguage('de')">DE</button>
-        <button class="toggle-btn lang-btn" onclick="setLanguage('en')">EN</button>
-        <button class="toggle-btn lang-btn" onclick="setLanguage('fr')">FR</button>
-        <button class="toggle-btn lang-btn" onclick="setLanguage('it')">IT</button>
-        <button class="toggle-btn lang-btn" onclick="setLanguage('uk')">UK</button>
-        <button class="toggle-btn lang-btn" onclick="setLanguage('ru')">RU</button>
+        <button id="lang-de" class="toggle-btn lang-btn active" onclick="setLanguage('de')">DE</button>
+        <button id="lang-en" class="toggle-btn lang-btn" onclick="setLanguage('en')">EN</button>
+        <button id="lang-fr" class="toggle-btn lang-btn" onclick="setLanguage('fr')">FR</button>
+        <button id="lang-it" class="toggle-btn lang-btn" onclick="setLanguage('it')">IT</button>
+        <button id="lang-uk" class="toggle-btn lang-btn" onclick="setLanguage('uk')">UK</button>
+        <button id="lang-ru" class="toggle-btn lang-btn" onclick="setLanguage('ru')">RU</button>
       </div>
     </div>
   </header>
@@ -237,20 +239,32 @@
 
   <!-- Bibliotheken -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
   <!-- Übersetzungsdatei -->
   <script src="translations.js"></script>
 
   <script>
+    // Fallback falls translations.js nicht lädt
+    const defaultTranslations = {
+      de: {
+        header: "SOLARGRAFIE PROJEKT (Eva & Simon)",
+        placed: "Aufgestellt", opened: "Geöffnet", note: "Notiz", extId: "Ext. ID",
+        viewLarge: "Großansicht", openGPhotos: "In Google Fotos öffnen →",
+        regions: { ch: "Schweiz", eu: "Europa", world: "Welt" }
+      }
+    };
+
     let currentLang = 'de';
     let currentModalIndex = null;
+    window.solargrafieDaten = [];
 
-    // Google Sheets CSV-Export-URL
-    const googleSheetCSV = "https://docs.google.com/spreadsheets/d/1zny1pBIQilY5wJXTN8eYEdIBoW3lJp9W13mKceeZbKI/export?format=csv";
+    // 1. Google Sheets CSV-Schnittstelle (CORS-stabil)
+    const googleSheetCSV = "https://docs.google.com/spreadsheets/d/1zny1pBIQilY5wJXTN8eYEdIBoW3lJp9W13mKceeZbKI/gviz/tq?tqx=out:csv";
 
-    // 1. Karte initialisieren
+    // 2. Karte initialisieren
     const map = L.map('map', {
       center: [46.8182, 8.2275],
       zoom: 9,
@@ -258,7 +272,6 @@
       maxZoom: 18
     });
 
-    // Freie Standard OpenStreetMap Kacheln (100% frei, kein API-Key nötig)
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -269,15 +282,16 @@
       showCoverageOnHover: false,
       zoomToBoundsOnClick: true
     });
+    map.addLayer(markersGroup);
 
-    // 2. Regionen-Steuerung
+    // 3. Regionen-Steuerung
     const regions = {
       ch: { center: [46.8182, 8.2275], zoom: 9 },
       eu: { center: [49.5, 12.0], zoom: 5 },
       world: { center: [30.0, 10.0], zoom: 3 }
     };
 
-    function setViewRegion(regKey) {
+    window.setViewRegion = function(regKey) {
       const reg = regions[regKey];
       if (!reg) return;
 
@@ -286,27 +300,28 @@
       document.getElementById('btn-ch').classList.toggle('active', regKey === 'ch');
       document.getElementById('btn-eu').classList.toggle('active', regKey === 'eu');
       document.getElementById('btn-world').classList.toggle('active', regKey === 'world');
-    }
+    };
 
-    // 3. Hilfsfunktion für Google Drive Bilder
+    // 4. Google Drive Bild-URL Konverter
     function getDirectImageUrl(url) {
       if (!url) return '';
-      url = url.trim();
+      url = String(url).trim();
+      
+      let fileId = '';
       if (url.includes('drive.google.com')) {
-        let fileId = '';
         if (url.includes('id=')) {
           fileId = url.split('id=')[1].split('&')[0];
         } else if (url.includes('/d/')) {
           fileId = url.split('/d/')[1].split('/')[0];
         }
-        if (fileId) {
-          return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
-        }
+      }
+      if (fileId) {
+        return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
       }
       return url;
     }
 
-    // 4. Google Sheet CSV einlesen
+    // 5. Daten aus Google Sheets laden
     Papa.parse(googleSheetCSV, {
       download: true,
       header: true,
@@ -320,21 +335,28 @@
       }
     });
 
+    // 6. Marker auf der Karte darstellen
     function renderMarkers() {
       markersGroup.clearLayers();
-      const t = (typeof translations !== 'undefined' && translations[currentLang]) 
-                ? translations[currentLang] 
-                : { placed: 'Placed', opened: 'Opened', note: 'Note', extId: 'Ext. ID', viewLarge: 'View' };
+      const activeDict = (typeof translations !== 'undefined' && translations[currentLang]) 
+                          ? translations[currentLang] 
+                          : defaultTranslations.de;
 
-      if (!window.solargrafieDaten) return;
+      if (!window.solargrafieDaten || window.solargrafieDaten.length === 0) return;
 
       window.solargrafieDaten.forEach((row, idx) => {
-        const getVal = (keyPart) => {
-          const foundKey = Object.keys(row).find(k => k.toLowerCase().includes(keyPart.toLowerCase()));
-          return foundKey ? row[foundKey] : '';
+        const getVal = (keywords) => {
+          const keys = Object.keys(row);
+          for (let kw of keywords) {
+            const foundKey = keys.find(k => k.toLowerCase().includes(kw.toLowerCase()));
+            if (foundKey && row[foundKey] !== undefined && row[foundKey] !== null) {
+              return String(row[foundKey]).trim();
+            }
+          }
+          return '';
         };
 
-        const pos = getVal('position');
+        const pos = getVal(['position', 'koordinaten', 'standort', 'lat,lng', 'ort']);
         if (!pos) return;
 
         const parts = pos.split(',');
@@ -344,16 +366,16 @@
         const lng = parseFloat(parts[1].trim());
         if (isNaN(lat) || isNaN(lng)) return;
 
-        const id = getVal('id') || (idx + 1);
-        const titel = getVal('titel') || '';
-        const status = getVal('status') || '';
-        const placed = getVal('placed') || '';
-        const opened = getVal('opened') || '';
-        const comment = getVal('comment') || getVal('notiz') || '';
-        const extId = getVal('externe_id') || getVal('ext') || '';
-        const rawBild = getVal('bild') || '';
+        const id = getVal(['id']) || (idx + 1);
+        const titel = getVal(['titel', 'name', 'bezeichnung']) || '';
+        const status = getVal(['status', 'zustand']) || '';
+        const placed = getVal(['placed', 'aufgestellt', 'start', 'datum']) || '';
+        const opened = getVal(['opened', 'geöffnet', 'geoeffnet', 'ende']) || '';
+        const comment = getVal(['comment', 'notiz', 'kommentar', 'bemerkung']) || '';
+        const extId = getVal(['externe_id', 'ext', 'externe']) || '';
+        const rawBild = getVal(['bild', 'foto', 'image', 'datei', 'upload']) || '';
         const bildUrl = getDirectImageUrl(rawBild);
-        const gPhotos = getVal('google') || getVal('url') || '';
+        const gPhotos = getVal(['google', 'url', 'link', 'fotos']) || '';
 
         const statusAnzeige = status ? `(${status})` : '';
         const titelZusatz = `#${id} ${titel} ${statusAnzeige}`.trim();
@@ -374,41 +396,40 @@
             ${bildUrl ? `<img src="${bildUrl}" alt="${titel}" onclick="openModalById('${idx}')">` : ''}
             
             <div class="popup-details">
-              ${placed ? `<div><strong>${t.placed}:</strong> ${placed}</div>` : ''}
-              ${opened ? `<div><strong>${t.opened}:</strong> ${opened}</div>` : ''}
-              ${comment ? `<div><strong>${t.note}:</strong> ${comment}</div>` : ''}
-              ${extId ? `<div><strong>${t.extId}:</strong> ${extId}</div>` : ''}
+              ${placed ? `<div><strong>${activeDict.placed || 'Placed'}:</strong> ${placed}</div>` : ''}
+              ${opened ? `<div><strong>${activeDict.opened || 'Opened'}:</strong> ${opened}</div>` : ''}
+              ${comment ? `<div><strong>${activeDict.note || 'Note'}:</strong> ${comment}</div>` : ''}
+              ${extId ? `<div><strong>${activeDict.extId || 'Ext. ID'}:</strong> ${extId}</div>` : ''}
             </div>
 
-            <a class="popup-btn" href="#" onclick="openModalById('${idx}'); return false;">${t.viewLarge}</a>
+            <a class="popup-btn" href="#" onclick="openModalById('${idx}'); return false;">${activeDict.viewLarge || 'Großansicht'}</a>
           </div>
         `;
         
         marker.bindPopup(popupContent);
         markersGroup.addLayer(marker);
       });
-
-      map.addLayer(markersGroup);
     }
 
-    // 5. Sprachwechsel
-    function setLanguage(lang) {
-      if (typeof translations === 'undefined' || !translations[lang]) return;
+    // 7. Sprachwechsel-Funktion
+    window.setLanguage = function(lang) {
+      const activeDict = (typeof translations !== 'undefined' && translations[lang]) 
+                          ? translations[lang] 
+                          : defaultTranslations.de;
       currentLang = lang;
 
-      // Header-Titel aktualisieren
-      document.getElementById('header-title').innerText = translations[lang].header;
+      if (document.getElementById('header-title')) {
+        document.getElementById('header-title').innerText = activeDict.header;
+      }
       
-      // Sprachbuttons umschalten
       document.querySelectorAll('.lang-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.innerText.toLowerCase() === lang);
+        btn.classList.toggle('active', btn.id === `lang-${lang}`);
       });
 
-      // Regionsbuttons dynamisch übersetzen
-      if (translations[lang].regions) {
-        document.getElementById('btn-ch').innerText = translations[lang].regions.ch;
-        document.getElementById('btn-eu').innerText = translations[lang].regions.eu;
-        document.getElementById('btn-world').innerText = translations[lang].regions.world;
+      if (activeDict.regions) {
+        if (document.getElementById('btn-ch')) document.getElementById('btn-ch').innerText = activeDict.regions.ch;
+        if (document.getElementById('btn-eu')) document.getElementById('btn-eu').innerText = activeDict.regions.eu;
+        if (document.getElementById('btn-world')) document.getElementById('btn-world').innerText = activeDict.regions.world;
       }
 
       renderMarkers();
@@ -416,32 +437,38 @@
       if (currentModalIndex !== null) {
         openModalById(currentModalIndex);
       }
-    }
+    };
 
-    // 6. Großansicht / Lightbox
-    function openModalById(index) {
+    // 8. Großansicht Modal
+    window.openModalById = function(index) {
       currentModalIndex = index;
       const row = window.solargrafieDaten[index];
       if (!row) return;
 
-      const getVal = (keyPart) => {
-        const foundKey = Object.keys(row).find(k => k.toLowerCase().includes(keyPart.toLowerCase()));
-        return foundKey ? row[foundKey] : '';
+      const activeDict = (typeof translations !== 'undefined' && translations[currentLang]) 
+                          ? translations[currentLang] 
+                          : defaultTranslations.de;
+
+      const getVal = (keywords) => {
+        const keys = Object.keys(row);
+        for (let kw of keywords) {
+          const foundKey = keys.find(k => k.toLowerCase().includes(kw.toLowerCase()));
+          if (foundKey && row[foundKey] !== undefined && row[foundKey] !== null) {
+            return String(row[foundKey]).trim();
+          }
+        }
+        return '';
       };
 
-      const t = (typeof translations !== 'undefined' && translations[currentLang]) 
-                ? translations[currentLang] 
-                : { placed: 'Placed', opened: 'Opened', note: 'Note', openGPhotos: 'Open in Google Photos →' };
-
-      const id = getVal('id') || (parseInt(index) + 1);
-      const titel = getVal('titel') || '';
-      const status = getVal('status') || '';
-      const placed = getVal('placed') || '';
-      const opened = getVal('opened') || '';
-      const comment = getVal('comment') || getVal('notiz') || '';
-      const rawBild = getVal('bild') || '';
+      const id = getVal(['id']) || (parseInt(index) + 1);
+      const titel = getVal(['titel', 'name', 'bezeichnung']) || '';
+      const status = getVal(['status', 'zustand']) || '';
+      const placed = getVal(['placed', 'aufgestellt', 'start', 'datum']) || '';
+      const opened = getVal(['opened', 'geöffnet', 'geoeffnet', 'ende']) || '';
+      const comment = getVal(['comment', 'notiz', 'kommentar', 'bemerkung']) || '';
+      const rawBild = getVal(['bild', 'foto', 'image', 'datei', 'upload']) || '';
       const bildUrl = getDirectImageUrl(rawBild);
-      const gPhotos = getVal('google') || getVal('url') || '';
+      const gPhotos = getVal(['google', 'url', 'link', 'fotos']) || '';
 
       const statusAnzeige = status ? `(${status})` : '';
       
@@ -452,14 +479,14 @@
       document.getElementById('modal-title').innerText = `#${id} ${titel} ${statusAnzeige}`.trim();
       
       let datesText = [];
-      if (placed) datesText.push(`${t.placed}: ${placed}`);
-      if (opened) datesText.push(`${t.opened}: ${opened}`);
+      if (placed) datesText.push(`${activeDict.placed || 'Placed'}: ${placed}`);
+      if (opened) datesText.push(`${activeDict.opened || 'Opened'}: ${opened}`);
       document.getElementById('modal-dates').innerText = datesText.join('  |  ');
 
-      document.getElementById('modal-comment').innerText = comment ? `${t.note}: ${comment}` : '';
+      document.getElementById('modal-comment').innerText = comment ? `${activeDict.note || 'Note'}: ${comment}` : '';
       
       const linkElem = document.getElementById('modal-link');
-      linkElem.innerText = t.openGPhotos;
+      linkElem.innerText = activeDict.openGPhotos || 'In Google Fotos öffnen →';
       if (gPhotos && gPhotos.trim() !== "") {
         linkElem.href = gPhotos;
         linkElem.style.display = "inline-block";
@@ -468,17 +495,17 @@
       }
 
       document.getElementById('lightbox').classList.add('active');
-    }
+    };
 
-    function closeModal(e) {
+    window.closeModal = function(e) {
       if (e.target.id === 'lightbox' || e.target.classList.contains('modal-close')) {
         document.getElementById('lightbox').classList.remove('active');
         currentModalIndex = null;
       }
-    }
+    };
 
-    // Initiale Sprache auf Standard (DE) setzen
-    setLanguage('de');
+    // Beim Start direkt Initialisieren
+    window.setLanguage('de');
   </script>
 
 </body>
