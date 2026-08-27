@@ -71,6 +71,11 @@
 
     #map { height: calc(100vh - 60px); width: 100vw; background: #121212; }
 
+    /* Dunkler Karten-Filter auf OSM (verhindert API-Key-Sperren) */
+    .dark-tiles .leaflet-tile-pane {
+      filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
+    }
+
     /* Foto Pins */
     .foto-pin {
       border: 3px solid #fff;
@@ -216,7 +221,7 @@
     </div>
   </header>
 
-  <div id="map"></div>
+  <div id="map" class="dark-tiles"></div>
 
   <!-- Detail-Modal -->
   <div id="lightbox" class="modal" onclick="closeModal(event)">
@@ -232,8 +237,7 @@
 
   <!-- Bibliotheken -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"></script>
-  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
   <!-- Übersetzungsdatei -->
@@ -254,11 +258,10 @@
       maxZoom: 18
     });
 
-    // Frei zugängliche Dark-Matter Kacheln ohne API-Key-Sperre
-    L.tileLayer('https://a.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    // Freie Standard OpenStreetMap Kacheln (100% frei, kein API-Key nötig)
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
-      subdomains: 'abcd'
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
 
     const markersGroup = L.markerClusterGroup({
@@ -474,7 +477,7 @@
       }
     }
 
-    // Initiale Übersetzung auf Standard (DE) setzen
+    // Initiale Sprache auf Standard (DE) setzen
     setLanguage('de');
   </script>
 
