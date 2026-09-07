@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Solargrafie Karte (Eva & Simon)</title>
 
-  <!-- Eigenes SVG-Favicon -->
+  <!-- Inline Favicon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Ccircle cx='64' cy='64' r='60' fill='%230b0f19' stroke='%2338bdf8' stroke-width='3'/%3E%3Cpath d='M18 84 Q64 24 110 84' fill='none' stroke='%23f59e0b' stroke-width='4' stroke-linecap='round'/%3E%3Cpath d='M24 93 Q64 38 104 93' fill='none' stroke='%2338bdf8' stroke-width='3' stroke-linecap='round' opacity='0.7'/%3E%3Ccircle cx='64' cy='46' r='12' fill='%23f59e0b'/%3E%3Ccircle cx='64' cy='46' r='4' fill='%230b0f19'/%3E%3C/svg%3E">
   
   <!-- Leaflet CSS -->
@@ -243,14 +243,13 @@
   <!-- Bibliotheken -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"></script>
-  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
-  <!-- Übersetzungsdatei -->
+  <!-- Konfiguration & Übersetzungen -->
+  <script src="config.js"></script>
   <script src="translations.js"></script>
 
   <script>
-    // Fallback falls translations.js nicht lädt
     const defaultTranslations = {
       de: {
         header: "SOLARGRAFIE PROJEKT (Eva & Simon)",
@@ -260,14 +259,11 @@
       }
     };
 
-    let currentLang = 'de';
+    let currentLang = (typeof APP_CONFIG !== 'undefined' && APP_CONFIG.defaultLanguage) || 'de';
     let currentModalIndex = null;
     window.solargrafieDaten = [];
 
-    // 1. Google Sheets CSV-Schnittstelle (CORS-stabil)
-    const googleSheetCSV = "https://docs.google.com/spreadsheets/d/1zny1pBIQilY5wJXTN8eYEdIBoW3lJp9W13mKceeZbKI/gviz/tq?tqx=out:csv";
-
-    // 2. Karte initialisieren
+    // 1. Karte initialisieren
     const map = L.map('map', {
       center: [46.8182, 8.2275],
       zoom: 9,
@@ -287,7 +283,7 @@
     });
     map.addLayer(markersGroup);
 
-    // 3. Regionen-Steuerung
+    // 2. Regionen-Steuerung
     const regions = {
       ch: { center: [46.8182, 8.2275], zoom: 9 },
       eu: { center: [49.5, 12.0], zoom: 5 },
@@ -305,40 +301,95 @@
       document.getElementById('btn-world').classList.toggle('active', regKey === 'world');
     };
 
-    // 4. Google Drive Bild-URL Konverter
-    function getDirectImageUrl(url) {
-      if (!url) return '';
-      url = String(url).trim();
+    // 3. Split-Hosting: Bildpfad Auflösung
+    function resolveImageUrl(val) {
+      if (!val) return '';
+      val = String(val).trim();
       
-      let fileId = '';
-      if (url.includes('drive.google.com')) {
-        if (url.includes('id=')) {
-          fileId = url.split('id=')[1].split('&')[0];
-        } else if (url.includes('/d/')) {
+      const localBase = (typeof APP_CONFIG !== 'undefined' && APP_CONFIG.localImageFolder) 
+                        ? APP_CONFIG.localImageFolder 
+                        : './Bilder/';
+
+      // Fall A: Reiner Dateiname (z. B. "Reuss_01.jpg") -> Lokales Hosting
+      if (!val.startsWith('http://') && !val.startsWith('https://') && !val.startsWith('data:')) {
+        return localBase + val;
+      }
+
+      // Fall B: Google Drive Link -> Thumbnail-Schnittstelle
+      if (val.includes('drive.google.com')) {
+        let fileId = '';
+        if (val.includes('id=')) {
+          fileId = val.split('id=')[1].split('&')[0];
+        } else if (val.includes('/d/')) {
           fileId = url.split('/d/')[1].split('/')[0];
         }
+        if (fileId) {
+          return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+        }
       }
-      if (fileId) {
-        return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
-      }
-      return url;
+
+      // Fall C: Direkte Web-URL
+      return val;
     }
 
-    // 5. Daten aus Google Sheets laden
-    Papa.parse(googleSheetCSV, {
-      download: true,
-      header: true,
-      skipEmptyLines: true,
-      complete: function(results) {
-        window.solargrafieDaten = results.data;
-        renderMarkers();
-      },
-      error: function(err) {
-        console.error("Fehler beim Abrufen der Google Sheets Tabelle:", err);
-      }
-    });
+    // 4. Universeller Datenabruf (API vs. GViz CSV)
+    async function fetchSolargrafieDaten() {
+      const cfg = typeof APP_CONFIG !== 'undefined' ? APP_CONFIG : {};
 
-    // 6. Marker auf der Karte darstellen
+      // Option 1: Custom Backend Proxy falls definiert
+      if (cfg.customApiUrl && cfg.customApiUrl.trim() !== '') {
+        try {
+          const res = await fetch(cfg.customApiUrl);
+          const data = await res.json();
+          window.solargrafieDaten = data;
+          renderMarkers();
+          return;
+        } catch (err) {
+          console.warn("Custom API fehlgeschlagen, wechsle auf Fallback:", err);
+        }
+      }
+
+      // Option 2: Google Sheets v4 REST API (mit API-Key)
+      if (cfg.sheetId && cfg.googleApiKey && cfg.googleApiKey.trim() !== '') {
+        const range = encodeURIComponent(cfg.sheetRange || 'Formularantworten 1');
+        const apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${cfg.sheetId}/values/${range}?key=${cfg.googleApiKey}`;
+        try {
+          const res = await fetch(apiUrl);
+          const json = await res.json();
+          if (json.values && json.values.length > 1) {
+            const headers = json.values[0];
+            window.solargrafieDaten = json.values.slice(1).map(row => {
+              const obj = {};
+              headers.forEach((h, i) => { obj[h] = row[i] !== undefined ? row[i] : ''; });
+              return obj;
+            });
+            renderMarkers();
+            return;
+          }
+        } catch (err) {
+          console.warn("Google REST API Aufruf fehlgeschlagen, wechsle auf GViz:", err);
+        }
+      }
+
+      // Option 3: GViz CSV Fallback (kein API-Key erforderlich)
+      const sheetId = cfg.sheetId || "1zny1pBIQilY5wJXTN8eYEdIBoW3lJp9W13mKceeZbKI";
+      const gvizUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`;
+      
+      Papa.parse(gvizUrl, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results) {
+          window.solargrafieDaten = results.data;
+          renderMarkers();
+        },
+        error: function(err) {
+          console.error("Fehler beim Abrufen der Tabellendaten:", err);
+        }
+      });
+    }
+
+    // 5. Marker rendern
     function renderMarkers() {
       markersGroup.clearLayers();
       const activeDict = (typeof translations !== 'undefined' && translations[currentLang]) 
@@ -376,8 +427,10 @@
         const opened = getVal(['opened', 'geöffnet', 'geoeffnet', 'ende']) || '';
         const comment = getVal(['comment', 'notiz', 'kommentar', 'bemerkung']) || '';
         const extId = getVal(['externe_id', 'ext', 'externe']) || '';
+        
+        // Split-Hosting Auswertung:
         const rawBild = getVal(['bild', 'foto', 'image', 'datei', 'upload']) || '';
-        const bildUrl = getDirectImageUrl(rawBild);
+        const bildUrl = resolveImageUrl(rawBild);
         const gPhotos = getVal(['google', 'url', 'link', 'fotos']) || '';
 
         const statusAnzeige = status ? `(${status})` : '';
@@ -414,7 +467,7 @@
       });
     }
 
-    // 7. Sprachwechsel-Funktion
+    // 6. Sprachwechsel-Funktion
     window.setLanguage = function(lang) {
       const activeDict = (typeof translations !== 'undefined' && translations[lang]) 
                           ? translations[lang] 
@@ -442,7 +495,7 @@
       }
     };
 
-    // 8. Großansicht Modal
+    // 7. Großansicht Modal
     window.openModalById = function(index) {
       currentModalIndex = index;
       const row = window.solargrafieDaten[index];
@@ -470,7 +523,7 @@
       const opened = getVal(['opened', 'geöffnet', 'geoeffnet', 'ende']) || '';
       const comment = getVal(['comment', 'notiz', 'kommentar', 'bemerkung']) || '';
       const rawBild = getVal(['bild', 'foto', 'image', 'datei', 'upload']) || '';
-      const bildUrl = getDirectImageUrl(rawBild);
+      const bildUrl = resolveImageUrl(rawBild);
       const gPhotos = getVal(['google', 'url', 'link', 'fotos']) || '';
 
       const statusAnzeige = status ? `(${status})` : '';
@@ -507,8 +560,11 @@
       }
     };
 
-    // Beim Start direkt Initialisieren
-    window.setLanguage('de');
+    // Start-Ablauf
+    const initialReg = (typeof APP_CONFIG !== 'undefined' && APP_CONFIG.defaultRegion) || 'ch';
+    window.setViewRegion(initialReg);
+    window.setLanguage(currentLang);
+    fetchSolargrafieDaten();
   </script>
 
 </body>
