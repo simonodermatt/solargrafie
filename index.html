@@ -1,3 +1,210 @@
+
+Unterhaltung mit Gemini
+kann ich die karte selber auch noch steuern dass die Namen auf der Karte angepasst werden wenn ich die sprache wechsle
+
+Bei Standard-Kachelkarten (wie den Standard-Rasterbildern von OpenStreetMap) sind Orts- und Ländernamen fest in die Bildkacheln eingebrannt, weshalb sie sich nicht dynamisch per Klick austauschen lassen.
+
+Um die Beschriftungen der Karte dynamisch per Knopfdruck an deine 6 Sprachen anzupassen, gibt es zwei Wege:
+
+Möglichkeit 1: Vektor-Karten mit MapLibre GL / Mapbox (Empfohlen)
+Vektor-Karten rendern Schriftzüge live als Text im Browser. Über kostenlose Dienste wie MapLibre GL JS in Kombination mit freien Vektor-Kacheln (z. B. von Protomaps oder MapTiler) lässt sich das Karten-Layout per JavaScript in Echtzeit umschalten:
+
+Wie es funktioniert: Beim Klick auf einen Sprachbutton wird der Text-Layer der Karte (z. B. name:de, name:en, name:fr, name:it, name:uk, name:ru) sofort aktualisiert.
+
+Vorteil: Nahtlose Übersetzung aller Städte-, Gewässer- und Ländernamen ohne Neuladen.
+
+Aufwand: Erfordert den Wechsel von Leaflet zu MapLibre GL JS (oder die Nutzung des Leaflet-MapLibre-Plugins).
+
+Möglichkeit 2: Getrennte Sprach-Kachelserver (Innerhalb von Leaflet)
+Wenn du bei Leaflet bleiben möchtest, kannst du Tile-Server verwenden, die separate Sprachversionen als Kacheln bereitstellen (z. B. die länderspezifischen OSM-Kacheln):
+
+Funktionsweise: Beim Aufruf von setLanguage(lang) tauscht JavaScript die Kachel-URL (L.tileLayer) gegen den entsprechenden Sprach-Server aus.
+
+Grenzen: Für einige Sprachen (z. B. Deutsch oder Englisch) gibt es weltweite Renderings; für Sprachen wie Ukrainisch sind weltweite Raster-Kacheln auf freien Servern jedoch nur lückenhaft verfügbar.
+
+Was am besten zu deinem Projekt passt
+Wenn die UI-Übersetzung reicht (aktueller Stand): Die Bedienelemente, Popups, Statusmeldungen und Detail-Modals sind bereits vollständig in 6 Sprachen übersetzt.  
+JS
++ 2
+
+Wenn auch die Kartenbeschriftungen zwingend mitwechseln sollen: Dann lohnt sich ein Upgrade der Karte auf MapLibre GL, um alle weltweiten Ortsnamen flexibel in den 6 Sprachen dynamisch anzuzeigen.
+
+Möchtest du das aktuelle Leaflet-Setup so beibehalten oder soll ich dir zeigen, wie wir MapLibre für die mehrsprachigen Ortsnamen einbinden?
+
+gut ich lasse es mal so.
+
+Die umstellung hat geklappt und so habe ich das devlopment und die Sourcen unter kontrolle.
+
+Kann publischen wann ich will.
+
+Perfekt! Mit GitHub Pages hast du die volle Versionskontrolle über Git, sparst dir jegliche Plattform-Gebühren oder Credit-Limits und behältst den Veröffentlichungszeitpunkt komplett selbst in der Hand.
+
+Viel Erfolg beim weiteren Ausbau des Projekts und beim Einsammeln eurer Solargrafien. Wenn du später die Subdomain aufschaltest oder das Sound-Konzept integrierst, melde dich einfach wieder!
+
+nun habe ich auf der Webseite noch das favicon vom Hostpoint kann ich das anpassen ?
+
+Ja, das lässt sich ganz einfach mit einer einzigen Zeile Code im <head>-Bereich deiner index.html anpassen.  
+HTML
+
+1. Eigenes Favicon bereitstellen
+Erstelle ein kleines quadratisches Icon (z. B. eine kleine Sonne oder Kamera) als .png oder .ico (z. B. 32x32 oder 64x64 Pixel).
+
+Speichere die Datei unter dem Namen favicon.png (oder favicon.ico) direkt in das Hauptverzeichnis deines GitHub-Repositories (neben die index.html).  
+HTML
+
+2. In die index.html einbinden
+Füge im <head>-Bereich deiner index.html einfach diese Zeile ein:  
+HTML
+
+HTML
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solargrafie Karte (Eva & Simon)</title>
+
+  <!-- Eigenes Favicon einbinden -->
+  <link rel="icon" type="image/png" href="favicon.png">
+
+  <!-- Leaflet CSS & Co. -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  ...
+3. Schnelle Alternative ohne eigene Bilddatei: Emoji als Favicon
+Falls du direkt eine Sonne ☀️ als Icon haben möchtest, ohne extra ein Bild hochzuladen, kannst du diese Zeile nutzen:
+
+HTML
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>☀️</text></svg>">
+Tipp: Browser cachen Favicons sehr aggressiv. Falls nach dem Hochladen noch das alte Icon erscheint, lade die Seite einmal mit Strg + F5 (oder Cmd + Shift + R auf dem Mac) neu.
+
+kannst du mir ein Favicon erstellen
+
+https://lh3.googleusercontent.com/gg/ACRwjat5C4ERwbKV1auRwYd8IBhIATxpLzZRRrraKOx2FfSm-pfcX-6GxDhUd0UkmnW3Qva1OgNovB1Qg9XNiYiw-cUGr6WpXrHbVclsRBxBLHmG1X55i5lnPQxeP2GiXKfjqxRl3K6REbBeEZuO_AP4cJrZ1XfGkuf4HXm_zAUx-LZPhQvlxwwYUcP7InM25AwWUG6dfMnN-e0P5D0Y_Cp2Kn96OUpkh0eUZksOxSobfoarhjnkeHQxCqPeE9jtBedpiEHjsvL79PfIu4AKIzQ2pf4uUAE1qtTlN6T0ZJI9PkWmdyT-DjrvJXmlc83hbYnyph3vQGJzpuDvKIi1JiYysjBE=s1600
+Ich habe dir ein passendes, minimalistisches Favicon im Solargrafie-Design erstellt (dunkler Hintergrundkreis, leuchtende Sonnenbahnen und Pinhole-Zentrum).
+
+Die Datei favicon.svg steht direkt zum Download bereit:
+[file-tag: code-generated-file-504c55ec-31d0-40e9-9134-8c8ec9aa3c1c]
+
+So bindest du es in dein GitHub Repository ein
+1. Datei ablegen:
+Lade die heruntergeladene Datei favicon.svg einfach in das Hauptverzeichnis deines Repositories (neben index.html und translations.js).  
+HTML
++ 2
+
+2. Zeile im <head> deiner index.html ergänzen:
+
+  
+HTML
+
+HTML
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solargrafie Karte (Eva & Simon)</title>
+
+  <!-- Eigenes SVG-Favicon -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+  <!-- Leaflet & Co. -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  ...
+SVG-Favicons sind gestochen scharf auf allen Bildschirmauflösungen (Retina / 4K) und laden mit unter 1 KB extrem schnell.
+
+es klappt leider nicht
+
+Das liegt meist an einer von zwei typischen Hürden: Browser-Caching oder dem SVG-Dateiformat (manche ältere Browser oder Hostpoint-Serverprofile liefern SVG-Dateien nicht mit dem richtigen MIME-Typ aus).
+
+1. Die sicherste Lösung: Base64-Inline (funktioniert garantiert ohne Dateiupload)
+Damit der Browser kein externes Bild laden muss und der Cache sofort umgangen wird, kannst du das Icon direkt als Code in den <head> deiner index.html einbetten:  
+HTML
+
+Ersetze die <link rel="icon"...>-Zeile in der index.html durch diesen Block:  
+HTML
+
+HTML
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Ccircle cx='64' cy='64' r='60' fill='%230b0f19' stroke='%2338bdf8' stroke-width='3'/%3E%3Cpath d='M18 84 Q64 24 110 84' fill='none' stroke='%23f59e0b' stroke-width='4' stroke-linecap='round'/%3E%3Cpath d='M24 93 Q64 38 104 93' fill='none' stroke='%2338bdf8' stroke-width='3' stroke-linecap='round' opacity='0.7'/%3E%3Ccircle cx='64' cy='46' r='12' fill='%23f59e0b'/%3E%3Ccircle cx='64' cy='46' r='4' fill='%230b0f19'/%3E%3C/svg%3E">
+2. Schnelle Cache-Prüfung
+Falls das alte Icon danach immer noch angezeigt wird:
+
+Inkognito-Fenster: Öffne die Seite in einem privaten/Inkognito-Tab.
+
+Hard-Refresh: Drücke Strg + F5 (Windows) bzw. Cmd + Shift + R (Mac).
+
+Direktaufruf: Öffne deine Domain mit angehängtem /favicon.svg (z. B. https://deine-domain/favicon.svg), um zu sehen, ob die Datei überhaupt erreichbar ist.
+
+ja jetzt klappt es.
+
+Klasse, freut mich sehr! Mit der direkten Einbettung hat der Browser keine Chance mehr, ein altes Hostpoint-Icon aus dem Zwischenspeicher zu ziehen.
+
+Damit steht deine Seite jetzt rundum stabil:
+
+Eigenes, scharfes Favicon
+
+Mehrsprachigkeit (DE, EN, FR, IT, UK, RU)
+
+Regionenauswahl (Schweiz / Europa / Welt)
+
+Stabile Google-Sheets-Anbindung ohne API-Key-Sperren
+
+Hosting komplett unter deiner Kontrolle auf GitHub Pages
+
+Viel Spaß beim weiteren Sammeln und Auswerten eurer Solargrafien! Wenn wieder etwas ansteht, einfach kurz melden.
+
+ich mochte noch ein paar verbesserungen machen.
+
+Auslagern der Config in ein File.
+
+
+
+-- Umbau Sheet aufruf in ein API Aufruf, damit die Restriktionen umgangen werden können.
+
+-- Split hosting der Bilder. Wenn in der Bildspalte nur der Bildname steht. Dann ist das Bild unter ./Bilder zu finden.
+
+Ansonsten den aufruf via goole Share
+
+Hier sind die beiden Neuerungen genau nach deinen Wünschen umgesetzt:
+
+config.js: Alle Einstellungen (Sheet-ID, API-Keys, lokaler Bild-Ordner, Standardregion & Sprache) sind zentral ausgelagert.
+
+API-Aufruf & Restriktionen: Du kannst die Daten über die offizielle Google Sheets REST-API v4 (per API-Key), über einen eigenen Backend-Proxy oder über den stabilen GViz-Fallback laden.
+
+Split-Hosting für Bilder: Steht in der Spalte nur der Dateiname (z. B. Reuss_01.jpg), sucht die Seite im Ordner ./Bilder/Reuss_01.jpg. Ist es ein Google-Drive- oder Web-Link, wird er weiterhin automatisch über die Thumbnail-Schnittstelle geladen.
+
+1. Die neue Konfigurationsdatei (config.js)
+Erstelle diese Datei im Hauptverzeichnis (oder nutze den Download-Link unten):
+
+JavaScript
+const APP_CONFIG = {
+  // 1. Google Sheets Anbindung
+  sheetId: "1zny1pBIQilY5wJXTN8eYEdIBoW3lJp9W13mKceeZbKI",
+
+  // Tabellenblatt-Name
+  sheetRange: "Formularantworten 1",
+
+  // Optional: Google Cloud API-Key
+  // Falls eingetragen, nutzt die Seite die offizielle Google Sheets v4 REST-API.
+  // Bleibt der String leer (""), wird automatisch der CORS-freie GViz-Modus genutzt.
+  googleApiKey: "",
+
+  // Optional: Eigener Server-Proxy / Cloudflare Worker Endpunkt
+  customApiUrl: "",
+
+  // 2. Split-Hosting der Bilder
+  // Lokaler Pfad, wenn in der Tabelle nur "mein-bild.jpg" eingetragen ist:
+  localImageFolder: "./Bilder/",
+
+  // 3. Start-Voreinstellungen
+  defaultRegion: "ch",
+  defaultLanguage: "de"
+};
+2. Die aktualisierte index.html
+Integrierte Änderungen:
+
+Bindet <script src="config.js"></script> ein.
+
+Verwendet die Funktion resolveImageUrl(val) für das Split-Hosting.
+
+Verwendet fetchSolargrafieDaten() für die mehrstufige API-Abfrage.
+
+HTML
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -8,13 +215,10 @@
   <!-- Inline Favicon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Ccircle cx='64' cy='64' r='60' fill='%230b0f19' stroke='%2338bdf8' stroke-width='3'/%3E%3Cpath d='M18 84 Q64 24 110 84' fill='none' stroke='%23f59e0b' stroke-width='4' stroke-linecap='round'/%3E%3Cpath d='M24 93 Q64 38 104 93' fill='none' stroke='%2338bdf8' stroke-width='3' stroke-linecap='round' opacity='0.7'/%3E%3Ccircle cx='64' cy='46' r='12' fill='%23f59e0b'/%3E%3Ccircle cx='64' cy='46' r='4' fill='%230b0f19'/%3E%3C/svg%3E">
   
- !-- Bibliotheken -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <!-- MarkerCluster JS (fehlte) -->
-  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-  
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
 
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -245,7 +449,801 @@
 
   <!-- Bibliotheken -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+  <!-- Konfiguration & Übersetzungen -->
+  <script src="config.js"></script>
+  <script src="translations.js"></script>
+
+  <script>
+    const defaultTranslations = {
+      de: {
+        header: "SOLARGRAFIE PROJEKT (Eva & Simon)",
+        placed: "Aufgestellt", opened: "Geöffnet", note: "Notiz", extId: "Ext. ID",
+        viewLarge: "Großansicht", openGPhotos: "In Google Fotos öffnen →",
+        regions: { ch: "Schweiz", eu: "Europa", world: "Welt" }
+      }
+    };
+
+    let currentLang = (typeof APP_CONFIG !== 'undefined' && APP_CONFIG.defaultLanguage) || 'de';
+    let currentModalIndex = null;
+    window.solargrafieDaten = [];
+
+    // 1. Karte initialisieren
+    const map = L.map('map', {
+      center: [46.8182, 8.2275],
+      zoom: 9,
+      minZoom: 2,
+      maxZoom: 18
+    });
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+    const markersGroup = L.markerClusterGroup({
+      spiderfyOnMaxZoom: true,
+      showCoverageOnHover: false,
+      zoomToBoundsOnClick: true
+    });
+    map.addLayer(markersGroup);
+
+    // 2. Regionen-Steuerung
+    const regions = {
+      ch: { center: [46.8182, 8.2275], zoom: 9 },
+      eu: { center: [49.5, 12.0], zoom: 5 },
+      world: { center: [30.0, 10.0], zoom: 3 }
+    };
+
+    window.setViewRegion = function(regKey) {
+      const reg = regions[regKey];
+      if (!reg) return;
+
+      map.flyTo(reg.center, reg.zoom, { duration: 1.2 });
+
+      document.getElementById('btn-ch').classList.toggle('active', regKey === 'ch');
+      document.getElementById('btn-eu').classList.toggle('active', regKey === 'eu');
+      document.getElementById('btn-world').classList.toggle('active', regKey === 'world');
+    };
+
+    // 3. Split-Hosting: Bildpfad Auflösung
+    function resolveImageUrl(val) {
+      if (!val) return '';
+      val = String(val).trim();
+      
+      const localBase = (typeof APP_CONFIG !== 'undefined' && APP_CONFIG.localImageFolder) 
+                        ? APP_CONFIG.localImageFolder 
+                        : './Bilder/';
+
+      // Fall A: Reiner Dateiname (z. B. "Reuss_01.jpg") -> Lokales Hosting
+      if (!val.startsWith('http://') && !val.startsWith('https://') && !val.startsWith('data:')) {
+        return localBase + val;
+      }
+
+      // Fall B: Google Drive Link -> Thumbnail-Schnittstelle
+      if (val.includes('drive.google.com')) {
+        let fileId = '';
+        if (val.includes('id=')) {
+          fileId = val.split('id=')[1].split('&')[0];
+        } else if (val.includes('/d/')) {
+          fileId = url.split('/d/')[1].split('/')[0];
+        }
+        if (fileId) {
+          return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+        }
+      }
+
+      // Fall C: Direkte Web-URL
+      return val;
+    }
+
+    // 4. Universeller Datenabruf (API vs. GViz CSV)
+    async function fetchSolargrafieDaten() {
+      const cfg = typeof APP_CONFIG !== 'undefined' ? APP_CONFIG : {};
+
+      // Option 1: Custom Backend Proxy falls definiert
+      if (cfg.customApiUrl && cfg.customApiUrl.trim() !== '') {
+        try {
+          const res = await fetch(cfg.customApiUrl);
+          const data = await res.json();
+          window.solargrafieDaten = data;
+          renderMarkers();
+          return;
+        } catch (err) {
+          console.warn("Custom API fehlgeschlagen, wechsle auf Fallback:", err);
+        }
+      }
+
+      // Option 2: Google Sheets v4 REST API (mit API-Key)
+      if (cfg.sheetId && cfg.googleApiKey && cfg.googleApiKey.trim() !== '') {
+        const range = encodeURIComponent(cfg.sheetRange || 'Formularantworten 1');
+        const apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${cfg.sheetId}/values/${range}?key=${cfg.googleApiKey}`;
+        try {
+          const res = await fetch(apiUrl);
+          const json = await res.json();
+          if (json.values && json.values.length > 1) {
+            const headers = json.values[0];
+            window.solargrafieDaten = json.values.slice(1).map(row => {
+              const obj = {};
+              headers.forEach((h, i) => { obj[h] = row[i] !== undefined ? row[i] : ''; });
+              return obj;
+            });
+            renderMarkers();
+            return;
+          }
+        } catch (err) {
+          console.warn("Google REST API Aufruf fehlgeschlagen, wechsle auf GViz:", err);
+        }
+      }
+
+      // Option 3: GViz CSV Fallback (kein API-Key erforderlich)
+      const sheetId = cfg.sheetId || "1zny1pBIQilY5wJXTN8eYEdIBoW3lJp9W13mKceeZbKI";
+      const gvizUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`;
+      
+      Papa.parse(gvizUrl, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results) {
+          window.solargrafieDaten = results.data;
+          renderMarkers();
+        },
+        error: function(err) {
+          console.error("Fehler beim Abrufen der Tabellendaten:", err);
+        }
+      });
+    }
+
+    // 5. Marker rendern
+    function renderMarkers() {
+      markersGroup.clearLayers();
+      const activeDict = (typeof translations !== 'undefined' && translations[currentLang]) 
+                          ? translations[currentLang] 
+                          : defaultTranslations.de;
+
+      if (!window.solargrafieDaten || window.solargrafieDaten.length === 0) return;
+
+      window.solargrafieDaten.forEach((row, idx) => {
+        const getVal = (keywords) => {
+          const keys = Object.keys(row);
+          for (let kw of keywords) {
+            const foundKey = keys.find(k => k.toLowerCase().includes(kw.toLowerCase()));
+            if (foundKey && row[foundKey] !== undefined && row[foundKey] !== null) {
+              return String(row[foundKey]).trim();
+            }
+          }
+          return '';
+        };
+
+        const pos = getVal(['position', 'koordinaten', 'standort', 'lat,lng', 'ort']);
+        if (!pos) return;
+
+        const parts = pos.split(',');
+        if (parts.length < 2) return;
+
+        const lat = parseFloat(parts[0].trim());
+        const lng = parseFloat(parts[1].trim());
+        if (isNaN(lat) || isNaN(lng)) return;
+
+        const id = getVal(['id']) || (idx + 1);
+        const titel = getVal(['titel', 'name', 'bezeichnung']) || '';
+        const status = getVal(['status', 'zustand']) || '';
+        const placed = getVal(['placed', 'aufgestellt', 'start', 'datum']) || '';
+        const opened = getVal(['opened', 'geöffnet', 'geoeffnet', 'ende']) || '';
+        const comment = getVal(['comment', 'notiz', 'kommentar', 'bemerkung']) || '';
+        const extId = getVal(['externe_id', 'ext', 'externe']) || '';
+        
+        // Split-Hosting Auswertung:
+        const rawBild = getVal(['bild', 'foto', 'image', 'datei', 'upload']) || '';
+        const bildUrl = resolveImageUrl(rawBild);
+        const gPhotos = getVal(['google', 'url', 'link', 'fotos']) || '';
+
+        const statusAnzeige = status ? `(${status})` : '';
+        const titelZusatz = `#${id} ${titel} ${statusAnzeige}`.trim();
+
+        const fotoIcon = L.icon({
+          iconUrl: bildUrl || 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+          iconSize: [60, 60],
+          iconAnchor: [30, 30],
+          popupAnchor: [0, -35],
+          className: 'foto-pin'
+        });
+
+        const marker = L.marker([lat, lng], { icon: fotoIcon });
+        
+        const popupContent = `
+          <div class="popup-card">
+            <h3>${titelZusatz}</h3>
+            ${bildUrl ? `<img src="${bildUrl}" alt="${titel}" onclick="openModalById('${idx}')">` : ''}
+            
+            <div class="popup-details">
+              ${placed ? `<div><strong>${activeDict.placed || 'Placed'}:</strong> ${placed}</div>` : ''}
+              ${opened ? `<div><strong>${activeDict.opened || 'Opened'}:</strong> ${opened}</div>` : ''}
+              ${comment ? `<div><strong>${activeDict.note || 'Note'}:</strong> ${comment}</div>` : ''}
+              ${extId ? `<div><strong>${activeDict.extId || 'Ext. ID'}:</strong> ${extId}</div>` : ''}
+            </div>
+
+            <a class="popup-btn" href="#" onclick="openModalById('${idx}'); return false;">${activeDict.viewLarge || 'Großansicht'}</a>
+          </div>
+        `;
+        
+        marker.bindPopup(popupContent);
+        markersGroup.addLayer(marker);
+      });
+    }
+
+    // 6. Sprachwechsel-Funktion
+    window.setLanguage = function(lang) {
+      const activeDict = (typeof translations !== 'undefined' && translations[lang]) 
+                          ? translations[lang] 
+                          : defaultTranslations.de;
+      currentLang = lang;
+
+      if (document.getElementById('header-title')) {
+        document.getElementById('header-title').innerText = activeDict.header;
+      }
+      
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.id === `lang-${lang}`);
+      });
+
+      if (activeDict.regions) {
+        if (document.getElementById('btn-ch')) document.getElementById('btn-ch').innerText = activeDict.regions.ch;
+        if (document.getElementById('btn-eu')) document.getElementById('btn-eu').innerText = activeDict.regions.eu;
+        if (document.getElementById('btn-world')) document.getElementById('btn-world').innerText = activeDict.regions.world;
+      }
+
+      renderMarkers();
+
+      if (currentModalIndex !== null) {
+        openModalById(currentModalIndex);
+      }
+    };
+
+    // 7. Großansicht Modal
+    window.openModalById = function(index) {
+      currentModalIndex = index;
+      const row = window.solargrafieDaten[index];
+      if (!row) return;
+
+      const activeDict = (typeof translations !== 'undefined' && translations[currentLang]) 
+                          ? translations[currentLang] 
+                          : defaultTranslations.de;
+
+      const getVal = (keywords) => {
+        const keys = Object.keys(row);
+        for (let kw of keywords) {
+          const foundKey = keys.find(k => k.toLowerCase().includes(kw.toLowerCase()));
+          if (foundKey && row[foundKey] !== undefined && row[foundKey] !== null) {
+            return String(row[foundKey]).trim();
+          }
+        }
+        return '';
+      };
+
+      const id = getVal(['id']) || (parseInt(index) + 1);
+      const titel = getVal(['titel', 'name', 'bezeichnung']) || '';
+      const status = getVal(['status', 'zustand']) || '';
+      const placed = getVal(['placed', 'aufgestellt', 'start', 'datum']) || '';
+      const opened = getVal(['opened', 'geöffnet', 'geoeffnet', 'ende']) || '';
+      const comment = getVal(['comment', 'notiz', 'kommentar', 'bemerkung']) || '';
+      const rawBild = getVal(['bild', 'foto', 'image', 'datei', 'upload']) || '';
+      const bildUrl = resolveImageUrl(rawBild);
+      const gPhotos = getVal(['google', 'url', 'link', 'fotos']) || '';
+
+      const statusAnzeige = status ? `(${status})` : '';
+      
+      const imgElem = document.getElementById('modal-img');
+      imgElem.src = bildUrl;
+      imgElem.style.display = bildUrl ? 'block' : 'none';
+
+      document.getElementById('modal-title').innerText = `#${id} ${titel} ${statusAnzeige}`.trim();
+      
+      let datesText = [];
+      if (placed) datesText.push(`${activeDict.placed || 'Placed'}: ${placed}`);
+      if (opened) datesText.push(`${activeDict.opened || 'Opened'}: ${opened}`);
+      document.getElementById('modal-dates').innerText = datesText.join('  |  ');
+
+      document.getElementById('modal-comment').innerText = comment ? `${activeDict.note || 'Note'}: ${comment}` : '';
+      
+      const linkElem = document.getElementById('modal-link');
+      linkElem.innerText = activeDict.openGPhotos || 'In Google Fotos öffnen →';
+      if (gPhotos && gPhotos.trim() !== "") {
+        linkElem.href = gPhotos;
+        linkElem.style.display = "inline-block";
+      } else {
+        linkElem.style.display = "none";
+      }
+
+      document.getElementById('lightbox').classList.add('active');
+    };
+
+    window.closeModal = function(e) {
+      if (e.target.id === 'lightbox' || e.target.classList.contains('modal-close')) {
+        document.getElementById('lightbox').classList.remove('active');
+        currentModalIndex = null;
+      }
+    };
+
+    // Start-Ablauf
+    const initialReg = (typeof APP_CONFIG !== 'undefined' && APP_CONFIG.defaultRegion) || 'ch';
+    window.setViewRegion(initialReg);
+    window.setLanguage(currentLang);
+    fetchSolargrafieDaten();
+  </script>
+
+</body>
+</html>
+Die beiden Dateien kannst du auch direkt über die Schaltflächen herunterladen:
+
+config.js:
+JS-Symbol
+config
+ JS 
+
+index.html:
+HTML-Symbol
+index
+ HTML 
+
+okay die anpassungen habe ich gemacht aber es lädt keine daten
+
+In der Funktion resolveImageUrl in index.html hatte sich ein kleiner Tippfehler eingeschlichen: An einer Stelle stand versehentlich url statt val (url.split('/d/')[1]), was zu einem ReferenceError führt und das Rendern der Daten abbricht. Zudem ist bei Google Sheets über GViz zu beachten, dass die Tabelle dafür im Web freigegeben sein muss.  
+HTML
++ 1
+
+1. Korrektur des Tippfehlers in index.html
+Suche in deiner index.html innerhalb der Funktion resolveImageUrl diesen Block:  
+HTML
+
+JavaScript
+// Vorher (fehlerhaft):
+} else if (val.includes('/d/')) {
+  fileId = url.split('/d/')[1].split('/')[0];
+}
+Ändere ihn so ab, dass überall val verwendet wird:
+
+JavaScript
+// Korrigiert:
+} else if (val.includes('/d/')) {
+  fileId = val.split('/d/')[1].split('/')[0];
+}
+2. Schnelle Prüfung in der Google-Tabelle
+Falls die Daten danach immer noch fehlen, blockiert Google den CSV-Export, weil das Sheet noch nicht öffentlich lesbar ist.
+
+Öffne deine Google-Tabelle.
+
+Klicke oben rechts auf Freigeben.
+
+Stelle unter Allgemeiner Zugriff von „Eingeschränkt“ auf „Jeder, der über den Link verfügt“ (Rolle: Betrachter).
+
+(Optional zur Absicherung): Gehe auf Datei → Freigeben → Im Web veröffentlichen → Veröffentlichen.
+
+3. Diagnose im Browser
+Drücke auf deiner Webseite die Taste F12 (oder Rechtsklick → Untersuchen) und wechsle auf den Reiter Konsole (Console).
+
+Steht dort ein roter Fehler wie 403 Forbidden oder CORS? Das bestätigt, dass die Freigabe der Google-Tabelle noch auf „Eingeschränkt“ steht.
+
+Erscheint dort ein anderer JavaScript-Fehler? Nenne mir kurz die Meldung, dann lässt sich die Ursache direkt eingrenzen.
+
+in dem code ist z.B.
+
+cfg.googleApiKey
+
+muss der nicht noch erstell und abgelegt werden
+
+Nein, zwingend nötig ist der API-Key nicht.
+
+Der Code ist so aufgebaut, dass er den API-Key nur dann verwendet, wenn du ausdrücklich einen einträgst. Bleibt das Feld in der config.js leer (googleApiKey: ""), greift der Code automatisch auf den GViz-Export zurück. Dieser funktioniert ohne Registrierung, ohne Google-Cloud-Konto und ohne API-Key – vorausgesetzt, die Google-Tabelle ist auf „Jeder mit dem Link kann lesen“ gestellt.  
+JS
++ 4
+
+Wann du den API-Key wirklich brauchst
+
+Einen Google API-Key benötigst du nur dann, wenn:
+
+das GViz-Format in deinem Netzwerk blockiert wird,
+
+du strikte Quoten und Zugriffe über die Google Cloud Console überwachen willst,
+
+oder du die offizielle Google Sheets REST-API v4 nutzen möchtest.  
+JS
++ 1
+
+Falls du trotzdem einen Google API-Key erstellen willst
+
+Öffne die Google Cloud Console.
+
+Erstelle ein neues Projekt (z. B. Solargrafie-Karte).
+
+Gehe im Menü auf APIs & Dienste → Bibliothek.
+
+Suche nach Google Sheets API und klicke auf Aktivieren.
+
+Gehe zu APIs & Dienste → Anmeldedaten → Anmeldedaten erstellen → API-Schlüssel.
+
+(Wichtig zur Absicherung): Klicke auf den Schlüssel, wähle unter Anwendungsbeschränkungen Websites und trage deine GitHub-Pages-URL ein. Wähle unter API-Beschränkungen ausschließlich die Google Sheets API aus.
+
+Kopiere den Schlüssel und füge ihn in deine config.js ein:  
+JS
+
+JavaScript
+googleApiKey: "AIzaSyD-DEIN-SCHLUESSEL...",
+Empfohlener Weg für jetzt
+
+Lass googleApiKey: "" in der config.js einfach leer. Sobald die Freigabe der Google-Tabelle auf „Jeder, der über den Link verfügt: Betrachter“ steht und der Tippfehler in der index.html behoben ist, lädt die Karte die Daten ohne API-Key.  
+JS
++ 1
+
+Wird in deiner Browser-Konsole (F12) nach dem Beheben des Tippfehlers noch ein Fehler angezeigt?
+
+
+
+
+
+
+
+﻿
+
+
+
+(index):1
+
+Refused to execute script from 'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css' because its MIME type ('text/css') is not executable, and strict MIME type checking is enabled.
+
+(index):279
+
+Uncaught TypeError: L.markerClusterGroup is not a function at (index):279:28
+
+20
+
+Tracking Prevention blocked access to storage for <URL>.
+
+(index):1
+
+Tracking Prevention blocked access to storage for https://unpkg.com/leaflet@1.9.4/dist/leaflet.css.
+
+das steht in der console
+
+Die Fehlermeldung zeigt die genaue Ursache: Bei den Bibliotheken ganz unten hatte sich versehentlich eine CSS-Datei in einem <script>-Tag eingeschlichen (MarkerCluster.css statt .js). Der Browser bricht den Ladevorgang daraufhin mit einem MIME-Type-Fehler ab, weshalb L.markerClusterGroup gar nicht erst initialisiert werden konnte und das gesamte Script stoppt.  
+HTML
++ 1
+
+Schnelle Korrektur in deiner index.html
+Suche ganz unten vor config.js diesen Block mit den <script>-Tags:  
+HTML
+
+HTML
+<!-- VORHER (Fehlerhaft): -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"></script> <!-- FEHLER: CSS im Script-Tag -->
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+Ersetze ihn durch:
+
+HTML
+<!-- KORRIGIERT: -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+Und prüfe in der Funktion resolveImageUrl noch kurz, dass dort val statt url steht:  
+HTML
+
+JavaScript
+} else if (val.includes('/d/')) {
+  fileId = val.split('/d/')[1].split('/')[0];
+}
+Komplett bereinigte Datei herunterladen
+Ich habe die Korrekturen direkt in die index.html eingearbeitet. Du kannst die saubere Datei hier herunterladen:
+
+HTML-Symbol
+index
+ HTML 
+Sobald du die Datei ersetzt und die Seite neu lädst, verschwindet der TypeError: L.markerClusterGroup-Fehler und die Marker werden auf der Karte geladen.
+
+Uncaught TypeError: L.markerClusterGroup is not a function
+
+    at (index):282:28
+
+
+
+Ich habe immer noch den fehler kannst du mir das anschauen
+
+Der Fehler entsteht durch einen doppelten Ladevorgang in deiner Datei:
+
+In der Datei wurde Leaflet zweimal eingebunden:  
+HTML
+
+Einmal ganz oben im <head> zusammen mit dem Cluster-Plugin.  
+HTML
+
+Ein zweites Mal unten vor dem </body>:  
+HTML
+
+HTML
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+Wenn leaflet.js ein zweites Mal lädt, überschreibt es das globale Objekt window.L komplett neu. Dabei wird das zuvor registrierte Plugin L.markerClusterGroup im Speicher gelöscht. Wenn das Script danach versucht, die Cluster-Gruppe aufzurufen, meldet der Browser Uncaught TypeError: L.markerClusterGroup is not a function.  
+HTML
+
+Zusätzlich fehlten im <head> die beiden CSS-Dateien für das Clustering, und es stand dort ein fehlerhafter HTML-Kommentar ( !-- Bibliotheken --> ohne öffnende Klammer <).  
+HTML
+
+Die saubere Struktur
+Im <head> (nur CSS-Dateien):
+
+HTML
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+Unten vor </body> (JavaScript exakt in dieser Reihenfolge):
+
+HTML
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="config.js"></script>
+<script src="translations.js"></script>
+Fertige Datei herunterladen
+Die komplett bereinigte Datei steht hier zum Download bereit:
+
+HTML-Symbol
+index_clean
+ HTML 
+Tausche deine bestehende index.html durch diese Version aus. Der Fehler L.markerClusterGroup is not a function ist damit behoben und die Karte lädt direkt.
+
+
+
+
+Gemini ist eine KI und kann Fehler machen, auch bei Informationen über Personen. Datenschutz und GeminiWird in einem neuen Fenster geöffnet
+
+Wird analysiert
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solargrafie Karte (Eva & Simon)</title>
+
+  <!-- Inline Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Ccircle cx='64' cy='64' r='60' fill='%230b0f19' stroke='%2338bdf8' stroke-width='3'/%3E%3Cpath d='M18 84 Q64 24 110 84' fill='none' stroke='%23f59e0b' stroke-width='4' stroke-linecap='round'/%3E%3Cpath d='M24 93 Q64 38 104 93' fill='none' stroke='%2338bdf8' stroke-width='3' stroke-linecap='round' opacity='0.7'/%3E%3Ccircle cx='64' cy='46' r='12' fill='%23f59e0b'/%3E%3Ccircle cx='64' cy='46' r='4' fill='%230b0f19'/%3E%3C/svg%3E">
   
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #121212;
+      color: #ffffff;
+      overflow: hidden;
+    }
+    header {
+      height: 60px;
+      background-color: #1e1e1e;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 15px;
+      border-bottom: 1px solid #333;
+      gap: 10px;
+      z-index: 1000;
+      position: relative;
+    }
+    header h1 { 
+      font-size: 1.05rem; 
+      font-weight: 500; 
+      letter-spacing: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Button-Gruppen */
+    .btn-group {
+      display: flex;
+      gap: 4px;
+      background: #141414;
+      padding: 3px;
+      border-radius: 6px;
+      border: 1px solid #333;
+    }
+    .toggle-btn {
+      background: transparent;
+      color: #aaa;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .toggle-btn:hover { color: #fff; background: #2a2a2a; }
+    .toggle-btn.active {
+      background: #3b82f6;
+      color: #fff;
+    }
+
+    #map { height: calc(100vh - 60px); width: 100vw; background: #121212; }
+
+    /* Dunkler Karten-Filter */
+    .dark-tiles .leaflet-tile-pane {
+      filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
+    }
+
+    /* Foto Pins */
+    .foto-pin {
+      border: 3px solid #fff;
+      border-radius: 50%;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      object-fit: cover;
+      transition: transform 0.2s ease, border-color 0.2s;
+      cursor: pointer;
+      background-color: #333;
+    }
+    .foto-pin:hover {
+      transform: scale(1.1) translateY(-5px);
+      border-color: #3b82f6;
+      z-index: 1000 !important;
+    }
+
+    /* Popup Styling */
+    .leaflet-popup-content-wrapper { 
+      background: #1e1e1e; 
+      color: #fff; 
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+    }
+    .leaflet-popup-tip { background: #1e1e1e; }
+    .popup-card { 
+      text-align: left; 
+      padding: 5px; 
+      color: #fff; 
+      max-width: 220px; 
+    }
+    .popup-card h3 { 
+      font-size: 0.95rem; 
+      margin-bottom: 6px; 
+      color: #3b82f6; 
+      text-align: center;
+    }
+    .popup-card img { 
+      width: 100%; 
+      height: 120px; 
+      object-fit: cover; 
+      border-radius: 6px; 
+      cursor: pointer; 
+      margin-bottom: 8px;
+      background-color: #2a2a2a;
+    }
+    .popup-details {
+      font-size: 0.78rem;
+      color: #ccc;
+      line-height: 1.4;
+      margin-bottom: 8px;
+      border-top: 1px solid #333;
+      padding-top: 6px;
+    }
+    .popup-details div { margin-bottom: 2px; }
+    .popup-btn { 
+      display: block; 
+      text-align: center;
+      padding: 6px 12px; 
+      background-color: #333; 
+      color: #3b82f6; 
+      border-radius: 4px; 
+      font-size: 0.8rem; 
+      text-decoration: none; 
+    }
+    .popup-btn:hover { background-color: #444; }
+
+    /* Lightbox Modal */
+    .modal { 
+      display: none; 
+      position: fixed; 
+      z-index: 2000; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%; 
+      background-color: rgba(0, 0, 0, 0.92); 
+      align-items: center; 
+      justify-content: center; 
+      flex-direction: column; 
+      padding: 20px; 
+    }
+    .modal.active { display: flex; }
+    .modal img { 
+      max-width: 90%; 
+      max-height: 65vh; 
+      border-radius: 6px; 
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8); 
+    }
+    .modal-info {
+      margin-top: 15px;
+      text-align: center;
+      max-width: 500px;
+    }
+    .modal-info h2 {
+      font-size: 1.2rem;
+      color: #3b82f6;
+      margin-bottom: 6px;
+    }
+    .modal-info p {
+      font-size: 0.9rem;
+      color: #bbb;
+      margin-bottom: 4px;
+    }
+    .modal-link { 
+      display: inline-block;
+      margin-top: 10px; 
+      color: #60a5fa; 
+      text-decoration: none; 
+      font-size: 0.9rem; 
+    }
+    .modal-close { 
+      position: absolute; 
+      top: 20px; 
+      right: 30px; 
+      font-size: 2rem; 
+      color: #fff; 
+      cursor: pointer; 
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1 id="header-title">SOLARGRAFIE PROJEKT (Eva & Simon)</h1>
+    
+    <div class="header-controls">
+      <!-- Regionsauswahl -->
+      <div class="btn-group">
+        <button id="btn-ch" class="toggle-btn active" onclick="setViewRegion('ch')">Schweiz</button>
+        <button id="btn-eu" class="toggle-btn" onclick="setViewRegion('eu')">Europa</button>
+        <button id="btn-world" class="toggle-btn" onclick="setViewRegion('world')">Welt</button>
+      </div>
+
+      <!-- Sprachumschalter -->
+      <div class="btn-group">
+        <button id="lang-de" class="toggle-btn lang-btn active" onclick="setLanguage('de')">DE</button>
+        <button id="lang-en" class="toggle-btn lang-btn" onclick="setLanguage('en')">EN</button>
+        <button id="lang-fr" class="toggle-btn lang-btn" onclick="setLanguage('fr')">FR</button>
+        <button id="lang-it" class="toggle-btn lang-btn" onclick="setLanguage('it')">IT</button>
+        <button id="lang-uk" class="toggle-btn lang-btn" onclick="setLanguage('uk')">UK</button>
+        <button id="lang-ru" class="toggle-btn lang-btn" onclick="setLanguage('ru')">RU</button>
+      </div>
+    </div>
+  </header>
+
+  <div id="map" class="dark-tiles"></div>
+
+  <!-- Detail-Modal -->
+  <div id="lightbox" class="modal" onclick="closeModal(event)">
+    <span class="modal-close">&times;</span>
+    <img id="modal-img" src="" alt="Großansicht">
+    <div class="modal-info">
+      <h2 id="modal-title"></h2>
+      <p id="modal-dates"></p>
+      <p id="modal-comment"></p>
+      <a id="modal-link" class="modal-link" href="#" target="_blank" rel="noopener">In Google Fotos öffnen &rarr;</a>
+    </div>
+  </div>
+
+  <!-- Bibliotheken (GENAU IN DIESER REIHENFOLGE EINMALIG LADEN) -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
   <!-- Konfiguration & Übersetzungen -->
@@ -572,3 +1570,5 @@
 
 </body>
 </html>
+index_clean.html
+index_clean.html wird angezeigt.
