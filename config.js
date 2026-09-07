@@ -8,7 +8,7 @@ const APP_CONFIG = {
   // Optional: Google Cloud API-Key
   // Falls eingetragen, nutzt die Seite die offizielle Google Sheets v4 REST-API.
   // Bleibt der String leer (""), wird automatisch der CORS-freie GViz-Modus genutzt.
-  googleApiKey: "",
+  googleApiKey: "AIzaSyBZvzsnffiB_jRS6YnJ5x33jQ7PYHE7iv0",
 
   // Optional: Eigener Server-Proxy / Cloudflare Worker Endpunkt
   customApiUrl: "",
