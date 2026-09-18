@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Solargrafie Karte (Eva & Simon)</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Plus+Jakarta+Sans:wght@500;600&display=swap" rel="stylesheet">
 
   <!-- Inline Favicon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Ccircle cx='64' cy='64' r='60' fill='%230b0f19' stroke='%2338bdf8' stroke-width='3'/%3E%3Cpath d='M18 84 Q64 24 110 84' fill='none' stroke='%23f59e0b' stroke-width='4' stroke-linecap='round'/%3E%3Cpath d='M24 93 Q64 38 104 93' fill='none' stroke='%2338bdf8' stroke-width='3' stroke-linecap='round' opacity='0.7'/%3E%3Ccircle cx='64' cy='46' r='12' fill='%23f59e0b'/%3E%3Ccircle cx='64' cy='46' r='4' fill='%230b0f19'/%3E%3C/svg%3E">
@@ -15,31 +19,50 @@
 
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-primary: #0ea5e9;
+      --color-primary-glow: rgba(14, 165, 233, 0.55);
+      --color-secondary: #f59e0b;
+      --color-tertiary: #38bdf8;
+      --color-bg: #0b0f17;
+      --color-surface: rgba(15, 23, 42, 0.65);
+      --color-surface-hover: rgba(14, 165, 233, 0.15);
+      --color-text-main: #dfe2ee;
+      --color-text-muted: #bec8d2;
+      --font-body: 'Inter', sans-serif;
+      --font-head: 'Plus Jakarta Sans', sans-serif;
+    }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: #121212;
-      color: #ffffff;
+      font-family: var(--font-body);
+      background-color: var(--color-bg);
+      color: var(--color-text-main);
       overflow: hidden;
     }
     header {
       height: 60px;
-      background-color: #1e1e1e;
+      background: rgba(11, 15, 23, 0.72);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 15px;
-      border-bottom: 1px solid #333;
+      padding: 0 20px;
+      border-bottom: 1px solid rgba(14, 165, 233, 0.25);
+      box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.6);
       gap: 10px;
       z-index: 1000;
       position: relative;
     }
     header h1 { 
-      font-size: 1.05rem; 
-      font-weight: 500; 
-      letter-spacing: 1px;
+      font-family: var(--font-head);
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      color: var(--color-text-main);
     }
 
     .header-controls {
@@ -52,100 +75,133 @@
     .btn-group {
       display: flex;
       gap: 4px;
-      background: #141414;
-      padding: 3px;
-      border-radius: 6px;
-      border: 1px solid #333;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
     }
     .toggle-btn {
+      font-family: var(--font-head);
       background: transparent;
-      color: #aaa;
+      color: rgba(255, 255, 255, 0.6);
       border: none;
-      padding: 4px 8px;
-      border-radius: 4px;
+      padding: 6px 12px;
+      border-radius: 6px;
       cursor: pointer;
-      font-size: 0.75rem;
+      font-size: 0.8rem;
       font-weight: 600;
-      transition: all 0.2s;
+      letter-spacing: 0.04em;
+      transition: all 0.3s ease;
     }
-    .toggle-btn:hover { color: #fff; background: #2a2a2a; }
-    .toggle-btn.active {
-      background: #3b82f6;
+    .toggle-btn:hover {
       color: #fff;
+      background: var(--color-surface-hover);
+    }
+    .toggle-btn.active {
+      background: var(--color-primary);
+      color: #fff;
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.4), 0 0 16px rgba(14, 165, 233, 0.35);
     }
 
     #map { height: calc(100vh - 60px); width: 100vw; background: #121212; }
 
-    /* Dunkler Karten-Filter */
+    /* Dunkler Satelliten-Karten-Filter */
     .dark-tiles .leaflet-tile-pane {
-      filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
+      filter: brightness(0.55) contrast(1.2) saturate(0.7) hue-rotate(200deg) sepia(0.2);
     }
 
     /* Foto Pins */
     .foto-pin {
-      border: 3px solid #fff;
+      border: 2px solid rgba(255, 255, 255, 0.8);
       border-radius: 50%;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      box-shadow: 0 0 12px rgba(14, 165, 233, 0.6);
       object-fit: cover;
-      transition: transform 0.2s ease, border-color 0.2s;
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.3s, box-shadow 0.3s;
       cursor: pointer;
-      background-color: #333;
+      background-color: var(--color-bg);
+      animation: pulse-cyan 3s infinite alternate;
     }
     .foto-pin:hover {
-      transform: scale(1.1) translateY(-5px);
-      border-color: #3b82f6;
+      transform: scale(1.15) translateY(-5px);
+      border-color: var(--color-secondary);
+      box-shadow: 0 0 20px rgba(245, 158, 11, 0.7);
       z-index: 1000 !important;
+      animation: none;
+    }
+    @keyframes pulse-cyan {
+      0% { box-shadow: 0 0 8px rgba(14, 165, 233, 0.4); }
+      100% { box-shadow: 0 0 16px rgba(14, 165, 233, 0.8); }
     }
 
     /* Popup Styling */
     .leaflet-popup-content-wrapper { 
-      background: #1e1e1e; 
-      color: #fff; 
-      border-radius: 8px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+      background: rgba(11, 15, 23, 0.72);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      color: var(--color-text-main);
+      border-radius: 16px;
+      border: 1px solid rgba(14, 165, 233, 0.25);
+      box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.6);
     }
-    .leaflet-popup-tip { background: #1e1e1e; }
+    .leaflet-popup-tip {
+      background: rgba(11, 15, 23, 0.9);
+      /* Fix for tip border */
+      border-top: 1px solid rgba(14, 165, 233, 0.25);
+      border-left: 1px solid rgba(14, 165, 233, 0.25);
+    }
     .popup-card { 
       text-align: left; 
-      padding: 5px; 
-      color: #fff; 
-      max-width: 220px; 
+      padding: 8px;
+      color: var(--color-text-main);
+      max-width: 240px;
     }
     .popup-card h3 { 
-      font-size: 0.95rem; 
-      margin-bottom: 6px; 
-      color: #3b82f6; 
+      font-family: var(--font-head);
+      font-size: 1rem;
+      margin-bottom: 10px;
+      color: var(--color-primary);
       text-align: center;
+      letter-spacing: -0.01em;
     }
     .popup-card img { 
       width: 100%; 
-      height: 120px; 
+      height: 140px;
       object-fit: cover; 
-      border-radius: 6px; 
+      border-radius: 8px;
       cursor: pointer; 
-      margin-bottom: 8px;
-      background-color: #2a2a2a;
+      margin-bottom: 12px;
+      background-color: var(--color-bg);
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
     .popup-details {
-      font-size: 0.78rem;
-      color: #ccc;
-      line-height: 1.4;
-      margin-bottom: 8px;
-      border-top: 1px solid #333;
-      padding-top: 6px;
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+      line-height: 1.5;
+      margin-bottom: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 10px;
     }
-    .popup-details div { margin-bottom: 2px; }
+    .popup-details div { margin-bottom: 4px; }
     .popup-btn { 
       display: block; 
       text-align: center;
-      padding: 6px 12px; 
-      background-color: #333; 
-      color: #3b82f6; 
-      border-radius: 4px; 
-      font-size: 0.8rem; 
+      padding: 8px 16px;
+      background-color: rgba(15, 23, 42, 0.65);
+      color: #f8fafc;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      font-family: var(--font-head);
+      font-size: 0.85rem;
       text-decoration: none; 
+      transition: all 0.3s ease;
     }
-    .popup-btn:hover { background-color: #444; }
+    .popup-btn:hover {
+      background-color: var(--color-surface-hover);
+      border-color: rgba(14, 165, 233, 0.4);
+      color: var(--color-primary);
+    }
 
     /* Lightbox Modal */
     .modal { 
@@ -156,48 +212,113 @@
       left: 0; 
       width: 100%; 
       height: 100%; 
-      background-color: rgba(0, 0, 0, 0.92); 
+      background-color: rgba(11, 15, 23, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       align-items: center; 
       justify-content: center; 
       flex-direction: column; 
       padding: 20px; 
     }
     .modal.active { display: flex; }
+    .modal-content-wrapper {
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(32px);
+      -webkit-backdrop-filter: blur(32px);
+      border: 1px solid rgba(14, 165, 233, 0.45);
+      border-radius: 24px;
+      box-shadow: 0 0 24px rgba(14, 165, 233, 0.25);
+      padding: 30px;
+      max-width: 90%;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-y: auto;
+      position: relative;
+    }
     .modal img { 
-      max-width: 90%; 
-      max-height: 65vh; 
-      border-radius: 6px; 
-      box-shadow: 0 10px 30px rgba(0,0,0,0.8); 
+      max-width: 100%;
+      max-height: 55vh;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
     .modal-info {
-      margin-top: 15px;
+      margin-top: 20px;
       text-align: center;
-      max-width: 500px;
+      max-width: 600px;
+      width: 100%;
     }
     .modal-info h2 {
-      font-size: 1.2rem;
-      color: #3b82f6;
-      margin-bottom: 6px;
+      font-family: var(--font-head);
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--color-primary);
+      margin-bottom: 12px;
+      letter-spacing: -0.01em;
     }
     .modal-info p {
-      font-size: 0.9rem;
-      color: #bbb;
-      margin-bottom: 4px;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      color: var(--color-text-muted);
+      margin-bottom: 8px;
+      line-height: 1.6;
+    }
+    #modal-dates {
+      display: inline-block;
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--color-secondary);
+      padding: 4px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      font-family: var(--font-head);
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      margin-bottom: 16px;
     }
     .modal-link { 
       display: inline-block;
-      margin-top: 10px; 
-      color: #60a5fa; 
+      margin-top: 16px;
+      padding: 10px 20px;
+      background-color: var(--color-primary);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
       text-decoration: none; 
+      font-family: var(--font-head);
       font-size: 0.9rem; 
+      font-weight: 600;
+      box-shadow: 0 0 16px rgba(14, 165, 233, 0.35);
+      transition: all 0.3s ease;
+    }
+    .modal-link:hover {
+      box-shadow: 0 0 24px rgba(14, 165, 233, 0.55);
+      transform: translateY(-2px);
     }
     .modal-close { 
       position: absolute; 
-      top: 20px; 
-      right: 30px; 
+      top: 15px;
+      right: 20px;
       font-size: 2rem; 
-      color: #fff; 
+      color: var(--color-text-muted);
       cursor: pointer; 
+      transition: color 0.2s;
+      z-index: 2001;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(15, 23, 42, 0.5);
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .modal-close:hover {
+      color: #fff;
+      background: rgba(14, 165, 233, 0.2);
+      border-color: var(--color-primary);
     }
   </style>
 </head>
@@ -230,13 +351,15 @@
 
   <!-- Detail-Modal -->
   <div id="lightbox" class="modal" onclick="closeModal(event)">
-    <span class="modal-close">&times;</span>
-    <img id="modal-img" src="" alt="Großansicht">
-    <div class="modal-info">
-      <h2 id="modal-title"></h2>
-      <p id="modal-dates"></p>
-      <p id="modal-comment"></p>
-      <a id="modal-link" class="modal-link" href="#" target="_blank" rel="noopener">In Google Fotos öffnen &rarr;</a>
+    <div class="modal-content-wrapper" onclick="event.stopPropagation()">
+      <span class="modal-close" onclick="closeModal(event)">&times;</span>
+      <img id="modal-img" src="" alt="Großansicht">
+      <div class="modal-info">
+        <h2 id="modal-title"></h2>
+        <p id="modal-dates"></p>
+        <p id="modal-comment"></p>
+        <a id="modal-link" class="modal-link" href="#" target="_blank" rel="noopener">In Google Fotos öffnen &rarr;</a>
+      </div>
     </div>
   </div>
 
@@ -271,9 +394,9 @@
       maxZoom: 18
     });
 
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
     }).addTo(map);
 
     const markersGroup = L.markerClusterGroup({
@@ -438,9 +561,9 @@
 
         const fotoIcon = L.icon({
           iconUrl: bildUrl || 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-          iconSize: [60, 60],
-          iconAnchor: [30, 30],
-          popupAnchor: [0, -35],
+          iconSize: [48, 48],
+          iconAnchor: [24, 24],
+          popupAnchor: [0, -28],
           className: 'foto-pin'
         });
 
