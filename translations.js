@@ -1,6 +1,11 @@
 const translations = {
   de: {
-    header: "SOLARGRAFIE PROJEKT (Eva & Simon)",
+    header: "SOLARGRAFIE PROJEKT",
+    observatoryDeck: "OBSERVATORY DECK",
+    subtitle: "Eva & Simon · Pinhole Solar Path Cartography",
+    archive: "Archiv",
+    project: "Projekt",
+    workInProgress: "Work in Progress",
     placed: "Aufgestellt",
     opened: "Geöffnet",
     note: "Notiz",
@@ -10,11 +15,16 @@ const translations = {
     regions: {
       ch: "Schweiz",
       eu: "Europa",
-      world: "Welt"
-    }
+      world: "Welt",
+    },
   },
   en: {
-    header: "SOLARGRAPHY PROJECT (Eva & Simon)",
+    header: "SOLARGRAPHY PROJECT",
+    observatoryDeck: "OBSERVATORY DECK",
+    subtitle: "Eva & Simon · Pinhole Solar Path Cartography",
+    archive: "Archive",
+    project: "Project",
+    workInProgress: "Work in Progress",
     placed: "Placed",
     opened: "Opened",
     note: "Note",
@@ -24,11 +34,16 @@ const translations = {
     regions: {
       ch: "Switzerland",
       eu: "Europe",
-      world: "World"
-    }
+      world: "World",
+    },
   },
   fr: {
-    header: "PROJET SOLARGRAPHIE (Eva & Simon)",
+    header: "PROJET SOLARGRAPHIE",
+    observatoryDeck: "OBSERVATORY DECK",
+    subtitle: "Eva & Simon · Pinhole Solar Path Cartography",
+    archive: "Archives",
+    project: "Projet",
+    workInProgress: "Work in Progress",
     placed: "Installé",
     opened: "Ouvert",
     note: "Note",
@@ -38,11 +53,16 @@ const translations = {
     regions: {
       ch: "Suisse",
       eu: "Europe",
-      world: "Monde"
-    }
+      world: "Monde",
+    },
   },
   it: {
-    header: "PROGETTO SOLARGRAFIA (Eva & Simon)",
+    header: "PROGETTO SOLARGRAFIA",
+    observatoryDeck: "OBSERVATORY DECK",
+    subtitle: "Eva & Simon · Pinhole Solar Path Cartography",
+    archive: "Archivio",
+    project: "Progetto",
+    workInProgress: "Work in Progress",
     placed: "Installato",
     opened: "Aperto",
     note: "Nota",
@@ -52,11 +72,16 @@ const translations = {
     regions: {
       ch: "Svizzera",
       eu: "Europa",
-      world: "Mondo"
-    }
+      world: "Mondo",
+    },
   },
   uk: {
-    header: "ПРОЄКТ СОЛЯРОГРАФІЯ (Єва та Симон)",
+    header: "ПРОЄКТ СОЛЯРОГРАФІЯ",
+    observatoryDeck: "OBSERVATORY DECK",
+    subtitle: "Eva & Simon · Pinhole Solar Path Cartography",
+    archive: "Архів",
+    project: "Проєкт",
+    workInProgress: "Work in Progress",
     placed: "Встановлено",
     opened: "Відкрито",
     note: "Примітка",
@@ -66,11 +91,16 @@ const translations = {
     regions: {
       ch: "Швейцарія",
       eu: "Європа",
-      world: "Світ"
-    }
+      world: "Світ",
+    },
   },
   ru: {
-    header: "ПРОЕКТ СОЛЯРОГРАФИЯ (Ева и Симон)",
+    header: "ПРОЕКТ СОЛЯРОГРАФИЯ",
+    observatoryDeck: "OBSERVATORY DECK",
+    subtitle: "Eva & Simon · Pinhole Solar Path Cartography",
+    archive: "Архив",
+    project: "Проект",
+    workInProgress: "Work in Progress",
     placed: "Установлено",
     opened: "Открыто",
     note: "Заметка",
@@ -80,7 +110,7 @@ const translations = {
     regions: {
       ch: "Швейцария",
       eu: "Европа",
-      world: "Весь мир"
-    }
-  }
+      world: "Весь мир",
+    },
+  },
 };

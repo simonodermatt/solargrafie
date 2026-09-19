@@ -1,694 +1,786 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Solargrafie Karte (Eva & Simon)</title>
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Plus+Jakarta+Sans:wght@500;600&display=swap" rel="stylesheet">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Solargrafie Karte (Eva & Simon)</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Plus+Jakarta+Sans:wght@500;600&display=swap"
+      rel="stylesheet"
+    />
 
-  <!-- Inline Favicon -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Ccircle cx='64' cy='64' r='60' fill='%230b0f19' stroke='%2338bdf8' stroke-width='3'/%3E%3Cpath d='M18 84 Q64 24 110 84' fill='none' stroke='%23f59e0b' stroke-width='4' stroke-linecap='round'/%3E%3Cpath d='M24 93 Q64 38 104 93' fill='none' stroke='%2338bdf8' stroke-width='3' stroke-linecap='round' opacity='0.7'/%3E%3Ccircle cx='64' cy='46' r='12' fill='%23f59e0b'/%3E%3Ccircle cx='64' cy='46' r='4' fill='%230b0f19'/%3E%3C/svg%3E">
-  
-  <!-- CSS Stylesheets -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+    <!-- Inline Favicon -->
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Ccircle cx='64' cy='64' r='60' fill='%230b0f19' stroke='%2338bdf8' stroke-width='3'/%3E%3Cpath d='M18 84 Q64 24 110 84' fill='none' stroke='%23f59e0b' stroke-width='4' stroke-linecap='round'/%3E%3Cpath d='M24 93 Q64 38 104 93' fill='none' stroke='%2338bdf8' stroke-width='3' stroke-linecap='round' opacity='0.7'/%3E%3Ccircle cx='64' cy='46' r='12' fill='%23f59e0b'/%3E%3Ccircle cx='64' cy='46' r='4' fill='%230b0f19'/%3E%3C/svg%3E"
+    />
 
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --color-primary: #0ea5e9;
-      --color-primary-glow: rgba(14, 165, 233, 0.55);
-      --color-secondary: #f59e0b;
-      --color-tertiary: #38bdf8;
-      --color-bg: #0b0f17;
-      --color-surface: rgba(15, 23, 42, 0.65);
-      --color-surface-hover: rgba(14, 165, 233, 0.15);
-      --color-text-main: #dfe2ee;
-      --color-text-muted: #bec8d2;
-      --font-body: 'Inter', sans-serif;
-      --font-head: 'Plus Jakarta Sans', sans-serif;
-    }
+    <!-- CSS Stylesheets -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"
+    />
 
-    body {
-      font-family: var(--font-body);
-      background-color: var(--color-bg);
-      color: var(--color-text-main);
-      overflow: hidden;
-    }
-    header {
-      height: 60px;
-      background: rgba(11, 15, 23, 0.72);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 20px;
-      border-bottom: 1px solid rgba(14, 165, 233, 0.25);
-      box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.6);
-      gap: 10px;
-      z-index: 1000;
-      position: relative;
-    }
-    header h1 { 
-      font-family: var(--font-head);
-      font-size: 1.1rem;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      color: var(--color-text-main);
-    }
-
-    .header-controls {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    /* Button-Gruppen */
-    .btn-group {
-      display: flex;
-      gap: 4px;
-      background: rgba(255, 255, 255, 0.05);
-      padding: 4px;
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(12px);
-    }
-    .toggle-btn {
-      font-family: var(--font-head);
-      background: transparent;
-      color: rgba(255, 255, 255, 0.6);
-      border: none;
-      padding: 6px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.8rem;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      transition: all 0.3s ease;
-    }
-    .toggle-btn:hover {
-      color: #fff;
-      background: var(--color-surface-hover);
-    }
-    .toggle-btn.active {
-      background: var(--color-primary);
-      color: #fff;
-      box-shadow: inset 0 1px 1px rgba(255,255,255,0.4), 0 0 16px rgba(14, 165, 233, 0.35);
-    }
-
-    #map { height: calc(100vh - 60px); width: 100vw; background: #121212; }
-
-    /* Dunkler Satelliten-Karten-Filter */
-    .dark-tiles .leaflet-tile-pane {
-      filter: brightness(0.55) contrast(1.2) saturate(0.7) hue-rotate(200deg) sepia(0.2);
-    }
-
-    /* Foto Pins */
-    .foto-pin {
-      border: 2px solid rgba(255, 255, 255, 0.8);
-      border-radius: 50%;
-      box-shadow: 0 0 12px rgba(14, 165, 233, 0.6);
-      object-fit: cover;
-      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.3s, box-shadow 0.3s;
-      cursor: pointer;
-      background-color: var(--color-bg);
-      animation: pulse-cyan 3s infinite alternate;
-    }
-    .foto-pin:hover {
-      transform: scale(1.15) translateY(-5px);
-      border-color: var(--color-secondary);
-      box-shadow: 0 0 20px rgba(245, 158, 11, 0.7);
-      z-index: 1000 !important;
-      animation: none;
-    }
-    @keyframes pulse-cyan {
-      0% { box-shadow: 0 0 8px rgba(14, 165, 233, 0.4); }
-      100% { box-shadow: 0 0 16px rgba(14, 165, 233, 0.8); }
-    }
-
-    /* Popup Styling */
-    .leaflet-popup-content-wrapper { 
-      background: rgba(11, 15, 23, 0.72);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      color: var(--color-text-main);
-      border-radius: 16px;
-      border: 1px solid rgba(14, 165, 233, 0.25);
-      box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.6);
-    }
-    .leaflet-popup-tip {
-      background: rgba(11, 15, 23, 0.9);
-      /* Fix for tip border */
-      border-top: 1px solid rgba(14, 165, 233, 0.25);
-      border-left: 1px solid rgba(14, 165, 233, 0.25);
-    }
-    .popup-card { 
-      text-align: left; 
-      padding: 8px;
-      color: var(--color-text-main);
-      max-width: 240px;
-    }
-    .popup-card h3 { 
-      font-family: var(--font-head);
-      font-size: 1rem;
-      margin-bottom: 10px;
-      color: var(--color-primary);
-      text-align: center;
-      letter-spacing: -0.01em;
-    }
-    .popup-card img { 
-      width: 100%; 
-      height: 140px;
-      object-fit: cover; 
-      border-radius: 8px;
-      cursor: pointer; 
-      margin-bottom: 12px;
-      background-color: var(--color-bg);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    .popup-details {
-      font-family: var(--font-body);
-      font-size: 0.8rem;
-      color: var(--color-text-muted);
-      line-height: 1.5;
-      margin-bottom: 12px;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      padding-top: 10px;
-    }
-    .popup-details div { margin-bottom: 4px; }
-    .popup-btn { 
-      display: block; 
-      text-align: center;
-      padding: 8px 16px;
-      background-color: rgba(15, 23, 42, 0.65);
-      color: #f8fafc;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 8px;
-      font-family: var(--font-head);
-      font-size: 0.85rem;
-      text-decoration: none; 
-      transition: all 0.3s ease;
-    }
-    .popup-btn:hover {
-      background-color: var(--color-surface-hover);
-      border-color: rgba(14, 165, 233, 0.4);
-      color: var(--color-primary);
-    }
-
-    /* Lightbox Modal */
-    .modal { 
-      display: none; 
-      position: fixed; 
-      z-index: 2000; 
-      top: 0; 
-      left: 0; 
-      width: 100%; 
-      height: 100%; 
-      background-color: rgba(11, 15, 23, 0.85);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      align-items: center; 
-      justify-content: center; 
-      flex-direction: column; 
-      padding: 20px; 
-    }
-    .modal.active { display: flex; }
-    .modal-content-wrapper {
-      background: rgba(15, 23, 42, 0.88);
-      backdrop-filter: blur(32px);
-      -webkit-backdrop-filter: blur(32px);
-      border: 1px solid rgba(14, 165, 233, 0.45);
-      border-radius: 24px;
-      box-shadow: 0 0 24px rgba(14, 165, 233, 0.25);
-      padding: 30px;
-      max-width: 90%;
-      max-height: 90vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      overflow-y: auto;
-      position: relative;
-    }
-    .modal img { 
-      max-width: 100%;
-      max-height: 55vh;
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    .modal-info {
-      margin-top: 20px;
-      text-align: center;
-      max-width: 600px;
-      width: 100%;
-    }
-    .modal-info h2 {
-      font-family: var(--font-head);
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: var(--color-primary);
-      margin-bottom: 12px;
-      letter-spacing: -0.01em;
-    }
-    .modal-info p {
-      font-family: var(--font-body);
-      font-size: 0.95rem;
-      color: var(--color-text-muted);
-      margin-bottom: 8px;
-      line-height: 1.6;
-    }
-    #modal-dates {
-      display: inline-block;
-      background: rgba(245, 158, 11, 0.15);
-      color: var(--color-secondary);
-      padding: 4px 12px;
-      border-radius: 16px;
-      border: 1px solid rgba(245, 158, 11, 0.3);
-      font-family: var(--font-head);
-      font-size: 0.85rem;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      margin-bottom: 16px;
-    }
-    .modal-link { 
-      display: inline-block;
-      margin-top: 16px;
-      padding: 10px 20px;
-      background-color: var(--color-primary);
-      color: #ffffff;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 8px;
-      text-decoration: none; 
-      font-family: var(--font-head);
-      font-size: 0.9rem; 
-      font-weight: 600;
-      box-shadow: 0 0 16px rgba(14, 165, 233, 0.35);
-      transition: all 0.3s ease;
-    }
-    .modal-link:hover {
-      box-shadow: 0 0 24px rgba(14, 165, 233, 0.55);
-      transform: translateY(-2px);
-    }
-    .modal-close { 
-      position: absolute; 
-      top: 15px;
-      right: 20px;
-      font-size: 2rem; 
-      color: var(--color-text-muted);
-      cursor: pointer; 
-      transition: color 0.2s;
-      z-index: 2001;
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(15, 23, 42, 0.5);
-      border-radius: 50%;
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-    .modal-close:hover {
-      color: #fff;
-      background: rgba(14, 165, 233, 0.2);
-      border-color: var(--color-primary);
-    }
-  </style>
-</head>
-<body>
-
-  <header>
-    <h1 id="header-title">SOLARGRAFIE PROJEKT (Eva & Simon)</h1>
-    
-    <div class="header-controls">
-      <!-- Regionsauswahl -->
-      <div class="btn-group">
-        <button id="btn-ch" class="toggle-btn active" onclick="setViewRegion('ch')">Schweiz</button>
-        <button id="btn-eu" class="toggle-btn" onclick="setViewRegion('eu')">Europa</button>
-        <button id="btn-world" class="toggle-btn" onclick="setViewRegion('world')">Welt</button>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <div class="header-left">
+        <img src="logo.jpg" alt="Logo" class="header-logo" />
+        <div class="header-title-group">
+          <div class="header-title-row">
+            <h1 id="header-title">SOLARGRAFIE PROJEKT</h1>
+            <span id="header-badge" class="badge">OBSERVATORY DECK</span>
+          </div>
+          <div id="header-subtitle" class="header-subtitle">
+            Eva & Simon · Pinhole Solar Path Cartography
+          </div>
+        </div>
       </div>
 
-      <!-- Sprachumschalter -->
-      <div class="btn-group">
-        <button id="lang-de" class="toggle-btn lang-btn active" onclick="setLanguage('de')">DE</button>
-        <button id="lang-en" class="toggle-btn lang-btn" onclick="setLanguage('en')">EN</button>
-        <button id="lang-fr" class="toggle-btn lang-btn" onclick="setLanguage('fr')">FR</button>
-        <button id="lang-it" class="toggle-btn lang-btn" onclick="setLanguage('it')">IT</button>
-        <button id="lang-uk" class="toggle-btn lang-btn" onclick="setLanguage('uk')">UK</button>
-        <button id="lang-ru" class="toggle-btn lang-btn" onclick="setLanguage('ru')">RU</button>
+      <div class="header-controls">
+        <!-- Regionsauswahl -->
+        <div class="btn-group">
+          <button
+            id="btn-ch"
+            class="toggle-btn active"
+            onclick="setViewRegion('ch')"
+          >
+            Schweiz
+          </button>
+          <button id="btn-eu" class="toggle-btn" onclick="setViewRegion('eu')">
+            Europa
+          </button>
+          <button
+            id="btn-world"
+            class="toggle-btn"
+            onclick="setViewRegion('world')"
+          >
+            Welt
+          </button>
+          <button
+            id="btn-archive"
+            class="toggle-btn"
+            onclick="showWipMessage()"
+          >
+            Archiv
+          </button>
+          <button
+            id="btn-project"
+            class="toggle-btn"
+            onclick="showWipMessage()"
+          >
+            Projekt
+          </button>
+        </div>
+
+        <!-- Sprachumschalter -->
+        <div class="btn-group">
+          <button
+            id="lang-de"
+            class="toggle-btn lang-btn active"
+            onclick="setLanguage('de')"
+          >
+            DE
+          </button>
+          <button
+            id="lang-en"
+            class="toggle-btn lang-btn"
+            onclick="setLanguage('en')"
+          >
+            EN
+          </button>
+          <button
+            id="lang-fr"
+            class="toggle-btn lang-btn"
+            onclick="setLanguage('fr')"
+          >
+            FR
+          </button>
+          <button
+            id="lang-it"
+            class="toggle-btn lang-btn"
+            onclick="setLanguage('it')"
+          >
+            IT
+          </button>
+          <button
+            id="lang-uk"
+            class="toggle-btn lang-btn"
+            onclick="setLanguage('uk')"
+          >
+            UK
+          </button>
+          <button
+            id="lang-ru"
+            class="toggle-btn lang-btn"
+            onclick="setLanguage('ru')"
+          >
+            RU
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div id="map" class="dark-tiles">
+      <!-- Floating Map Controls -->
+      <div class="map-controls-left">
+        <!-- Group 1: Zoom & Location -->
+        <div class="control-group">
+          <button class="control-btn" id="btn-zoom-in" title="Zoom In">
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </button>
+          <button class="control-btn" id="btn-zoom-out" title="Zoom Out">
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </button>
+          <button class="control-btn" id="btn-locate" title="Mein Standort">
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Group 2: View Modes -->
+        <div class="control-group">
+          <button class="control-btn" id="btn-view-map" title="Karte">
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polygon
+                points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"
+              ></polygon>
+              <line x1="9" y1="3" x2="9" y2="21"></line>
+              <line x1="15" y1="3" x2="15" y2="21"></line>
+            </svg>
+          </button>
+          <button class="control-btn active" id="btn-view-sat" title="Satellit">
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M12 2l3 5h-6l3-5z"></path>
+              <path d="M12 22l-3-5h6l-3 5z"></path>
+              <path d="M2 12l5-3v6l-5-3z"></path>
+              <path d="M22 12l-5 3v-6l5 3z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
+          <button class="control-btn" id="btn-theme-toggle" title="Hell/Dunkel">
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Group 3: Info Box -->
+        <div class="control-group info-box">
+          <div class="info-box-content">
+            <span class="info-dot"></span>
+            <div class="info-text">
+              <strong>SOLSTITIUM ÄQUINOKTIUM</strong>
+              <span>Δt = 182d · Az 053°~237°</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-  </header>
 
-  <div id="map" class="dark-tiles"></div>
-
-  <!-- Detail-Modal -->
-  <div id="lightbox" class="modal" onclick="closeModal(event)">
-    <div class="modal-content-wrapper" onclick="event.stopPropagation()">
-      <span class="modal-close" onclick="closeModal(event)">&times;</span>
-      <img id="modal-img" src="" alt="Großansicht">
-      <div class="modal-info">
-        <h2 id="modal-title"></h2>
-        <p id="modal-dates"></p>
-        <p id="modal-comment"></p>
-        <a id="modal-link" class="modal-link" href="#" target="_blank" rel="noopener">In Google Fotos öffnen &rarr;</a>
+    <!-- Detail-Modal -->
+    <div id="lightbox" class="modal" onclick="closeModal(event)">
+      <div class="modal-content-wrapper" onclick="event.stopPropagation()">
+        <span class="modal-close" onclick="closeModal(event)">&times;</span>
+        <img id="modal-img" src="" alt="Großansicht" />
+        <div class="modal-info">
+          <h2 id="modal-title"></h2>
+          <p id="modal-dates"></p>
+          <p id="modal-comment"></p>
+          <a
+            id="modal-link"
+            class="modal-link"
+            href="#"
+            target="_blank"
+            rel="noopener"
+            >In Google Fotos öffnen &rarr;</a
+          >
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- Bibliotheken (GENAU IN DIESER REIHENFOLGE EINMALIG LADEN) -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <!-- Bibliotheken (GENAU IN DIESER REIHENFOLGE EINMALIG LADEN) -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
-  <!-- Konfiguration & Übersetzungen -->
-  <script src="config.js"></script>
-  <script src="translations.js"></script>
+    <!-- Konfiguration & Übersetzungen -->
+    <script src="config.js"></script>
+    <script src="translations.js"></script>
 
-  <script>
-    const defaultTranslations = {
-      de: {
-        header: "SOLARGRAFIE PROJEKT (Eva & Simon)",
-        placed: "Aufgestellt", opened: "Geöffnet", note: "Notiz", extId: "Ext. ID",
-        viewLarge: "Großansicht", openGPhotos: "In Google Fotos öffnen →",
-        regions: { ch: "Schweiz", eu: "Europa", world: "Welt" }
-      }
-    };
+    <script>
+      const defaultTranslations = {
+        de: {
+          header: "SOLARGRAFIE PROJEKT (Eva & Simon)",
+          placed: "Aufgestellt",
+          opened: "Geöffnet",
+          note: "Notiz",
+          extId: "Ext. ID",
+          viewLarge: "Großansicht",
+          openGPhotos: "In Google Fotos öffnen →",
+          regions: { ch: "Schweiz", eu: "Europa", world: "Welt" },
+        },
+      };
 
-    let currentLang = (typeof APP_CONFIG !== 'undefined' && APP_CONFIG.defaultLanguage) || 'de';
-    let currentModalIndex = null;
-    window.solargrafieDaten = [];
+      let currentLang =
+        (typeof APP_CONFIG !== "undefined" && APP_CONFIG.defaultLanguage) ||
+        "de";
+      let currentModalIndex = null;
+      window.solargrafieDaten = [];
 
-    // 1. Karte initialisieren
-    const map = L.map('map', {
-      center: [46.8182, 8.2275],
-      zoom: 9,
-      minZoom: 2,
-      maxZoom: 18
-    });
+      // 1. Karte initialisieren
+      const map = L.map("map", {
+        zoomControl: false,
+        center: [46.8182, 8.2275],
+        zoom: 9,
+        minZoom: 2,
+        maxZoom: 18,
+      });
 
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      maxZoom: 19,
-      attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-    }).addTo(map);
+      L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        {
+          maxZoom: 19,
+          attribution:
+            "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
+        },
+      ).addTo(map);
 
-    const markersGroup = L.markerClusterGroup({
-      spiderfyOnMaxZoom: true,
-      showCoverageOnHover: false,
-      zoomToBoundsOnClick: true
-    });
-    map.addLayer(markersGroup);
+      const markersGroup = L.markerClusterGroup({
+        spiderfyOnMaxZoom: true,
+        showCoverageOnHover: false,
+        zoomToBoundsOnClick: true,
+      });
+      map.addLayer(markersGroup);
 
-    // 2. Regionen-Steuerung
-    const regions = {
-      ch: { center: [46.8182, 8.2275], zoom: 9 },
-      eu: { center: [49.5, 12.0], zoom: 5 },
-      world: { center: [30.0, 10.0], zoom: 3 }
-    };
+      // Floating Menu Controls
+      document
+        .getElementById("btn-zoom-in")
+        .addEventListener("click", () => map.zoomIn());
+      document
+        .getElementById("btn-zoom-out")
+        .addEventListener("click", () => map.zoomOut());
 
-    window.setViewRegion = function(regKey) {
-      const reg = regions[regKey];
-      if (!reg) return;
+      document.getElementById("btn-locate").addEventListener("click", () => {
+        map.locate({ setView: true, maxZoom: 14 });
+      });
+      map.on("locationfound", function (e) {
+        L.marker(e.latlng).addTo(map).bindPopup("Ihr Standort").openPopup();
+      });
+      map.on("locationerror", function (e) {
+        alert("Standort konnte nicht ermittelt werden.");
+      });
 
-      map.flyTo(reg.center, reg.zoom, { duration: 1.2 });
+      const streetLayer = L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+          maxZoom: 19,
+          attribution: "© OpenStreetMap",
+        },
+      );
 
-      document.getElementById('btn-ch').classList.toggle('active', regKey === 'ch');
-      document.getElementById('btn-eu').classList.toggle('active', regKey === 'eu');
-      document.getElementById('btn-world').classList.toggle('active', regKey === 'world');
-    };
+      // Existing satellite layer
+      const satLayer = L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        {
+          maxZoom: 19,
+          attribution: "Tiles &copy; Esri",
+        },
+      );
 
-    // 3. Split-Hosting: Bildpfad Auflösung
-    function resolveImageUrl(val) {
-      if (!val) return '';
-      val = String(val).trim();
-      
-      const localBase = (typeof APP_CONFIG !== 'undefined' && APP_CONFIG.localImageFolder) 
-                        ? APP_CONFIG.localImageFolder 
-                        : './Bilder/';
+      let currentLayer = satLayer; // Keep track of current layer to apply dark mode if needed
 
-      // Fall A: Reiner Dateiname (z.B. "Reuss_01.jpg") -> Lokales Hosting
-      if (!val.startsWith('http://') && !val.startsWith('https://') && !val.startsWith('data:')) {
-        return localBase + val;
-      }
+      document.getElementById("btn-view-map").addEventListener("click", (e) => {
+        map.removeLayer(satLayer);
+        streetLayer.addTo(map);
+        currentLayer = streetLayer;
+        e.currentTarget.classList.add("active");
+        document.getElementById("btn-view-sat").classList.remove("active");
+      });
 
-      // Fall B: Google Drive Link -> Thumbnail-Schnittstelle
-      if (val.includes('drive.google.com')) {
-        let fileId = '';
-        if (val.includes('id=')) {
-          fileId = val.split('id=')[1].split('&')[0];
-        } else if (val.includes('/d/')) {
-          fileId = val.split('/d/')[1].split('/')[0];
+      document.getElementById("btn-view-sat").addEventListener("click", (e) => {
+        map.removeLayer(streetLayer);
+        satLayer.addTo(map);
+        currentLayer = satLayer;
+        e.currentTarget.classList.add("active");
+        document.getElementById("btn-view-map").classList.remove("active");
+      });
+
+      let isDarkMode = true;
+      document
+        .getElementById("btn-theme-toggle")
+        .addEventListener("click", (e) => {
+          isDarkMode = !isDarkMode;
+          if (isDarkMode) {
+            document.getElementById("map").classList.add("dark-tiles");
+            e.currentTarget.classList.add("active");
+          } else {
+            document.getElementById("map").classList.remove("dark-tiles");
+            e.currentTarget.classList.remove("active");
+          }
+        });
+      // Set initial theme toggle button state
+      document.getElementById("btn-theme-toggle").classList.add("active");
+
+      // 2. Regionen-Steuerung
+      const regions = {
+        ch: { center: [46.8182, 8.2275], zoom: 9 },
+        eu: { center: [49.5, 12.0], zoom: 5 },
+        world: { center: [30.0, 10.0], zoom: 3 },
+      };
+
+      window.setViewRegion = function (regKey) {
+        const reg = regions[regKey];
+        if (!reg) return;
+
+        map.flyTo(reg.center, reg.zoom, { duration: 1.2 });
+
+        document
+          .getElementById("btn-ch")
+          .classList.toggle("active", regKey === "ch");
+        document
+          .getElementById("btn-eu")
+          .classList.toggle("active", regKey === "eu");
+        document
+          .getElementById("btn-world")
+          .classList.toggle("active", regKey === "world");
+      };
+
+      // 3. Split-Hosting: Bildpfad Auflösung
+      function resolveImageUrl(val) {
+        if (!val) return "";
+        val = String(val).trim();
+
+        const localBase =
+          typeof APP_CONFIG !== "undefined" && APP_CONFIG.localImageFolder
+            ? APP_CONFIG.localImageFolder
+            : "./Bilder/";
+
+        // Fall A: Reiner Dateiname (z.B. "Reuss_01.jpg") -> Lokales Hosting
+        if (
+          !val.startsWith("http://") &&
+          !val.startsWith("https://") &&
+          !val.startsWith("data:")
+        ) {
+          return localBase + val;
         }
-        if (fileId) {
-          return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+
+        // Fall B: Google Drive Link -> Thumbnail-Schnittstelle
+        if (val.includes("drive.google.com")) {
+          let fileId = "";
+          if (val.includes("id=")) {
+            fileId = val.split("id=")[1].split("&")[0];
+          } else if (val.includes("/d/")) {
+            fileId = val.split("/d/")[1].split("/")[0];
+          }
+          if (fileId) {
+            return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+          }
         }
+
+        // Fall C: Direkte Web-URL
+        return val;
       }
 
-      // Fall C: Direkte Web-URL
-      return val;
-    }
+      // 4. Universeller Datenabruf (API vs. GViz CSV)
+      async function fetchSolargrafieDaten() {
+        const cfg = typeof APP_CONFIG !== "undefined" ? APP_CONFIG : {};
 
-    // 4. Universeller Datenabruf (API vs. GViz CSV)
-    async function fetchSolargrafieDaten() {
-      const cfg = typeof APP_CONFIG !== 'undefined' ? APP_CONFIG : {};
-
-      // Option 1: Custom Backend Proxy falls definiert
-      if (cfg.customApiUrl && cfg.customApiUrl.trim() !== '') {
-        try {
-          const res = await fetch(cfg.customApiUrl);
-          const data = await res.json();
-          window.solargrafieDaten = data;
-          renderMarkers();
-          return;
-        } catch (err) {
-          console.warn("Custom API fehlgeschlagen, wechsle auf Fallback:", err);
-        }
-      }
-
-      // Option 2: Google Sheets v4 REST API (mit API-Key)
-      if (cfg.sheetId && cfg.googleApiKey && cfg.googleApiKey.trim() !== '') {
-        const range = encodeURIComponent(cfg.sheetRange || 'Formularantworten 1');
-        const apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${cfg.sheetId}/values/${range}?key=${cfg.googleApiKey}`;
-        try {
-          const res = await fetch(apiUrl);
-          const json = await res.json();
-          if (json.values && json.values.length > 1) {
-            const headers = json.values[0];
-            window.solargrafieDaten = json.values.slice(1).map(row => {
-              const obj = {};
-              headers.forEach((h, i) => { obj[h] = row[i] !== undefined ? row[i] : ''; });
-              return obj;
-            });
+        // Option 1: Custom Backend Proxy falls definiert
+        if (cfg.customApiUrl && cfg.customApiUrl.trim() !== "") {
+          try {
+            const res = await fetch(cfg.customApiUrl);
+            const data = await res.json();
+            window.solargrafieDaten = data;
             renderMarkers();
             return;
+          } catch (err) {
+            console.warn(
+              "Custom API fehlgeschlagen, wechsle auf Fallback:",
+              err,
+            );
           }
-        } catch (err) {
-          console.warn("Google REST API Aufruf fehlgeschlagen, wechsle auf GViz:", err);
         }
+
+        // Option 2: Google Sheets v4 REST API (mit API-Key)
+        if (cfg.sheetId && cfg.googleApiKey && cfg.googleApiKey.trim() !== "") {
+          const range = encodeURIComponent(
+            cfg.sheetRange || "Formularantworten 1",
+          );
+          const apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${cfg.sheetId}/values/${range}?key=${cfg.googleApiKey}`;
+          try {
+            const res = await fetch(apiUrl);
+            const json = await res.json();
+            if (json.values && json.values.length > 1) {
+              const headers = json.values[0];
+              window.solargrafieDaten = json.values.slice(1).map((row) => {
+                const obj = {};
+                headers.forEach((h, i) => {
+                  obj[h] = row[i] !== undefined ? row[i] : "";
+                });
+                return obj;
+              });
+              renderMarkers();
+              return;
+            }
+          } catch (err) {
+            console.warn(
+              "Google REST API Aufruf fehlgeschlagen, wechsle auf GViz:",
+              err,
+            );
+          }
+        }
+
+        // Option 3: GViz CSV Fallback (kein API-Key erforderlich)
+        const sheetId =
+          cfg.sheetId || "1zny1pBIQilY5wJXTN8eYEdIBoW3lJp9W13mKceeZbKI";
+        const gvizUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`;
+
+        Papa.parse(gvizUrl, {
+          download: true,
+          header: true,
+          skipEmptyLines: true,
+          complete: function (results) {
+            window.solargrafieDaten = results.data;
+            renderMarkers();
+          },
+          error: function (err) {
+            console.error("Fehler beim Abrufen der Tabellendaten:", err);
+          },
+        });
       }
 
-      // Option 3: GViz CSV Fallback (kein API-Key erforderlich)
-      const sheetId = cfg.sheetId || "1zny1pBIQilY5wJXTN8eYEdIBoW3lJp9W13mKceeZbKI";
-      const gvizUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`;
-      
-      Papa.parse(gvizUrl, {
-        download: true,
-        header: true,
-        skipEmptyLines: true,
-        complete: function(results) {
-          window.solargrafieDaten = results.data;
-          renderMarkers();
-        },
-        error: function(err) {
-          console.error("Fehler beim Abrufen der Tabellendaten:", err);
+      // 5. Marker rendern
+      function renderMarkers() {
+        markersGroup.clearLayers();
+        const activeDict =
+          typeof translations !== "undefined" && translations[currentLang]
+            ? translations[currentLang]
+            : defaultTranslations.de;
+
+        if (!window.solargrafieDaten || window.solargrafieDaten.length === 0)
+          return;
+
+        window.solargrafieDaten.forEach((row, idx) => {
+          const getVal = (keywords) => {
+            const keys = Object.keys(row);
+            for (let kw of keywords) {
+              const foundKey = keys.find((k) =>
+                k.toLowerCase().includes(kw.toLowerCase()),
+              );
+              if (
+                foundKey &&
+                row[foundKey] !== undefined &&
+                row[foundKey] !== null
+              ) {
+                return String(row[foundKey]).trim();
+              }
+            }
+            return "";
+          };
+
+          const pos = getVal([
+            "position",
+            "koordinaten",
+            "standort",
+            "lat,lng",
+            "ort",
+          ]);
+          if (!pos) return;
+
+          const parts = pos.split(",");
+          if (parts.length < 2) return;
+
+          const lat = parseFloat(parts[0].trim());
+          const lng = parseFloat(parts[1].trim());
+          if (isNaN(lat) || isNaN(lng)) return;
+
+          const id = getVal(["id"]) || idx + 1;
+          const titel = getVal(["titel", "name", "bezeichnung"]) || "";
+          const status = getVal(["status", "zustand"]) || "";
+          const placed =
+            getVal(["placed", "aufgestellt", "start", "datum"]) || "";
+          const opened =
+            getVal(["opened", "geöffnet", "geoeffnet", "ende"]) || "";
+          const comment =
+            getVal(["comment", "notiz", "kommentar", "bemerkung"]) || "";
+          const extId = getVal(["externe_id", "ext", "externe"]) || "";
+
+          // Split-Hosting Auswertung:
+          const rawBild =
+            getVal(["bild", "foto", "image", "datei", "upload"]) || "";
+          const bildUrl = resolveImageUrl(rawBild);
+          const gPhotos = getVal(["google", "url", "link", "fotos"]) || "";
+
+          const statusAnzeige = status ? `(${status})` : "";
+          const titelZusatz = `#${id} ${titel} ${statusAnzeige}`.trim();
+
+          const fotoIcon = L.icon({
+            iconUrl:
+              bildUrl ||
+              "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+            iconSize: [48, 48],
+            iconAnchor: [24, 24],
+            popupAnchor: [0, -28],
+            className: "foto-pin",
+          });
+
+          const marker = L.marker([lat, lng], { icon: fotoIcon });
+
+          const popupContent = `
+          <div class="popup-card">
+            <h3>${titelZusatz}</h3>
+            ${bildUrl ? `<img src="${bildUrl}" alt="${titel}" onclick="openModalById('${idx}')">` : ""}
+            
+            <div class="popup-details">
+              ${placed ? `<div><strong>${activeDict.placed || "Placed"}:</strong> ${placed}</div>` : ""}
+              ${opened ? `<div><strong>${activeDict.opened || "Opened"}:</strong> ${opened}</div>` : ""}
+              ${comment ? `<div><strong>${activeDict.note || "Note"}:</strong> ${comment}</div>` : ""}
+              ${extId ? `<div><strong>${activeDict.extId || "Ext. ID"}:</strong> ${extId}</div>` : ""}
+            </div>
+
+            <a class="popup-btn" href="#" onclick="openModalById('${idx}'); return false;">${activeDict.viewLarge || "Großansicht"}</a>
+          </div>
+        `;
+
+          marker.bindPopup(popupContent);
+          markersGroup.addLayer(marker);
+        });
+      }
+
+      // 6. Sprachwechsel-Funktion
+
+      window.showWipMessage = function () {
+        const activeDict =
+          typeof translations !== "undefined" && translations[currentLang]
+            ? translations[currentLang]
+            : defaultTranslations.de;
+        alert(activeDict.workInProgress || "Work in Progress");
+      };
+
+      window.setLanguage = function (lang) {
+        const activeDict =
+          typeof translations !== "undefined" && translations[lang]
+            ? translations[lang]
+            : defaultTranslations.de;
+        currentLang = lang;
+
+        if (document.getElementById("header-title")) {
+          document.getElementById("header-title").innerText = activeDict.header;
         }
-      });
-    }
+        if (document.getElementById("header-badge")) {
+          document.getElementById("header-badge").innerText =
+            activeDict.observatoryDeck || "OBSERVATORY DECK";
+        }
+        if (document.getElementById("header-subtitle")) {
+          document.getElementById("header-subtitle").innerText =
+            activeDict.subtitle ||
+            "Eva & Simon · Pinhole Solar Path Cartography";
+        }
+        if (document.getElementById("btn-archive")) {
+          document.getElementById("btn-archive").innerText =
+            activeDict.archive || "Archiv";
+        }
+        if (document.getElementById("btn-project")) {
+          document.getElementById("btn-project").innerText =
+            activeDict.project || "Projekt";
+        }
 
-    // 5. Marker rendern
-    function renderMarkers() {
-      markersGroup.clearLayers();
-      const activeDict = (typeof translations !== 'undefined' && translations[currentLang]) 
-                          ? translations[currentLang] 
-                          : defaultTranslations.de;
+        document.querySelectorAll(".lang-btn").forEach((btn) => {
+          btn.classList.toggle("active", btn.id === `lang-${lang}`);
+        });
 
-      if (!window.solargrafieDaten || window.solargrafieDaten.length === 0) return;
+        if (activeDict.regions) {
+          if (document.getElementById("btn-ch"))
+            document.getElementById("btn-ch").innerText = activeDict.regions.ch;
+          if (document.getElementById("btn-eu"))
+            document.getElementById("btn-eu").innerText = activeDict.regions.eu;
+          if (document.getElementById("btn-world"))
+            document.getElementById("btn-world").innerText =
+              activeDict.regions.world;
+        }
 
-      window.solargrafieDaten.forEach((row, idx) => {
+        renderMarkers();
+
+        if (currentModalIndex !== null) {
+          openModalById(currentModalIndex);
+        }
+      };
+
+      // 7. Großansicht Modal
+      window.openModalById = function (index) {
+        currentModalIndex = index;
+        const row = window.solargrafieDaten[index];
+        if (!row) return;
+
+        const activeDict =
+          typeof translations !== "undefined" && translations[currentLang]
+            ? translations[currentLang]
+            : defaultTranslations.de;
+
         const getVal = (keywords) => {
           const keys = Object.keys(row);
           for (let kw of keywords) {
-            const foundKey = keys.find(k => k.toLowerCase().includes(kw.toLowerCase()));
-            if (foundKey && row[foundKey] !== undefined && row[foundKey] !== null) {
+            const foundKey = keys.find((k) =>
+              k.toLowerCase().includes(kw.toLowerCase()),
+            );
+            if (
+              foundKey &&
+              row[foundKey] !== undefined &&
+              row[foundKey] !== null
+            ) {
               return String(row[foundKey]).trim();
             }
           }
-          return '';
+          return "";
         };
 
-        const pos = getVal(['position', 'koordinaten', 'standort', 'lat,lng', 'ort']);
-        if (!pos) return;
-
-        const parts = pos.split(',');
-        if (parts.length < 2) return;
-
-        const lat = parseFloat(parts[0].trim());
-        const lng = parseFloat(parts[1].trim());
-        if (isNaN(lat) || isNaN(lng)) return;
-
-        const id = getVal(['id']) || (idx + 1);
-        const titel = getVal(['titel', 'name', 'bezeichnung']) || '';
-        const status = getVal(['status', 'zustand']) || '';
-        const placed = getVal(['placed', 'aufgestellt', 'start', 'datum']) || '';
-        const opened = getVal(['opened', 'geöffnet', 'geoeffnet', 'ende']) || '';
-        const comment = getVal(['comment', 'notiz', 'kommentar', 'bemerkung']) || '';
-        const extId = getVal(['externe_id', 'ext', 'externe']) || '';
-        
-        // Split-Hosting Auswertung:
-        const rawBild = getVal(['bild', 'foto', 'image', 'datei', 'upload']) || '';
+        const id = getVal(["id"]) || parseInt(index) + 1;
+        const titel = getVal(["titel", "name", "bezeichnung"]) || "";
+        const status = getVal(["status", "zustand"]) || "";
+        const placed =
+          getVal(["placed", "aufgestellt", "start", "datum"]) || "";
+        const opened =
+          getVal(["opened", "geöffnet", "geoeffnet", "ende"]) || "";
+        const comment =
+          getVal(["comment", "notiz", "kommentar", "bemerkung"]) || "";
+        const rawBild =
+          getVal(["bild", "foto", "image", "datei", "upload"]) || "";
         const bildUrl = resolveImageUrl(rawBild);
-        const gPhotos = getVal(['google', 'url', 'link', 'fotos']) || '';
+        const gPhotos = getVal(["google", "url", "link", "fotos"]) || "";
 
-        const statusAnzeige = status ? `(${status})` : '';
-        const titelZusatz = `#${id} ${titel} ${statusAnzeige}`.trim();
+        const statusAnzeige = status ? `(${status})` : "";
 
-        const fotoIcon = L.icon({
-          iconUrl: bildUrl || 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-          iconSize: [48, 48],
-          iconAnchor: [24, 24],
-          popupAnchor: [0, -28],
-          className: 'foto-pin'
-        });
+        const imgElem = document.getElementById("modal-img");
+        imgElem.src = bildUrl;
+        imgElem.style.display = bildUrl ? "block" : "none";
 
-        const marker = L.marker([lat, lng], { icon: fotoIcon });
-        
-        const popupContent = `
-          <div class="popup-card">
-            <h3>${titelZusatz}</h3>
-            ${bildUrl ? `<img src="${bildUrl}" alt="${titel}" onclick="openModalById('${idx}')">` : ''}
-            
-            <div class="popup-details">
-              ${placed ? `<div><strong>${activeDict.placed || 'Placed'}:</strong> ${placed}</div>` : ''}
-              ${opened ? `<div><strong>${activeDict.opened || 'Opened'}:</strong> ${opened}</div>` : ''}
-              ${comment ? `<div><strong>${activeDict.note || 'Note'}:</strong> ${comment}</div>` : ''}
-              ${extId ? `<div><strong>${activeDict.extId || 'Ext. ID'}:</strong> ${extId}</div>` : ''}
-            </div>
+        document.getElementById("modal-title").innerText =
+          `#${id} ${titel} ${statusAnzeige}`.trim();
 
-            <a class="popup-btn" href="#" onclick="openModalById('${idx}'); return false;">${activeDict.viewLarge || 'Großansicht'}</a>
-          </div>
-        `;
-        
-        marker.bindPopup(popupContent);
-        markersGroup.addLayer(marker);
-      });
-    }
+        let datesText = [];
+        if (placed)
+          datesText.push(`${activeDict.placed || "Placed"}: ${placed}`);
+        if (opened)
+          datesText.push(`${activeDict.opened || "Opened"}: ${opened}`);
+        document.getElementById("modal-dates").innerText =
+          datesText.join("  |  ");
 
-    // 6. Sprachwechsel-Funktion
-    window.setLanguage = function(lang) {
-      const activeDict = (typeof translations !== 'undefined' && translations[lang]) 
-                          ? translations[lang] 
-                          : defaultTranslations.de;
-      currentLang = lang;
+        document.getElementById("modal-comment").innerText = comment
+          ? `${activeDict.note || "Note"}: ${comment}`
+          : "";
 
-      if (document.getElementById('header-title')) {
-        document.getElementById('header-title').innerText = activeDict.header;
-      }
-      
-      document.querySelectorAll('.lang-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.id === `lang-${lang}`);
-      });
-
-      if (activeDict.regions) {
-        if (document.getElementById('btn-ch')) document.getElementById('btn-ch').innerText = activeDict.regions.ch;
-        if (document.getElementById('btn-eu')) document.getElementById('btn-eu').innerText = activeDict.regions.eu;
-        if (document.getElementById('btn-world')) document.getElementById('btn-world').innerText = activeDict.regions.world;
-      }
-
-      renderMarkers();
-
-      if (currentModalIndex !== null) {
-        openModalById(currentModalIndex);
-      }
-    };
-
-    // 7. Großansicht Modal
-    window.openModalById = function(index) {
-      currentModalIndex = index;
-      const row = window.solargrafieDaten[index];
-      if (!row) return;
-
-      const activeDict = (typeof translations !== 'undefined' && translations[currentLang]) 
-                          ? translations[currentLang] 
-                          : defaultTranslations.de;
-
-      const getVal = (keywords) => {
-        const keys = Object.keys(row);
-        for (let kw of keywords) {
-          const foundKey = keys.find(k => k.toLowerCase().includes(kw.toLowerCase()));
-          if (foundKey && row[foundKey] !== undefined && row[foundKey] !== null) {
-            return String(row[foundKey]).trim();
-          }
+        const linkElem = document.getElementById("modal-link");
+        linkElem.innerText =
+          activeDict.openGPhotos || "In Google Fotos öffnen →";
+        if (gPhotos && gPhotos.trim() !== "") {
+          linkElem.href = gPhotos;
+          linkElem.style.display = "inline-block";
+        } else {
+          linkElem.style.display = "none";
         }
-        return '';
+
+        document.getElementById("lightbox").classList.add("active");
       };
 
-      const id = getVal(['id']) || (parseInt(index) + 1);
-      const titel = getVal(['titel', 'name', 'bezeichnung']) || '';
-      const status = getVal(['status', 'zustand']) || '';
-      const placed = getVal(['placed', 'aufgestellt', 'start', 'datum']) || '';
-      const opened = getVal(['opened', 'geöffnet', 'geoeffnet', 'ende']) || '';
-      const comment = getVal(['comment', 'notiz', 'kommentar', 'bemerkung']) || '';
-      const rawBild = getVal(['bild', 'foto', 'image', 'datei', 'upload']) || '';
-      const bildUrl = resolveImageUrl(rawBild);
-      const gPhotos = getVal(['google', 'url', 'link', 'fotos']) || '';
+      window.closeModal = function (e) {
+        if (
+          e.target.id === "lightbox" ||
+          e.target.classList.contains("modal-close")
+        ) {
+          document.getElementById("lightbox").classList.remove("active");
+          currentModalIndex = null;
+        }
+      };
 
-      const statusAnzeige = status ? `(${status})` : '';
-      
-      const imgElem = document.getElementById('modal-img');
-      imgElem.src = bildUrl;
-      imgElem.style.display = bildUrl ? 'block' : 'none';
-
-      document.getElementById('modal-title').innerText = `#${id} ${titel} ${statusAnzeige}`.trim();
-      
-      let datesText = [];
-      if (placed) datesText.push(`${activeDict.placed || 'Placed'}: ${placed}`);
-      if (opened) datesText.push(`${activeDict.opened || 'Opened'}: ${opened}`);
-      document.getElementById('modal-dates').innerText = datesText.join('  |  ');
-
-      document.getElementById('modal-comment').innerText = comment ? `${activeDict.note || 'Note'}: ${comment}` : '';
-      
-      const linkElem = document.getElementById('modal-link');
-      linkElem.innerText = activeDict.openGPhotos || 'In Google Fotos öffnen →';
-      if (gPhotos && gPhotos.trim() !== "") {
-        linkElem.href = gPhotos;
-        linkElem.style.display = "inline-block";
-      } else {
-        linkElem.style.display = "none";
-      }
-
-      document.getElementById('lightbox').classList.add('active');
-    };
-
-    window.closeModal = function(e) {
-      if (e.target.id === 'lightbox' || e.target.classList.contains('modal-close')) {
-        document.getElementById('lightbox').classList.remove('active');
-        currentModalIndex = null;
-      }
-    };
-
-    // Start-Ablauf
-    const initialReg = (typeof APP_CONFIG !== 'undefined' && APP_CONFIG.defaultRegion) || 'ch';
-    window.setViewRegion(initialReg);
-    window.setLanguage(currentLang);
-    fetchSolargrafieDaten();
-  </script>
-
-</body>
+      // Start-Ablauf
+      const initialReg =
+        (typeof APP_CONFIG !== "undefined" && APP_CONFIG.defaultRegion) || "ch";
+      window.setViewRegion(initialReg);
+      window.setLanguage(currentLang);
+      fetchSolargrafieDaten();
+    </script>
+  </body>
 </html>
