@@ -20,16 +20,6 @@ const translations = {
     footerLink3: "Kontakt & Impressum",
     days: "Tage",
     stationsText: "Schweizweit {count} Stationen",
-    days: "Days",
-    stationsText: "{count} Stations across Switzerland",
-    days: "Jours",
-    stationsText: "{count} Stations à travers la Suisse",
-    days: "Giorni",
-    stationsText: "{count} Stazioni in tutta la Svizzera",
-    days: "Дні",
-    stationsText: "{count} станцій по всій Швейцарії",
-    days: "Дни",
-    stationsText: "{count} станций по всей Швейцарии",
     regions: {
       ch: "Schweiz",
       eu: "Europa",
@@ -55,6 +45,8 @@ const translations = {
     footerLink1: "Methodology & Solstice",
     footerLink2: "Ephemeris Data",
     footerLink3: "Contact & Imprint",
+    days: "Days",
+    stationsText: "{count} Stations across Switzerland",
     regions: {
       ch: "Switzerland",
       eu: "Europe",
@@ -80,6 +72,8 @@ const translations = {
     footerLink1: "Méthodologie & Solstice",
     footerLink2: "Données d'éphémérides",
     footerLink3: "Contact & Mentions légales",
+    days: "Jours",
+    stationsText: "{count} Stations à travers la Suisse",
     regions: {
       ch: "Suisse",
       eu: "Europe",
@@ -105,6 +99,8 @@ const translations = {
     footerLink1: "Metodologia & Solstizio",
     footerLink2: "Dati sulle effemeridi",
     footerLink3: "Contatti & Note legali",
+    days: "Giorni",
+    stationsText: "{count} Stazioni in tutta la Svizzera",
     regions: {
       ch: "Svizzera",
       eu: "Europa",
@@ -130,6 +126,8 @@ const translations = {
     footerLink1: "Методологія та сонцестояння",
     footerLink2: "Ефемеридні дані",
     footerLink3: "Контакти та вихідні дані",
+    days: "Дні",
+    stationsText: "{count} станцій по всій Швейцарії",
     regions: {
       ch: "Швейцарія",
       eu: "Європа",
@@ -155,6 +153,8 @@ const translations = {
     footerLink1: "Методология и солнцестояние",
     footerLink2: "Эфемеридные данные",
     footerLink3: "Контакты и выходные данные",
+    days: "Дни",
+    stationsText: "{count} станций по всей Швейцарии",
     regions: {
       ch: "Швейцария",
       eu: "Европа",
