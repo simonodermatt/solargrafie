@@ -452,3 +452,65 @@ header h1 {
   color: var(--color-text-muted);
   line-height: 1.2;
 }
+
+/* Top and Bottom Bars */
+.top-bar,
+.bottom-bar {
+  position: absolute;
+  left: 0;
+  width: 100vw;
+  height: 60px;
+  background-color: #0b0f17; /* Very dark background as in screenshot */
+  z-index: 500;
+  display: flex;
+  align-items: center;
+}
+
+.top-bar {
+  top: 0;
+  border-bottom: 1px solid rgba(14, 165, 233, 0.2); /* Subtle primary color border for definition */
+}
+
+.bottom-bar {
+  bottom: 0;
+  justify-content: space-between;
+  padding: 0 40px; /* Some padding from the edges */
+  border-top: 1px solid rgba(14, 165, 233, 0.2);
+}
+
+.bottom-bar-left,
+.bottom-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.footer-title {
+  color: var(--color-primary); /* Cyan */
+  font-family: var(--font-head);
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.footer-copy {
+  color: var(--color-text-muted); /* Gray */
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  margin-left: 8px; /* Extra space from the cyan title */
+}
+
+.footer-link {
+  color: var(--color-text-main);
+  text-decoration: none;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: color 0.3s ease;
+  margin-left: 12px;
+}
+
+.footer-link:hover {
+  color: var(--color-primary);
+}
