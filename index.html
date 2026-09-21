@@ -36,6 +36,7 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <div id="top-bar" class="top-bar"></div>
     <header>
       <div class="header-left">
         <img src="logo.jpg" alt="Logo" class="header-logo" />
@@ -698,6 +699,29 @@
               activeDict.regions.world;
         }
 
+        // Update footer translations
+        if (document.getElementById("footer-title")) {
+          document.getElementById("footer-title").innerText =
+            activeDict.footerTitle || "SOLARGRAFIE";
+        }
+        if (document.getElementById("footer-copy")) {
+          document.getElementById("footer-copy").innerText =
+            activeDict.footerCopy ||
+            "© Eva & Simon · Solargraphische Langzeitbeobachtung";
+        }
+        if (document.getElementById("footer-link-1")) {
+          document.getElementById("footer-link-1").innerText =
+            activeDict.footerLink1 || "Methodik & Solstitium";
+        }
+        if (document.getElementById("footer-link-2")) {
+          document.getElementById("footer-link-2").innerText =
+            activeDict.footerLink2 || "Ephemeriden-Daten";
+        }
+        if (document.getElementById("footer-link-3")) {
+          document.getElementById("footer-link-3").innerText =
+            activeDict.footerLink3 || "Kontakt & Impressum";
+        }
+
         renderMarkers();
 
         if (currentModalIndex !== null) {
@@ -798,5 +822,46 @@
       window.setLanguage(currentLang);
       fetchSolargrafieDaten();
     </script>
+
+    <footer id="bottom-bar" class="bottom-bar">
+      <div class="bottom-bar-left">
+        <span id="footer-title" class="footer-title">SOLARGRAFIE</span>
+        <span id="footer-copy" class="footer-copy"
+          >© Eva & Simon · Solargraphische Langzeitbeobachtung</span
+        >
+      </div>
+      <div class="bottom-bar-right">
+        <a
+          href="#"
+          id="footer-link-1"
+          class="footer-link"
+          onclick="
+            showWipMessage();
+            return false;
+          "
+          >Methodik & Solstitium</a
+        >
+        <a
+          href="#"
+          id="footer-link-2"
+          class="footer-link"
+          onclick="
+            showWipMessage();
+            return false;
+          "
+          >Ephemeriden-Daten</a
+        >
+        <a
+          href="#"
+          id="footer-link-3"
+          class="footer-link"
+          onclick="
+            showWipMessage();
+            return false;
+          "
+          >Kontakt & Impressum</a
+        >
+      </div>
+    </footer>
   </body>
 </html>
