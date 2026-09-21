@@ -260,20 +260,172 @@
     <!-- Detail-Modal -->
     <div id="lightbox" class="modal" onclick="closeModal(event)">
       <div class="modal-content-wrapper" onclick="event.stopPropagation()">
-        <span class="modal-close" onclick="closeModal(event)">&times;</span>
-        <img id="modal-img" src="" alt="Großansicht" />
-        <div class="modal-info">
-          <h2 id="modal-title"></h2>
-          <p id="modal-dates"></p>
-          <p id="modal-comment"></p>
-          <a
-            id="modal-link"
-            class="modal-link"
-            href="#"
-            target="_blank"
-            rel="noopener"
-            >In Google Fotos öffnen &rarr;</a
+        <!-- Header Section -->
+        <div class="modal-header">
+          <div class="modal-header-left">
+            <div class="modal-header-dot"></div>
+            <h2 id="modal-title"></h2>
+            <span id="modal-badge" class="modal-badge"></span>
+          </div>
+          <div class="modal-header-right">
+            <span class="modal-close" onclick="closeModal(event)">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </span>
+          </div>
+        </div>
+        <div class="modal-subtitle" id="modal-location-subtitle"></div>
+
+        <!-- Project Overview / Image -->
+        <div class="modal-project-badge-container">
+          <span class="modal-project-badge" id="modal-project-badge">
+            <div class="modal-badge-dot"></div>
+            <span id="modal-days-count"></span>
+          </span>
+        </div>
+
+        <div class="modal-image-container">
+          <img id="modal-img" src="" alt="Großansicht" />
+          <div
+            class="modal-fullscreen-btn"
+            onclick="toggleFullscreen('modal-img')"
           >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"
+              ></path>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Info Grid -->
+        <div class="modal-info-grid">
+          <!-- Kamera Aufbau -->
+          <div class="modal-info-card full-width camera-card">
+            <img id="modal-camera-icon" src="logo.jpg" alt="Kamera" />
+            <div class="camera-info-text">
+              <strong id="label-camera-setup">Kamera-Aufbau am Standort</strong>
+              <div id="modal-camera-details"></div>
+            </div>
+          </div>
+
+          <!-- Zeitfenster & Sonnenbahnen -->
+          <div class="modal-info-card">
+            <div class="card-icon">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            </div>
+            <strong id="label-time-window">Zeitfenster</strong>
+            <div id="modal-time-dates" class="card-value"></div>
+          </div>
+
+          <div class="modal-info-card">
+            <div class="card-icon">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+              </svg>
+            </div>
+            <strong id="label-sun-paths">Sonnenbahnen</strong>
+            <div id="modal-sun-arcs" class="card-value"></div>
+            <div id="modal-cloudy-days" class="card-subtext blue"></div>
+          </div>
+
+          <!-- Sensibles Medium & Sonnenhöhe -->
+          <div class="modal-info-card">
+            <div class="card-icon">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
+                ></path>
+                <circle cx="12" cy="13" r="4"></circle>
+              </svg>
+            </div>
+            <strong id="label-sensitive-medium">Sensibles Medium</strong>
+            <div id="modal-medium-details" class="card-value"></div>
+          </div>
+
+          <div class="modal-info-card">
+            <div class="card-icon">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </div>
+            <strong id="label-sun-height">Sonnenhöhe max.</strong>
+            <div id="modal-sun-zenith" class="card-value"></div>
+            <div id="modal-sun-nadir" class="card-subtext"></div>
+          </div>
+        </div>
+
+        <!-- Kuratoren Notiz -->
+        <div class="modal-curator-note full-width" id="modal-curator-container">
+          <div class="curator-header">
+            <span id="label-curator-note" class="curator-label"
+              >KURATOREN-NOTIZ</span
+            >
+            <span class="curator-names">Eva & Simon</span>
+          </div>
+          <p id="modal-comment" class="curator-text"></p>
         </div>
       </div>
     </div>
@@ -891,7 +1043,84 @@
       });
 
       // 7. Großansicht Modal
-      window.openModalById = function (index) {
+      // Helpers for new Modal functions
+      const geocodeCache = {};
+      async function getCanton(lat, lng) {
+        if (!lat || !lng) return "";
+        const key = `${lat},${lng}`;
+        if (geocodeCache[key]) return geocodeCache[key];
+        try {
+          const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=10`;
+          const res = await fetch(url, {
+            headers: { "User-Agent": "solargrafie/1.0" },
+          });
+          const data = await res.json();
+          let canton = data.address?.state || data.address?.county || "";
+          geocodeCache[key] = canton;
+          return canton;
+        } catch (e) {
+          console.error("Geocoding error", e);
+          return "";
+        }
+      }
+
+      function getSunAltitude(date, lat, lon) {
+        if (!date || isNaN(date.getTime())) return null;
+        const PI = Math.PI,
+          sin = Math.sin,
+          asin = Math.asin;
+        const d = date.getTime() / 86400000 - 10957.5;
+        const g = (357.529 + 0.98560028 * d) % 360;
+        const gRad = (g * PI) / 180;
+        const q = 280.459 + 0.98564736 * d;
+        const l = (q + 1.915 * sin(gRad) + 0.02 * sin(2 * gRad)) % 360;
+        const lRad = (l * PI) / 180;
+        const e = 23.439 - 0.00000036 * d;
+        const eRad = (e * PI) / 180;
+        const decRad = asin(sin(eRad) * sin(lRad));
+        const dec = (decRad * 180) / PI;
+        return 90 - lat + dec;
+      }
+
+      async function getCloudyDays(lat, lng, startStr, endStr) {
+        if (!lat || !lng || !startStr || !endStr) return 0;
+        try {
+          const s = parseDateStr(startStr);
+          const e = parseDateStr(endStr);
+          if (!s || !e || isNaN(s) || isNaN(e)) return 0;
+          const start = s.toISOString().split("T")[0];
+          const end = e.toISOString().split("T")[0];
+          const url = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lng}&start_date=${start}&end_date=${end}&daily=sunshine_duration&timezone=auto`;
+          const res = await fetch(url);
+          const data = await res.json();
+          let cloudyDays = 0;
+          if (data.daily && data.daily.sunshine_duration) {
+            for (const dur of data.daily.sunshine_duration) {
+              if (dur === null || dur < 3 * 3600) cloudyDays++;
+            }
+          }
+          return cloudyDays;
+        } catch (e) {
+          console.error("Weather API error", e);
+          return 0;
+        }
+      }
+
+      window.toggleFullscreen = function (id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (!document.fullscreenElement) {
+          el.requestFullscreen().catch((err) => {
+            console.error(
+              `Error attempting to enable fullscreen: ${err.message}`,
+            );
+          });
+        } else {
+          document.exitFullscreen();
+        }
+      };
+
+      window.openModalById = async function (index) {
         currentModalIndex = index;
         const row = window.solargrafieDaten[index];
         if (!row) return;
@@ -920,48 +1149,180 @@
 
         const id = getVal(["id"]) || parseInt(index) + 1;
         const titel = getVal(["titel", "name", "bezeichnung"]) || "";
-        const status = getVal(["status", "zustand"]) || "";
         const placed =
           getVal(["placed", "aufgestellt", "start", "datum"]) || "";
         const opened =
           getVal(["opened", "geöffnet", "geoeffnet", "ende"]) || "";
         const comment =
-          getVal(["comment", "notiz", "kommentar", "bemerkung"]) || "";
+          getVal(["comment", "notiz", "kommentar", "bemerkung", "kurator"]) ||
+          "";
         const rawBild =
           getVal(["bild", "foto", "image", "datei", "upload"]) || "";
         const bildUrl = resolveImageUrl(rawBild);
-        const gPhotos = getVal(["google", "url", "link", "fotos"]) || "";
 
-        const statusAnzeige = status ? `(${status})` : "";
+        // New columns
+        const posStr = getVal([
+          "position",
+          "koordinaten",
+          "standort",
+          "lat,lng",
+          "ort",
+        ]);
+        const kamera = getVal(["kamera", "aufbau"]) || "";
+        const medium = getVal(["medium", "papier", "fotopapier"]) || "";
 
+        // Setup image
         const imgElem = document.getElementById("modal-img");
         imgElem.src = bildUrl;
         imgElem.style.display = bildUrl ? "block" : "none";
 
-        document.getElementById("modal-title").innerText =
-          `#${id} ${titel} ${statusAnzeige}`.trim();
+        // Title and Badge
+        document.getElementById("modal-title").innerText = titel;
+        document.getElementById("modal-badge").innerText = id;
 
-        let datesText = [];
-        if (placed)
-          datesText.push(`${activeDict.placed || "Placed"}: ${placed}`);
-        if (opened)
-          datesText.push(`${activeDict.opened || "Opened"}: ${opened}`);
-        document.getElementById("modal-dates").innerText =
-          datesText.join("  |  ");
-
-        document.getElementById("modal-comment").innerText = comment
-          ? `${activeDict.note || "Note"}: ${comment}`
-          : "";
-
-        const linkElem = document.getElementById("modal-link");
-        linkElem.innerText =
-          activeDict.openGPhotos || "In Google Fotos öffnen →";
-        if (gPhotos && gPhotos.trim() !== "") {
-          linkElem.href = gPhotos;
-          linkElem.style.display = "inline-block";
-        } else {
-          linkElem.style.display = "none";
+        // Subtitle (Canton and coordinates)
+        let lat = null,
+          lng = null;
+        if (posStr) {
+          const parts = posStr.split(",");
+          if (parts.length >= 2) {
+            lat = parseFloat(parts[0].trim());
+            lng = parseFloat(parts[1].trim());
+          }
         }
+
+        const subtitleElem = document.getElementById("modal-location-subtitle");
+        subtitleElem.innerText = "Lade Standort...";
+
+        if (lat && lng) {
+          getCanton(lat, lng).then((canton) => {
+            const cantonStr = canton ? canton + " · " : "";
+            subtitleElem.innerText = `${cantonStr}${lat.toFixed(4)}° N, ${lng.toFixed(4)}° E`;
+          });
+        } else {
+          subtitleElem.innerText = "";
+        }
+
+        // Days count & Timeline
+        let daysCount = 0;
+        let placedDate = parseDateStr(placed);
+        let openedDate = parseDateStr(opened);
+        if (
+          placedDate &&
+          openedDate &&
+          !isNaN(placedDate) &&
+          !isNaN(openedDate)
+        ) {
+          const diffTime = Math.abs(openedDate - placedDate);
+          daysCount = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        }
+        document.getElementById("modal-days-count").innerText =
+          `${daysCount} ${activeDict.days || "Tage"} Belichtung`;
+
+        const months = [
+          "Jan",
+          "Feb",
+          "März",
+          "April",
+          "Mai",
+          "Juni",
+          "Juli",
+          "Aug",
+          "Sep",
+          "Okt",
+          "Nov",
+          "Dez",
+        ];
+        const formatShortDate = (d) =>
+          d ? `${d.getDate()}. ${months[d.getMonth()]}` : "";
+        document.getElementById("modal-time-dates").innerText =
+          placedDate && openedDate
+            ? `${formatShortDate(placedDate)} - ${formatShortDate(openedDate)}`
+            : "";
+
+        // Kamera & Medium
+
+        // Translate labels
+        const el = (id) => document.getElementById(id);
+        if (el("label-camera-setup"))
+          el("label-camera-setup").innerText =
+            activeDict.cameraSetup || "Kamera-Aufbau am Standort";
+        if (el("label-time-window"))
+          el("label-time-window").innerText =
+            activeDict.timeWindow || "Zeitfenster";
+        if (el("label-sun-paths"))
+          el("label-sun-paths").innerText =
+            activeDict.sunPaths || "Sonnenbahnen";
+        if (el("label-sensitive-medium"))
+          el("label-sensitive-medium").innerText =
+            activeDict.sensitiveMedium || "Sensibles Medium";
+        if (el("label-sun-height"))
+          el("label-sun-height").innerText =
+            activeDict.sunHeightMax || "Sonnenhöhe max.";
+        if (el("label-curator-note"))
+          el("label-curator-note").innerText =
+            activeDict.curatorNote || "KURATOREN-NOTIZ";
+        document.getElementById("modal-camera-details").innerText = kamera;
+        document.getElementById("modal-medium-details").innerText = medium;
+
+        // Sun paths and weather
+        const arcsElem = document.getElementById("modal-sun-arcs");
+        const cloudyElem = document.getElementById("modal-cloudy-days");
+        arcsElem.innerText = "Berechne...";
+        cloudyElem.innerText = "";
+
+        if (lat && lng && placed && opened) {
+          getCloudyDays(lat, lng, placed, opened).then((cloudyDays) => {
+            const visibleArcs = Math.max(0, daysCount - cloudyDays);
+            arcsElem.innerText = `${visibleArcs} ${activeDict.visibleArcs || "sichtbare Bögen"}`;
+            cloudyElem.innerText = `${cloudyDays} ${activeDict.cloudyDays || "Tage wetterbedingt verdeckt"}`;
+          });
+        } else {
+          arcsElem.innerText = `${daysCount} ${activeDict.visibleArcs || "sichtbare Bögen"}`;
+        }
+
+        // Sun height (Zenith / Nadir)
+        const zenithElem = document.getElementById("modal-sun-zenith");
+        const nadirElem = document.getElementById("modal-sun-nadir");
+
+        if (lat && placedDate && openedDate) {
+          let maxAlt = -Infinity;
+          let minAlt = Infinity;
+          let maxD = null,
+            minD = null;
+
+          for (
+            let d = new Date(placedDate);
+            d <= openedDate;
+            d.setDate(d.getDate() + 1)
+          ) {
+            const alt = getSunAltitude(new Date(d), lat, lng || 0);
+            if (alt !== null) {
+              if (alt > maxAlt) {
+                maxAlt = alt;
+                maxD = new Date(d);
+              }
+              if (alt < minAlt) {
+                minAlt = alt;
+                minD = new Date(d);
+              }
+            }
+          }
+          if (maxD && minD) {
+            zenithElem.innerText = `${maxAlt.toFixed(1)}° (${activeDict.zenith || "Zenit"} ${months[maxD.getMonth()]})`;
+            nadirElem.innerText = `${activeDict.nadir || "Tiefststand"} ${minAlt.toFixed(1)}° (${months[minD.getMonth()]})`;
+          }
+        } else {
+          zenithElem.innerText = "-";
+          nadirElem.innerText = "-";
+        }
+
+        // Curator Note
+        document.getElementById("modal-comment").innerText = comment
+          ? `„${comment}“`
+          : "";
+        document.getElementById("modal-curator-container").style.display =
+          comment ? "block" : "none";
 
         document.getElementById("lightbox").classList.add("active");
       };
