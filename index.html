@@ -770,23 +770,9 @@
 
           const marker = L.marker([lat, lng], { icon: fotoIcon });
 
-          const popupContent = `
-            <div class="popup-card">
-              <h3>${titelZusatz}</h3>
-              ${bildUrl ? `<img src="${bildUrl}" alt="${titel}" onclick="openModalById('${idx}')">` : ""}
-
-              <div class="popup-details">
-                ${placed ? `<div><strong>${activeDict.placed || "Placed"}:</strong> ${placed}</div>` : ""}
-                ${opened ? `<div><strong>${activeDict.opened || "Opened"}:</strong> ${opened}</div>` : ""}
-                ${comment ? `<div><strong>${activeDict.note || "Note"}:</strong> ${comment}</div>` : ""}
-                ${extId ? `<div><strong>${activeDict.extId || "Ext. ID"}:</strong> ${extId}</div>` : ""}
-              </div>
-
-              <a class="popup-btn" href="#" onclick="openModalById('${idx}'); return false;">${activeDict.viewLarge || "Großansicht"}</a>
-            </div>
-          `;
-
-          marker.bindPopup(popupContent);
+          marker.on("click", () => {
+            openModalById(idx);
+          });
           markersGroup.addLayer(marker);
         });
       }
@@ -1328,10 +1314,7 @@
       };
 
       window.closeModal = function (e) {
-        if (
-          e.target.id === "lightbox" ||
-          e.target.classList.contains("modal-close")
-        ) {
+        if (e.target.id === "lightbox" || e.target.closest(".modal-close")) {
           document.getElementById("lightbox").classList.remove("active");
           currentModalIndex = null;
         }
