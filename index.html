@@ -71,11 +71,7 @@
           >
             Welt
           </button>
-          <button
-            id="btn-archive"
-            class="toggle-btn"
-            onclick="showWipMessage()"
-          >
+          <button id="btn-archive" class="toggle-btn" onclick="toggleArchive()">
             Archiv
           </button>
           <button
@@ -729,6 +725,171 @@
         }
       };
 
+      // --- Archiv Logic ---
+      function toggleArchive() {
+        const archiveBar = document.getElementById("archive-bar");
+        const isHidden = archiveBar.classList.contains("hidden");
+
+        if (isHidden) {
+          archiveBar.classList.remove("hidden");
+          renderArchive();
+        } else {
+          archiveBar.classList.add("hidden");
+        }
+      }
+
+      function parseDateStr(dateStr) {
+        if (!dateStr) return null;
+        const parts = dateStr.split(".");
+        if (parts.length === 3) {
+          return new Date(parts[2], parts[1] - 1, parts[0]);
+        }
+        return new Date(dateStr);
+      }
+
+      function renderArchive() {
+        const carousel = document.getElementById("archive-carousel");
+        carousel.innerHTML = "";
+
+        if (!window.solargrafieDaten || window.solargrafieDaten.length === 0)
+          return;
+
+        const activeDict =
+          typeof translations !== "undefined" && translations[currentLang]
+            ? translations[currentLang]
+            : defaultTranslations.de;
+
+        document.getElementById("archive-title-main").innerText =
+          activeDict.archive || "Archive";
+
+        // Reverse array to start with the newest (last in sheet)
+        const reversedData = [...window.solargrafieDaten].reverse();
+
+        const count = reversedData.length;
+        const regionsDict = activeDict.regions || {};
+        const chStr = regionsDict.ch || "Schweiz";
+        document.getElementById("archive-subtitle").innerText =
+          `${chStr}weit ${count} Stationen`;
+
+        reversedData.forEach((row, reversedIdx) => {
+          // Original index in the unreversed array is needed for openModalById
+          const originalIdx = window.solargrafieDaten.length - 1 - reversedIdx;
+
+          const getVal = (keywords) => {
+            const keys = Object.keys(row);
+            for (let kw of keywords) {
+              const foundKey = keys.find((k) =>
+                k.toLowerCase().includes(kw.toLowerCase()),
+              );
+              if (
+                foundKey &&
+                row[foundKey] !== undefined &&
+                row[foundKey] !== null
+              ) {
+                return String(row[foundKey]).trim();
+              }
+            }
+            return "";
+          };
+
+          const titel = getVal(["titel", "name", "bezeichnung"]) || "";
+          const placedStr =
+            getVal(["placed", "aufgestellt", "start", "datum"]) || "";
+          const openedStr =
+            getVal(["opened", "geöffnet", "geoeffnet", "ende"]) || "";
+          const rawBild =
+            getVal(["bild", "foto", "image", "datei", "upload"]) || "";
+          const bildUrl =
+            resolveImageUrl(rawBild) ||
+            "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png";
+
+          let days = "";
+          let year = "";
+
+          if (placedStr && openedStr) {
+            const placedDate = parseDateStr(placedStr);
+            const openedDate = parseDateStr(openedStr);
+            if (
+              placedDate &&
+              openedDate &&
+              !isNaN(placedDate) &&
+              !isNaN(openedDate)
+            ) {
+              const diffTime = Math.abs(openedDate - placedDate);
+              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+              days = `${diffDays} ${activeDict.days || "Tage"}`;
+              year = openedDate.getFullYear();
+            }
+          }
+
+          if (!year && openedStr) {
+            const openedDate = parseDateStr(openedStr);
+            if (openedDate && !isNaN(openedDate))
+              year = openedDate.getFullYear();
+          }
+
+          const detailsText = [days, year].filter(Boolean).join(" · ");
+
+          const itemHtml = `
+            <div class="archive-item" onclick="openModalById('${originalIdx}')">
+              <img src="${bildUrl}" class="archive-item-img" alt="${titel}" onerror="this.src='https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png'">
+              <div class="archive-item-info">
+                <div class="archive-item-title">${titel}</div>
+                <div class="archive-item-details">${detailsText}</div>
+              </div>
+            </div>
+          `;
+
+          carousel.insertAdjacentHTML("beforeend", itemHtml);
+        });
+
+        updateArchiveNavButtons();
+      }
+
+      function scrollArchive(direction) {
+        const carousel = document.getElementById("archive-carousel");
+        const scrollAmount = 300; // Adjust based on item width
+        carousel.scrollBy({
+          left: direction * scrollAmount,
+          behavior: "smooth",
+        });
+        setTimeout(updateArchiveNavButtons, 400); // Wait for smooth scroll to finish
+      }
+
+      function updateArchiveNavButtons() {
+        const carousel = document.getElementById("archive-carousel");
+        const prevBtn = document.querySelector(".archive-nav-btn.prev");
+        const nextBtn = document.querySelector(".archive-nav-btn.next");
+
+        if (!carousel) return;
+
+        // Tolerance for floating point precision
+        const isAtStart = carousel.scrollLeft <= 5;
+        const isAtEnd =
+          carousel.scrollLeft + carousel.clientWidth >=
+          carousel.scrollWidth - 5;
+
+        if (isAtStart) {
+          prevBtn.classList.add("hidden");
+        } else {
+          prevBtn.classList.remove("hidden");
+        }
+
+        if (isAtEnd) {
+          nextBtn.classList.add("hidden");
+        } else {
+          nextBtn.classList.remove("hidden");
+        }
+      }
+
+      // Setup event listeners for scroll
+      document.addEventListener("DOMContentLoaded", () => {
+        const carousel = document.getElementById("archive-carousel");
+        if (carousel) {
+          carousel.addEventListener("scroll", updateArchiveNavButtons);
+        }
+      });
+
       // 7. Großansicht Modal
       window.openModalById = function (index) {
         currentModalIndex = index;
@@ -822,6 +983,72 @@
       window.setLanguage(currentLang);
       fetchSolargrafieDaten();
     </script>
+
+    <!-- Archiv Leiste -->
+    <div id="archive-bar" class="archive-bar hidden">
+      <div class="archive-header">
+        <div class="archive-icon">
+          <svg
+            viewBox="0 0 24 24"
+            width="20"
+            height="20"
+            stroke="var(--color-secondary)"
+            stroke-width="2"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        </div>
+        <div class="archive-title-group">
+          <h3 id="archive-title-main">Archive</h3>
+          <span id="archive-subtitle"></span>
+        </div>
+      </div>
+
+      <button class="archive-nav-btn prev hidden" onclick="scrollArchive(-1)">
+        <svg
+          viewBox="0 0 24 24"
+          width="20"
+          height="20"
+          stroke="currentColor"
+          stroke-width="2"
+          fill="none"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+
+      <div class="archive-carousel-container" id="archive-carousel">
+        <!-- JS generated cards will go here -->
+      </div>
+
+      <button class="archive-nav-btn next hidden" onclick="scrollArchive(1)">
+        <svg
+          viewBox="0 0 24 24"
+          width="20"
+          height="20"
+          stroke="currentColor"
+          stroke-width="2"
+          fill="none"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
+    </div>
 
     <footer id="bottom-bar" class="bottom-bar">
       <div class="bottom-bar-left">
