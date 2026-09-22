@@ -39,7 +39,7 @@ header {
   border-radius: 16px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
   gap: 10px;
-  z-index: 1000;
+  z-index: 9999;
 }
 header h1 {
   font-family: var(--font-head);
@@ -80,6 +80,10 @@ header h1 {
   font-weight: 600;
   letter-spacing: 0.04em;
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 .toggle-btn:hover {
   color: #fff;
@@ -808,6 +812,35 @@ header h1 {
 
 /* --- Mobile Bottom Sheet Styles --- */
 @media (max-width: 768px) {
+  header {
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    padding: max(10px, env(safe-area-inset-top)) 10px 10px 10px;
+  }
+
+  .header-title-group {
+    display: none;
+  }
+
+  .btn-text {
+    display: none;
+  }
+
+  .btn-group {
+    gap: 2px;
+    padding: 2px;
+  }
+
+  .toggle-btn {
+    padding: 6px;
+  }
+
+  .map-controls-left {
+    top: 130px;
+    left: 10px;
+  }
+
   .modal {
     align-items: flex-end;
     padding: 0;

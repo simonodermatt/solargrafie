@@ -73,28 +73,112 @@
             id="btn-ch"
             class="toggle-btn active"
             onclick="setViewRegion('ch')"
+            title="Schweiz"
           >
-            Schweiz
+            <svg
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            <span class="btn-text">Schweiz</span>
           </button>
-          <button id="btn-eu" class="toggle-btn" onclick="setViewRegion('eu')">
-            Europa
+          <button
+            id="btn-eu"
+            class="toggle-btn"
+            onclick="setViewRegion('eu')"
+            title="Europa"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="2" y1="12" x2="22" y2="12"></line>
+              <path
+                d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+              ></path>
+            </svg>
+            <span class="btn-text">Europa</span>
           </button>
           <button
             id="btn-world"
             class="toggle-btn"
             onclick="setViewRegion('world')"
+            title="Welt"
           >
-            Welt
+            <svg
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+              <path d="M2 12h20"></path>
+            </svg>
+            <span class="btn-text">Welt</span>
           </button>
-          <button id="btn-archive" class="toggle-btn" onclick="toggleArchive()">
-            Archiv
+          <button
+            id="btn-archive"
+            class="toggle-btn"
+            onclick="toggleArchive()"
+            title="Archiv"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="21 8 21 21 3 21 3 8"></polyline>
+              <rect x="1" y="3" width="22" height="5"></rect>
+              <line x1="10" y1="12" x2="14" y2="12"></line>
+            </svg>
+            <span class="btn-text">Archiv</span>
           </button>
           <button
             id="btn-project"
             class="toggle-btn"
             onclick="showWipMessage()"
+            title="Projekt"
           >
-            Projekt
+            <svg
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <span class="btn-text">Projekt</span>
           </button>
         </div>
 
@@ -474,9 +558,17 @@
         },
       };
 
+      const supportedLangs = ["de", "en", "fr", "it", "uk", "ru"];
+      const browserLang = (navigator.language || navigator.userLanguage || "en")
+        .substring(0, 2)
+        .toLowerCase();
+      let defaultLang = supportedLangs.includes(browserLang)
+        ? browserLang
+        : "en";
+
       let currentLang =
         (typeof APP_CONFIG !== "undefined" && APP_CONFIG.defaultLanguage) ||
-        "de";
+        defaultLang;
       let currentModalIndex = null;
       window.solargrafieDaten = [];
 
@@ -822,11 +914,15 @@
             "Eva & Simon · Pinhole Solar Path Cartography";
         }
         if (document.getElementById("btn-archive")) {
-          document.getElementById("btn-archive").innerText =
+          document
+            .getElementById("btn-archive")
+            .querySelector(".btn-text").innerText =
             activeDict.archive || "Archiv";
         }
         if (document.getElementById("btn-project")) {
-          document.getElementById("btn-project").innerText =
+          document
+            .getElementById("btn-project")
+            .querySelector(".btn-text").innerText =
             activeDict.project || "Projekt";
         }
         if (document.getElementById("info-location-title")) {
@@ -840,12 +936,17 @@
 
         if (activeDict.regions) {
           if (document.getElementById("btn-ch"))
-            document.getElementById("btn-ch").innerText = activeDict.regions.ch;
+            document
+              .getElementById("btn-ch")
+              .querySelector(".btn-text").innerText = activeDict.regions.ch;
           if (document.getElementById("btn-eu"))
-            document.getElementById("btn-eu").innerText = activeDict.regions.eu;
+            document
+              .getElementById("btn-eu")
+              .querySelector(".btn-text").innerText = activeDict.regions.eu;
           if (document.getElementById("btn-world"))
-            document.getElementById("btn-world").innerText =
-              activeDict.regions.world;
+            document
+              .getElementById("btn-world")
+              .querySelector(".btn-text").innerText = activeDict.regions.world;
         }
 
         // Update footer translations
