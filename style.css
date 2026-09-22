@@ -94,8 +94,11 @@ header h1 {
 }
 
 #map {
-  height: 100vh;
-  width: 100vw;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
   background: #121212;
 }
 
@@ -490,9 +493,6 @@ header h1 {
 }
 
 /* Map Controls Floating Menu */
-#map {
-  position: relative;
-}
 
 .map-controls-left {
   position: absolute;
@@ -801,4 +801,43 @@ header h1 {
 
 .archive-nav-btn.hidden {
   display: none;
+}
+
+/* --- Mobile Bottom Sheet Styles --- */
+@media (max-width: 768px) {
+  .modal {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal-content-wrapper {
+    max-width: 100%;
+    max-height: 85vh;
+    border-radius: 24px 24px 0 0;
+    margin-bottom: 0;
+    border-bottom: none;
+    animation: slideUp 0.3s ease-out;
+  }
+
+  @keyframes slideUp {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  .modal-info-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Leaflet Popup Mobile Styles */
+.leaflet-popup-content {
+  max-width: 280px;
+}
+.leaflet-popup-content img {
+  width: 100%;
+  height: auto;
 }
