@@ -833,6 +833,16 @@ header h1 {
     display: none;
   }
 
+  .archive-header {
+    min-width: auto;
+    padding-right: 12px; /* reduced padding */
+    border-right: none; /* optional: remove the border since there is no text */
+  }
+
+  .archive-bar {
+    gap: 8px; /* Reduce gap between header icon and carousel */
+  }
+
   .btn-group {
     gap: 2px;
     padding: 2px;
