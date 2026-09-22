@@ -827,6 +827,12 @@ header h1 {
     display: none;
   }
 
+  .archive-title-group,
+  .bottom-bar-right,
+  #lang-group {
+    display: none;
+  }
+
   .btn-group {
     gap: 2px;
     padding: 2px;
