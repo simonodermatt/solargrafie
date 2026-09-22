@@ -877,3 +877,64 @@ header h1 {
   width: 100%;
   height: auto;
 }
+
+/* Custom Image Lightbox */
+#image-lightbox {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+#image-lightbox.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#lightbox-img {
+  max-width: 95%;
+  max-height: 90%;
+  object-fit: contain;
+  margin: auto;
+  border-radius: 8px; /* Optional slight rounding */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+#lightbox-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 3rem;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 10001;
+  padding: 10px;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  transition: transform 0.2s;
+}
+
+#lightbox-close:hover {
+  transform: scale(1.1);
+  color: var(--color-primary);
+}
+
+body.lightbox-open {
+  overflow: hidden;
+}
