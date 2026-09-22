@@ -75,18 +75,18 @@
             onclick="setViewRegion('ch')"
             title="Schweiz"
           >
-            <svg
-              viewBox="0 0 24 24"
-              width="16"
-              height="16"
-              stroke="currentColor"
-              stroke-width="2"
-              fill="none"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-              <circle cx="12" cy="10" r="3"></circle>
+            <svg viewBox="0 0 24 24" width="16" height="16">
+              <rect
+                x="2"
+                y="2"
+                width="20"
+                height="20"
+                rx="4"
+                fill="#000"
+                stroke="currentColor"
+                stroke-width="1.5"
+              ></rect>
+              <path d="M10 6h4v4h4v4h-4v4h-4v-4H6v-4h4V6z" fill="#fff"></path>
             </svg>
             <span class="btn-text">Schweiz</span>
           </button>
@@ -124,15 +124,20 @@
               viewBox="0 0 24 24"
               width="16"
               height="16"
+              fill="none"
               stroke="currentColor"
               stroke-width="2"
-              fill="none"
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <circle cx="12" cy="12" r="10"></circle>
-              <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
-              <path d="M2 12h20"></path>
+              <path d="M21.54 15H17a2 2 0 0 0-2 2v4.54" />
+              <path
+                d="M7 3.34V5a3 3 0 0 0 3 3a2 2 0 0 1 2 2c0 1.1.9 2 2 2a2 2 0 0 0 2-2c0-1.1.9-2 2-2h3.17"
+              />
+              <path
+                d="M11 21.95V18a2 2 0 0 0-2-2a2 2 0 0 1-2-2v-1a2 2 0 0 0-2-2H2.05"
+              />
+              <circle cx="12" cy="12" r="10" />
             </svg>
             <span class="btn-text">Welt</span>
           </button>
@@ -573,13 +578,12 @@
       const browserLang = (navigator.language || navigator.userLanguage || "en")
         .substring(0, 2)
         .toLowerCase();
-      let defaultLang = supportedLangs.includes(browserLang)
+      // Browser language takes priority. Fallback to default config or "de".
+      let currentLang = supportedLangs.includes(browserLang)
         ? browserLang
-        : "en";
-
-      let currentLang =
-        (typeof APP_CONFIG !== "undefined" && APP_CONFIG.defaultLanguage) ||
-        defaultLang;
+        : typeof APP_CONFIG !== "undefined" && APP_CONFIG.defaultLanguage
+          ? APP_CONFIG.defaultLanguage
+          : "de";
       let currentModalIndex = null;
       window.solargrafieDaten = [];
 
