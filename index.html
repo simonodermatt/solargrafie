@@ -395,26 +395,13 @@
         </div>
 
         <div class="modal-image-container">
-          <img id="modal-img" src="" alt="Großansicht" />
-          <div
-            class="modal-fullscreen-btn"
-            onclick="toggleFullscreen('modal-img')"
-          >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path
-                d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"
-              ></path>
-            </svg>
-          </div>
+          <img
+            id="modal-img"
+            src=""
+            alt="Großansicht"
+            onclick="openImageLightbox(event)"
+            style="cursor: pointer"
+          />
         </div>
 
         <!-- Info Grid -->
@@ -1208,20 +1195,6 @@
         }
       }
 
-      window.toggleFullscreen = function (id) {
-        const el = document.getElementById(id);
-        if (!el) return;
-        if (!document.fullscreenElement) {
-          el.requestFullscreen().catch((err) => {
-            console.error(
-              `Error attempting to enable fullscreen: ${err.message}`,
-            );
-          });
-        } else {
-          document.exitFullscreen();
-        }
-      };
-
       window.openModalById = async function (index) {
         currentModalIndex = index;
         const row = window.solargrafieDaten[index];
@@ -1429,6 +1402,33 @@
         document.getElementById("lightbox").classList.add("active");
       };
 
+      window.openImageLightbox = function (e) {
+        e.preventDefault();
+        const lightbox = document.getElementById("image-lightbox");
+        const lightboxImg = document.getElementById("lightbox-img");
+        lightboxImg.src = e.target.src;
+        lightbox.classList.add("active");
+        document.body.classList.add("lightbox-open");
+      };
+
+      window.closeImageLightbox = function (e) {
+        if (
+          e.target.id === "image-lightbox" ||
+          e.target.id === "lightbox-close"
+        ) {
+          const lightbox = document.getElementById("image-lightbox");
+          lightbox.classList.remove("active");
+          document.body.classList.remove("lightbox-open");
+
+          // Clear src after fadeout to prevent ghosting on next open
+          setTimeout(() => {
+            if (!lightbox.classList.contains("active")) {
+              document.getElementById("lightbox-img").src = "";
+            }
+          }, 300); // match CSS transition duration
+        }
+      };
+
       window.closeModal = function (e) {
         if (e.target.id === "lightbox" || e.target.closest(".modal-close")) {
           document.getElementById("lightbox").classList.remove("active");
@@ -1567,5 +1567,13 @@
         >
       </div>
     </footer>
+
+    <!-- Image Lightbox Modal -->
+    <div id="image-lightbox" onclick="closeImageLightbox(event)">
+      <button id="lightbox-close" onclick="closeImageLightbox(event)">
+        &times;
+      </button>
+      <img id="lightbox-img" src="" alt="Vollbild" />
+    </div>
   </body>
 </html>
