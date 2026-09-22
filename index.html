@@ -73,33 +73,117 @@
             id="btn-ch"
             class="toggle-btn active"
             onclick="setViewRegion('ch')"
+            title="Schweiz"
           >
-            Schweiz
+            <svg
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            <span class="btn-text">Schweiz</span>
           </button>
-          <button id="btn-eu" class="toggle-btn" onclick="setViewRegion('eu')">
-            Europa
+          <button
+            id="btn-eu"
+            class="toggle-btn"
+            onclick="setViewRegion('eu')"
+            title="Europa"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="2" y1="12" x2="22" y2="12"></line>
+              <path
+                d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+              ></path>
+            </svg>
+            <span class="btn-text">Europa</span>
           </button>
           <button
             id="btn-world"
             class="toggle-btn"
             onclick="setViewRegion('world')"
+            title="Welt"
           >
-            Welt
+            <svg
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+              <path d="M2 12h20"></path>
+            </svg>
+            <span class="btn-text">Welt</span>
           </button>
-          <button id="btn-archive" class="toggle-btn" onclick="toggleArchive()">
-            Archiv
+          <button
+            id="btn-archive"
+            class="toggle-btn"
+            onclick="toggleArchive()"
+            title="Archiv"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="21 8 21 21 3 21 3 8"></polyline>
+              <rect x="1" y="3" width="22" height="5"></rect>
+              <line x1="10" y1="12" x2="14" y2="12"></line>
+            </svg>
+            <span class="btn-text">Archiv</span>
           </button>
           <button
             id="btn-project"
             class="toggle-btn"
             onclick="showWipMessage()"
+            title="Projekt"
           >
-            Projekt
+            <svg
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <span class="btn-text">Projekt</span>
           </button>
         </div>
 
         <!-- Sprachumschalter -->
-        <div class="btn-group">
+        <div class="btn-group" id="lang-group">
           <button
             id="lang-de"
             class="toggle-btn lang-btn active"
@@ -199,7 +283,12 @@
 
         <!-- Group 2: View Modes -->
         <div class="control-group">
-          <button class="control-btn" id="btn-view-map" title="Karte">
+          <button
+            class="control-btn"
+            id="btn-layers-toggle"
+            title="Ebenen"
+            style="display: none"
+          >
             <svg
               viewBox="0 0 24 24"
               width="20"
@@ -210,55 +299,80 @@
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <polygon
-                points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"
-              ></polygon>
-              <line x1="9" y1="3" x2="9" y2="21"></line>
-              <line x1="15" y1="3" x2="15" y2="21"></line>
+              <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+              <polyline points="2 12 12 17 22 12"></polyline>
+              <polyline points="2 17 12 22 22 17"></polyline>
             </svg>
           </button>
-          <button class="control-btn active" id="btn-view-sat" title="Satellit">
-            <svg
-              viewBox="0 0 24 24"
-              width="20"
-              height="20"
-              stroke="currentColor"
-              stroke-width="2"
-              fill="none"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+          <div id="layer-buttons-container" class="layer-buttons-container">
+            <button class="control-btn" id="btn-view-map" title="Karte">
+              <svg
+                viewBox="0 0 24 24"
+                width="20"
+                height="20"
+                stroke="currentColor"
+                stroke-width="2"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polygon
+                  points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"
+                ></polygon>
+                <line x1="9" y1="3" x2="9" y2="21"></line>
+                <line x1="15" y1="3" x2="15" y2="21"></line>
+              </svg>
+            </button>
+            <button
+              class="control-btn active"
+              id="btn-view-sat"
+              title="Satellit"
             >
-              <path d="M12 2l3 5h-6l3-5z"></path>
-              <path d="M12 22l-3-5h6l-3 5z"></path>
-              <path d="M2 12l5-3v6l-5-3z"></path>
-              <path d="M22 12l-5 3v-6l5 3z"></path>
-              <circle cx="12" cy="12" r="3"></circle>
-            </svg>
-          </button>
-          <button class="control-btn" id="btn-theme-toggle" title="Hell/Dunkel">
-            <svg
-              viewBox="0 0 24 24"
-              width="20"
-              height="20"
-              stroke="currentColor"
-              stroke-width="2"
-              fill="none"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+              <svg
+                viewBox="0 0 24 24"
+                width="20"
+                height="20"
+                stroke="currentColor"
+                stroke-width="2"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M12 2l3 5h-6l3-5z"></path>
+                <path d="M12 22l-3-5h6l-3 5z"></path>
+                <path d="M2 12l5-3v6l-5-3z"></path>
+                <path d="M22 12l-5 3v-6l5 3z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+            <button
+              class="control-btn"
+              id="btn-theme-toggle"
+              title="Hell/Dunkel"
             >
-              <circle cx="12" cy="12" r="5"></circle>
-              <line x1="12" y1="1" x2="12" y2="3"></line>
-              <line x1="12" y1="21" x2="12" y2="23"></line>
-              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-              <line x1="1" y1="12" x2="3" y2="12"></line>
-              <line x1="21" y1="12" x2="23" y2="12"></line>
-              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-            </svg>
-          </button>
+              <svg
+                viewBox="0 0 24 24"
+                width="20"
+                height="20"
+                stroke="currentColor"
+                stroke-width="2"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+              </svg>
+            </button>
+          </div>
         </div>
-
         <!-- Group 3: Info Box -->
         <div class="control-group info-box">
           <div class="info-box-content">
@@ -311,26 +425,13 @@
         </div>
 
         <div class="modal-image-container">
-          <img id="modal-img" src="" alt="Großansicht" />
-          <div
-            class="modal-fullscreen-btn"
-            onclick="toggleFullscreen('modal-img')"
-          >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path
-                d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"
-              ></path>
-            </svg>
-          </div>
+          <img
+            id="modal-img"
+            src=""
+            alt="Großansicht"
+            onclick="openImageLightbox(event)"
+            style="cursor: pointer"
+          />
         </div>
 
         <!-- Info Grid -->
@@ -375,15 +476,9 @@
                 stroke="currentColor"
                 stroke-width="2"
               >
-                <circle cx="12" cy="12" r="5"></circle>
-                <line x1="12" y1="1" x2="12" y2="3"></line>
-                <line x1="12" y1="21" x2="12" y2="23"></line>
-                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                <line x1="1" y1="12" x2="3" y2="12"></line>
-                <line x1="21" y1="12" x2="23" y2="12"></line>
-                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                <polyline points="21 8 21 21 3 21 3 8"></polyline>
+                <rect x="1" y="3" width="22" height="5"></rect>
+                <line x1="10" y1="12" x2="14" y2="12"></line>
               </svg>
             </div>
             <strong id="label-sun-paths">Sonnenbahnen</strong>
@@ -474,9 +569,17 @@
         },
       };
 
+      const supportedLangs = ["de", "en", "fr", "it", "uk", "ru"];
+      const browserLang = (navigator.language || navigator.userLanguage || "en")
+        .substring(0, 2)
+        .toLowerCase();
+      let defaultLang = supportedLangs.includes(browserLang)
+        ? browserLang
+        : "en";
+
       let currentLang =
         (typeof APP_CONFIG !== "undefined" && APP_CONFIG.defaultLanguage) ||
-        "de";
+        defaultLang;
       let currentModalIndex = null;
       window.solargrafieDaten = [];
 
@@ -547,6 +650,17 @@
       ).addTo(map);
 
       let currentLayer = satLayer; // Keep track of current layer to apply dark mode if needed
+
+      document
+        .getElementById("btn-layers-toggle")
+        .addEventListener("click", () => {
+          document
+            .getElementById("layer-buttons-container")
+            .classList.toggle("open");
+          document
+            .getElementById("btn-layers-toggle")
+            .classList.toggle("active");
+        });
 
       document.getElementById("btn-view-map").addEventListener("click", (e) => {
         map.removeLayer(satLayer);
@@ -822,11 +936,15 @@
             "Eva & Simon · Pinhole Solar Path Cartography";
         }
         if (document.getElementById("btn-archive")) {
-          document.getElementById("btn-archive").innerText =
+          document
+            .getElementById("btn-archive")
+            .querySelector(".btn-text").innerText =
             activeDict.archive || "Archiv";
         }
         if (document.getElementById("btn-project")) {
-          document.getElementById("btn-project").innerText =
+          document
+            .getElementById("btn-project")
+            .querySelector(".btn-text").innerText =
             activeDict.project || "Projekt";
         }
         if (document.getElementById("info-location-title")) {
@@ -840,12 +958,17 @@
 
         if (activeDict.regions) {
           if (document.getElementById("btn-ch"))
-            document.getElementById("btn-ch").innerText = activeDict.regions.ch;
+            document
+              .getElementById("btn-ch")
+              .querySelector(".btn-text").innerText = activeDict.regions.ch;
           if (document.getElementById("btn-eu"))
-            document.getElementById("btn-eu").innerText = activeDict.regions.eu;
+            document
+              .getElementById("btn-eu")
+              .querySelector(".btn-text").innerText = activeDict.regions.eu;
           if (document.getElementById("btn-world"))
-            document.getElementById("btn-world").innerText =
-              activeDict.regions.world;
+            document
+              .getElementById("btn-world")
+              .querySelector(".btn-text").innerText = activeDict.regions.world;
         }
 
         // Update footer translations
@@ -1107,20 +1230,6 @@
         }
       }
 
-      window.toggleFullscreen = function (id) {
-        const el = document.getElementById(id);
-        if (!el) return;
-        if (!document.fullscreenElement) {
-          el.requestFullscreen().catch((err) => {
-            console.error(
-              `Error attempting to enable fullscreen: ${err.message}`,
-            );
-          });
-        } else {
-          document.exitFullscreen();
-        }
-      };
-
       window.openModalById = async function (index) {
         currentModalIndex = index;
         const row = window.solargrafieDaten[index];
@@ -1328,6 +1437,33 @@
         document.getElementById("lightbox").classList.add("active");
       };
 
+      window.openImageLightbox = function (e) {
+        e.preventDefault();
+        const lightbox = document.getElementById("image-lightbox");
+        const lightboxImg = document.getElementById("lightbox-img");
+        lightboxImg.src = e.target.src;
+        lightbox.classList.add("active");
+        document.body.classList.add("lightbox-open");
+      };
+
+      window.closeImageLightbox = function (e) {
+        if (
+          e.target.id === "image-lightbox" ||
+          e.target.id === "lightbox-close"
+        ) {
+          const lightbox = document.getElementById("image-lightbox");
+          lightbox.classList.remove("active");
+          document.body.classList.remove("lightbox-open");
+
+          // Clear src after fadeout to prevent ghosting on next open
+          setTimeout(() => {
+            if (!lightbox.classList.contains("active")) {
+              document.getElementById("lightbox-img").src = "";
+            }
+          }, 300); // match CSS transition duration
+        }
+      };
+
       window.closeModal = function (e) {
         if (e.target.id === "lightbox" || e.target.closest(".modal-close")) {
           document.getElementById("lightbox").classList.remove("active");
@@ -1374,15 +1510,9 @@
             stroke-linecap="round"
             stroke-linejoin="round"
           >
-            <circle cx="12" cy="12" r="5"></circle>
-            <line x1="12" y1="1" x2="12" y2="3"></line>
-            <line x1="12" y1="21" x2="12" y2="23"></line>
-            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-            <line x1="1" y1="12" x2="3" y2="12"></line>
-            <line x1="21" y1="12" x2="23" y2="12"></line>
-            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            <polyline points="21 8 21 21 3 21 3 8"></polyline>
+            <rect x="1" y="3" width="22" height="5"></rect>
+            <line x1="10" y1="12" x2="14" y2="12"></line>
           </svg>
         </div>
         <div class="archive-title-group">
@@ -1466,5 +1596,13 @@
         >
       </div>
     </footer>
+
+    <!-- Image Lightbox Modal -->
+    <div id="image-lightbox" onclick="closeImageLightbox(event)">
+      <button id="lightbox-close" onclick="closeImageLightbox(event)">
+        &times;
+      </button>
+      <img id="lightbox-img" src="" alt="Vollbild" />
+    </div>
   </body>
 </html>
