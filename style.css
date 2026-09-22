@@ -836,9 +836,62 @@ header h1 {
     padding: 6px;
   }
 
+  /* Floating Map Controls Mobile Optimizations */
+  #btn-zoom-in,
+  #btn-zoom-out {
+    display: none !important;
+  }
+
   .map-controls-left {
-    top: 130px;
-    left: 10px;
+    position: fixed;
+    top: 80px;
+    right: 10px;
+    left: auto;
+    z-index: 999;
+  }
+
+  .map-controls-left .control-group {
+    align-items: flex-end; /* Align buttons to the right */
+  }
+
+  /* Make layers toggle button visible on mobile */
+  #btn-layers-toggle {
+    display: flex !important;
+  }
+
+  /* Hide layer buttons by default on mobile, show when open */
+  .layer-buttons-container {
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .layer-buttons-container.open {
+    display: flex;
+  }
+
+  /* Adjust sizing of remaining control buttons for mobile */
+  .control-btn {
+    width: 36px;
+    height: 36px;
+    padding: 6px;
+  }
+
+  .control-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* Shrink info box on mobile */
+  .info-box-content {
+    padding: 6px 10px;
+  }
+  .info-text strong {
+    font-size: 0.75rem;
+  }
+  .info-text span {
+    font-size: 0.65rem;
   }
 
   .modal {
