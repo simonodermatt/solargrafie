@@ -828,8 +828,8 @@ header h1 {
   }
 
   .archive-title-group,
-  .bottom-bar-right,
-  #lang-group {
+  #lang-group,
+  .footer-copy {
     display: none;
   }
 
@@ -1006,4 +1006,82 @@ header h1 {
 
 body.lightbox-open {
   overflow: hidden;
+}
+
+/* Impressum Seite */
+.impressum-content {
+  max-width: 800px;
+  margin: 100px auto 40px auto;
+  padding: 30px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  color: var(--text-light);
+  line-height: 1.6;
+}
+
+.impressum-content h1 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 2.2rem;
+  color: var(--text-light);
+  margin-bottom: 30px;
+  border-bottom: 1px solid var(--glass-border);
+  padding-bottom: 15px;
+}
+
+.impressum-content h2 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 1.4rem;
+  color: var(--primary);
+  margin-top: 30px;
+  margin-bottom: 15px;
+}
+
+.impressum-content p {
+  margin-bottom: 15px;
+}
+
+.impressum-content a {
+  color: var(--primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.impressum-content a:hover {
+  color: var(--secondary);
+}
+
+.footer-icon {
+  margin-right: 5px;
+  vertical-align: middle;
+  display: inline-block;
+}
+
+.footer-link {
+  display: flex;
+  align-items: center;
+}
+
+/* Mobile Adjustments for Impressum */
+@media (max-width: 768px) {
+  .impressum-content {
+    margin: 80px 15px 120px 15px; /* Leave space for mobile header/footer */
+    padding: 20px;
+  }
+
+  .impressum-content h1 {
+    font-size: 1.8rem;
+  }
+
+  .footer-link .link-text {
+    display: none;
+  }
+
+  .footer-icon {
+    margin-right: 0;
+  }
 }
