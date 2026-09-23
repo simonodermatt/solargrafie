@@ -1085,3 +1085,65 @@ body.lightbox-open {
     margin-right: 0;
   }
 }
+
+/* Override body overflow for impressum page to allow scrolling */
+body.impressum-page {
+  overflow: auto;
+  min-height: 100vh;
+}
+
+/* Back Button for Impressum */
+.btn-back {
+  display: inline-block;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--color-text-main);
+  padding: 8px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-family: var(--font-head);
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-back:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 768px) {
+  .btn-back {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+    white-space: nowrap;
+  }
+
+  .top-bar-right {
+    margin-left: 10px;
+  }
+}
+
+.impressum-header-title {
+  font-size: 1.2rem;
+}
+
+@media (max-width: 768px) {
+  .impressum-header-title {
+    font-size: 1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
+  }
+}
+
+.impressum-top-bar {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20px;
+}
+
+@media (max-width: 768px) {
+  .impressum-top-bar {
+    padding: 0 10px;
+  }
+}
