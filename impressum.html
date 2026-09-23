@@ -15,15 +15,29 @@
     />
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   </head>
-  <body>
-    <header class="top-bar">
+  <body class="impressum-page">
+    <header class="top-bar impressum-top-bar">
       <div class="top-bar-left">
-        <a href="index.html" style="text-decoration: none; color: inherit">
-          <img src="logo.png" alt="Solargrafie Logo" class="logo" />
+        <a
+          href="index.html"
+          style="
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+          "
+        >
+          <img src="logo.png" alt="Solargrafie Logo" class="header-logo" />
           <div class="title-container">
-            <h1>Impressum Solargrafie.ch</h1>
+            <h1 class="impressum-header-title" style="margin: 0">
+              Impressum Solargrafie.ch
+            </h1>
           </div>
         </a>
+      </div>
+      <div class="top-bar-right" style="display: flex; align-items: center">
+        <a href="index.html" class="btn-back"> Zurück zur Karte </a>
       </div>
     </header>
 
