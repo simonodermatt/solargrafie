@@ -828,8 +828,8 @@ header h1 {
   }
 
   .archive-title-group,
-  .bottom-bar-right,
-  #lang-group {
+  #lang-group,
+  .footer-copy {
     display: none;
   }
 
