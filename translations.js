@@ -84,7 +84,7 @@ const translations = {
     astroSummerMonthVal: "21. Juni",
     astroDriftCardTitle: "DEKLINATION & DRIFT",
     astroDriftSpanLbl: "Himmelsspanne",
-    astroDriftSpanVal: "Schweizer Mittelland",
+    astroDriftSpanVal: "CH Mittelland",
     astroDriftDiffLbl: "Tageslicht-Differenz",
 
     note: "Notiz",
