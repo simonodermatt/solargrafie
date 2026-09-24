@@ -1152,9 +1152,9 @@ body.impressum-page {
 #project-modal-lightbox .modal-content-wrapper {
   max-width: 800px;
   padding: 0;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
+  height: 90vh; /* Ensure modal has a max height based on viewport */
 }
 
 #project-modal-lightbox .modal-header {
@@ -1175,6 +1175,8 @@ body.impressum-page {
   padding: 16px 32px 32px;
   display: flex;
   flex-direction: column;
+  height: 100%;
+  overflow-x: hidden;
   gap: 24px;
 }
 
