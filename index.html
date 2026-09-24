@@ -883,7 +883,9 @@
         // Option 1: Custom Backend Proxy falls definiert
         if (cfg.customApiUrl && cfg.customApiUrl.trim() !== "") {
           try {
-            const res = await fetch(cfg.customApiUrl);
+            const urlObj = new URL(cfg.customApiUrl, window.location.href);
+            urlObj.searchParams.set("t", new Date().getTime());
+            const res = await fetch(urlObj.toString(), { cache: "no-store" });
             const data = await res.json();
             window.solargrafieDaten = data;
             renderMarkers();
@@ -905,9 +907,9 @@
           const range = encodeURIComponent(
             cfg.sheetRange || "Formularantworten 1",
           );
-          const apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${cfg.sheetId}/values/${range}?key=${cfg.googleApiKey}`;
+          const apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${cfg.sheetId}/values/${range}?key=${cfg.googleApiKey}&t=${new Date().getTime()}`;
           try {
-            const res = await fetch(apiUrl);
+            const res = await fetch(apiUrl, { cache: "no-store" });
             const json = await res.json();
             if (json.values && json.values.length > 1) {
               const headers = json.values[0];
@@ -936,7 +938,7 @@
         // Option 3: GViz CSV Fallback (kein API-Key erforderlich)
         const sheetId =
           cfg.sheetId || "1zny1pBIQilY5wJXTN8eYEdIBoW3lJp9W13mKceeZbKI";
-        const gvizUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`;
+        const gvizUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&t=${new Date().getTime()}`;
 
         Papa.parse(gvizUrl, {
           download: true,
