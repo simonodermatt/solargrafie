@@ -720,6 +720,7 @@
             const data = await res.json();
             window.solargrafieDaten = data;
             renderMarkers();
+            updateProjectStats();
 
             // Update Project Modal
             if (document.getElementById("pm-badge"))
@@ -891,6 +892,28 @@
               document.getElementById("pm-btn-suggest").innerText =
                 activeDict.pmBtnSuggest || "Neuen Standort vorschlagen";
 
+            if (document.getElementById("pm-stats-active"))
+              document.getElementById("pm-stats-active").innerText =
+                activeDict.statsActive || "Aktiv";
+            if (document.getElementById("pm-stats-ch"))
+              document.getElementById("pm-stats-ch").innerText =
+                activeDict.statsStationsCh || "Stationen in CH";
+            if (document.getElementById("pm-stats-record"))
+              document.getElementById("pm-stats-record").innerText =
+                activeDict.statsRecord || "Gesamt";
+            if (document.getElementById("pm-stats-days"))
+              document.getElementById("pm-stats-days").innerText =
+                activeDict.statsDaysExposure || "Tage Belichtung";
+            if (document.getElementById("pm-stats-science"))
+              document.getElementById("pm-stats-science").innerText =
+                activeDict.statsScience || "Chemikalien";
+            if (document.getElementById("pm-stats-commons"))
+              document.getElementById("pm-stats-commons").innerText =
+                activeDict.statsCommons || "Commons";
+            if (document.getElementById("pm-stats-open"))
+              document.getElementById("pm-stats-open").innerText =
+                activeDict.statsOpenData || "Open Data CH";
+
             if (document.getElementById("pm-toast-msg"))
               document.getElementById("pm-toast-msg").innerText =
                 activeDict.pmToastMsg ||
@@ -923,6 +946,7 @@
                 return obj;
               });
               renderMarkers();
+              updateProjectStats();
 
               // Update Project Modal
               if (document.getElementById("pm-badge"))
@@ -1096,6 +1120,28 @@
                 document.getElementById("pm-btn-suggest").innerText =
                   activeDict.pmBtnSuggest || "Neuen Standort vorschlagen";
 
+              if (document.getElementById("pm-stats-active"))
+                document.getElementById("pm-stats-active").innerText =
+                  activeDict.statsActive || "Aktiv";
+              if (document.getElementById("pm-stats-ch"))
+                document.getElementById("pm-stats-ch").innerText =
+                  activeDict.statsStationsCh || "Stationen in CH";
+              if (document.getElementById("pm-stats-record"))
+                document.getElementById("pm-stats-record").innerText =
+                  activeDict.statsRecord || "Gesamt";
+              if (document.getElementById("pm-stats-days"))
+                document.getElementById("pm-stats-days").innerText =
+                  activeDict.statsDaysExposure || "Tage Belichtung";
+              if (document.getElementById("pm-stats-science"))
+                document.getElementById("pm-stats-science").innerText =
+                  activeDict.statsScience || "Chemikalien";
+              if (document.getElementById("pm-stats-commons"))
+                document.getElementById("pm-stats-commons").innerText =
+                  activeDict.statsCommons || "Commons";
+              if (document.getElementById("pm-stats-open"))
+                document.getElementById("pm-stats-open").innerText =
+                  activeDict.statsOpenData || "Open Data CH";
+
               if (document.getElementById("pm-toast-msg"))
                 document.getElementById("pm-toast-msg").innerText =
                   activeDict.pmToastMsg ||
@@ -1122,6 +1168,7 @@
           complete: function (results) {
             window.solargrafieDaten = results.data;
             renderMarkers();
+            updateProjectStats();
 
             // Update Project Modal
             if (document.getElementById("pm-badge"))
@@ -1293,6 +1340,28 @@
               document.getElementById("pm-btn-suggest").innerText =
                 activeDict.pmBtnSuggest || "Neuen Standort vorschlagen";
 
+            if (document.getElementById("pm-stats-active"))
+              document.getElementById("pm-stats-active").innerText =
+                activeDict.statsActive || "Aktiv";
+            if (document.getElementById("pm-stats-ch"))
+              document.getElementById("pm-stats-ch").innerText =
+                activeDict.statsStationsCh || "Stationen in CH";
+            if (document.getElementById("pm-stats-record"))
+              document.getElementById("pm-stats-record").innerText =
+                activeDict.statsRecord || "Gesamt";
+            if (document.getElementById("pm-stats-days"))
+              document.getElementById("pm-stats-days").innerText =
+                activeDict.statsDaysExposure || "Tage Belichtung";
+            if (document.getElementById("pm-stats-science"))
+              document.getElementById("pm-stats-science").innerText =
+                activeDict.statsScience || "Chemikalien";
+            if (document.getElementById("pm-stats-commons"))
+              document.getElementById("pm-stats-commons").innerText =
+                activeDict.statsCommons || "Commons";
+            if (document.getElementById("pm-stats-open"))
+              document.getElementById("pm-stats-open").innerText =
+                activeDict.statsOpenData || "Open Data CH";
+
             if (document.getElementById("pm-toast-msg"))
               document.getElementById("pm-toast-msg").innerText =
                 activeDict.pmToastMsg ||
@@ -1305,6 +1374,56 @@
       }
 
       // 5. Marker rendern
+
+      function updateProjectStats() {
+        if (!window.solargrafieDaten || window.solargrafieDaten.length === 0)
+          return;
+
+        let activeCount = 0;
+        let totalDays = 0;
+
+        window.solargrafieDaten.forEach((row) => {
+          const keys = Object.keys(row);
+
+          const getVal = (keywords) => {
+            for (let kw of keywords) {
+              const foundKey = keys.find((k) =>
+                k.toLowerCase().includes(kw.toLowerCase()),
+              );
+              if (
+                foundKey &&
+                row[foundKey] !== undefined &&
+                row[foundKey] !== null
+              ) {
+                return String(row[foundKey]).trim();
+              }
+            }
+            return "";
+          };
+
+          const placed = getVal(["placed", "gesetzt"]);
+          const opened = getVal(["open", "geöffnet", "geoffnet"]);
+          const durationStr = getVal(["dauer", "days", "tage"]);
+
+          if (placed !== "" && opened !== "") {
+            activeCount++;
+          }
+
+          if (durationStr !== "") {
+            const days = parseInt(durationStr, 10);
+            if (!isNaN(days)) {
+              totalDays += days;
+            }
+          }
+        });
+
+        const activeEl = document.getElementById("pm-stats-active-val");
+        if (activeEl) activeEl.innerText = activeCount;
+
+        const recordEl = document.getElementById("pm-stats-record-val");
+        if (recordEl) recordEl.innerText = totalDays;
+      }
+
       function renderMarkers() {
         markersGroup.clearLayers();
         const activeDict =
@@ -1498,6 +1617,7 @@
         }
 
         renderMarkers();
+        updateProjectStats();
 
         // Update Project Modal
         if (document.getElementById("pm-badge"))
@@ -1667,6 +1787,28 @@
         if (document.getElementById("pm-btn-suggest"))
           document.getElementById("pm-btn-suggest").innerText =
             activeDict.pmBtnSuggest || "Neuen Standort vorschlagen";
+
+        if (document.getElementById("pm-stats-active"))
+          document.getElementById("pm-stats-active").innerText =
+            activeDict.statsActive || "Aktiv";
+        if (document.getElementById("pm-stats-ch"))
+          document.getElementById("pm-stats-ch").innerText =
+            activeDict.statsStationsCh || "Stationen in CH";
+        if (document.getElementById("pm-stats-record"))
+          document.getElementById("pm-stats-record").innerText =
+            activeDict.statsRecord || "Gesamt";
+        if (document.getElementById("pm-stats-days"))
+          document.getElementById("pm-stats-days").innerText =
+            activeDict.statsDaysExposure || "Tage Belichtung";
+        if (document.getElementById("pm-stats-science"))
+          document.getElementById("pm-stats-science").innerText =
+            activeDict.statsScience || "Chemikalien";
+        if (document.getElementById("pm-stats-commons"))
+          document.getElementById("pm-stats-commons").innerText =
+            activeDict.statsCommons || "Commons";
+        if (document.getElementById("pm-stats-open"))
+          document.getElementById("pm-stats-open").innerText =
+            activeDict.statsOpenData || "Open Data CH";
 
         if (document.getElementById("pm-toast-msg"))
           document.getElementById("pm-toast-msg").innerText =
@@ -2293,7 +2435,6 @@
             </div>
           </div>
           <div class="modal-header-right">
-            <div class="modal-badge">Archiv v3.8</div>
             <div class="modal-close" onclick="closeProjectModal(event)">
               <svg
                 viewBox="0 0 24 24"
@@ -2312,12 +2453,6 @@
           </div>
         </div>
 
-        <div class="modal-project-badge-container">
-          <div class="modal-project-badge">
-            <div class="modal-badge-dot"></div>
-            <span>Projektbeschrieb</span>
-          </div>
-        </div>
         <div class="project-modal-body">
           <!-- Hero Section -->
           <div class="project-hero-section">
@@ -2342,7 +2477,7 @@
                 <span id="pm-stats-active" class="stat-label">Aktiv</span>
               </div>
               <div class="stat-body">
-                <div class="stat-value">48+</div>
+                <div class="stat-value" id="pm-stats-active-val">48+</div>
                 <div id="pm-stats-ch" class="stat-subtext">Stationen in CH</div>
               </div>
             </div>
@@ -2355,7 +2490,7 @@
                 <span id="pm-stats-record" class="stat-label">Rekord</span>
               </div>
               <div class="stat-body">
-                <div class="stat-value">222</div>
+                <div class="stat-value" id="pm-stats-record-val">222</div>
                 <div id="pm-stats-days" class="stat-subtext">
                   Tage Belichtung
                 </div>
@@ -2894,18 +3029,6 @@
                 </div>
               </div>
             </div>
-          </div>
-
-          <!-- Call to Actions -->
-          <div class="project-cta-section">
-            <button class="cta-btn primary" onclick="closeProjectModal(event)">
-              <span class="material-symbols-outlined">map</span>
-              <span id="pm-btn-map">Zurück zur interaktiven Karte</span>
-            </button>
-            <button class="cta-btn secondary" id="suggestBtn">
-              <span class="material-symbols-outlined">add_location_alt</span>
-              <span id="pm-btn-suggest">Neuen Standort vorschlagen</span>
-            </button>
           </div>
         </div>
         <!-- End of project-modal-body -->
