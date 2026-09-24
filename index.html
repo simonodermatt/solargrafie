@@ -185,6 +185,27 @@
             </svg>
             <span class="btn-text">Projekt</span>
           </button>
+          <button
+            id="btn-contact"
+            class="toggle-btn"
+            onclick="window.location.href = 'mailto:map.solargrafie@gmail.com'"
+            title="Kontakt"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="4"></circle>
+              <path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"></path>
+            </svg>
+            <span class="btn-text">Kontakt</span>
+          </button>
         </div>
 
         <!-- Sprachumschalter -->
@@ -794,16 +815,19 @@
 
         if (document.getElementById("pm-astro-label"))
           document.getElementById("pm-astro-label").innerText =
-            activeDict.astroLabel || "ASTRONOMISCHES PRINZIP · SOLSTITIUM & ELEVATION";
+            activeDict.astroLabel ||
+            "ASTRONOMISCHES PRINZIP · SOLSTITIUM & ELEVATION";
         if (document.getElementById("pm-astro-badge"))
           document.getElementById("pm-astro-badge").innerText =
             activeDict.astroBadge || "Lat 47.0° N · Helvetischer Horizont";
         if (document.getElementById("pm-astro-title"))
           document.getElementById("pm-astro-title").innerText =
-            activeDict.astroTitle || "182 geschichtete Himmelsbögen zwischen zwei Extremen";
+            activeDict.astroTitle ||
+            "182 geschichtete Himmelsbögen zwischen zwei Extremen";
         if (document.getElementById("pm-astro-desc"))
           document.getElementById("pm-astro-desc").innerText =
-            activeDict.astroDesc || "Vom tiefsten Stand der Wintersonnenwende bis zum Zenit der Mittsommerhitze: 182 geschichtete Himmelsbögen spiegeln die Neigung der Erdachse (23.44°) über der Schweiz (47° N). Jeder einzelne Tag belichtet eine neue, infinitesimale Spur in das Silberhalogenid-Papier.";
+            activeDict.astroDesc ||
+            "Vom tiefsten Stand der Wintersonnenwende bis zum Zenit der Mittsommerhitze: 182 geschichtete Himmelsbögen spiegeln die Neigung der Erdachse (23.44°) über der Schweiz (47° N). Jeder einzelne Tag belichtet eine neue, infinitesimale Spur in das Silberhalogenid-Papier.";
 
         if (document.getElementById("pm-stat1-title"))
           document.getElementById("pm-stat1-title").innerHTML =
@@ -1153,6 +1177,15 @@
             .getElementById("btn-project")
             .querySelector(".btn-text").innerText =
             activeDict.project || "Projekt";
+        }
+        if (document.getElementById("btn-contact")) {
+          document
+            .getElementById("btn-contact")
+            .querySelector(".btn-text").innerText =
+            activeDict.contact || "Kontakt";
+          document
+            .getElementById("btn-contact")
+            .setAttribute("title", activeDict.contact || "Kontakt");
         }
 
         document.querySelectorAll(".lang-btn").forEach((btn) => {
