@@ -792,6 +792,19 @@
           document.getElementById("pm-pillar3-tag3").innerText =
             activeDict.pillar3Tag3 || "Sonnenstunden-Index";
 
+        if (document.getElementById("pm-astro-label"))
+          document.getElementById("pm-astro-label").innerText =
+            activeDict.astroLabel || "ASTRONOMISCHES PRINZIP · SOLSTITIUM & ELEVATION";
+        if (document.getElementById("pm-astro-badge"))
+          document.getElementById("pm-astro-badge").innerText =
+            activeDict.astroBadge || "Lat 47.0° N · Helvetischer Horizont";
+        if (document.getElementById("pm-astro-title"))
+          document.getElementById("pm-astro-title").innerText =
+            activeDict.astroTitle || "182 geschichtete Himmelsbögen zwischen zwei Extremen";
+        if (document.getElementById("pm-astro-desc"))
+          document.getElementById("pm-astro-desc").innerText =
+            activeDict.astroDesc || "Vom tiefsten Stand der Wintersonnenwende bis zum Zenit der Mittsommerhitze: 182 geschichtete Himmelsbögen spiegeln die Neigung der Erdachse (23.44°) über der Schweiz (47° N). Jeder einzelne Tag belichtet eine neue, infinitesimale Spur in das Silberhalogenid-Papier.";
+
         if (document.getElementById("pm-stat1-title"))
           document.getElementById("pm-stat1-title").innerHTML =
             activeDict.pmStat1Title || "48+";
@@ -1927,7 +1940,7 @@
                 >
               </summary>
               <div class="pillar-content">
-                <p id="pm-p1-text" class="pillar-desc">
+                <p id="pm-pillar1-text" class="pillar-desc">
                   Aus gebrauchten 0.5-Liter Aluminiumdosen entstehen
                   wetterfeste, lichtdichte Pinhole-Kammern. Eine mikroskopisch
                   feine 0.2mm Nadelblende in Alufolie fungiert als f/150-Blende
@@ -1973,7 +1986,7 @@
                 >
               </summary>
               <div class="pillar-content">
-                <p id="pm-p2-text" class="pillar-desc">
+                <p id="pm-pillar2-text" class="pillar-desc">
                   Reine Direktbelichtung auf analoges
                   Schwarzweiss-Silbergelatine-Fotopapier über bis zu 222 Tage
                   ohne Dunkelkammer-Chemiebad. Durch monatelange UV-Bestrahlung
@@ -2021,7 +2034,7 @@
                 >
               </summary>
               <div class="pillar-content">
-                <p id="pm-p3-text" class="pillar-desc">
+                <p id="pm-pillar3-text" class="pillar-desc">
                   Wolkenzüge, Nebelmeere und sonnige Tage zeichnen sich als
                   seismografische Himmelsspur ein. Jeder bewölkte Tag
                   hinterlässt eine Unterbrechung im Lichtbogen, dichte
