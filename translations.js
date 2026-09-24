@@ -25,7 +25,7 @@ const translations = {
     projectDescText:
       "Eine Solargrafie ist das radikalste Konzentrat von Dauer. Durch eine winzige Lochblende brennt sich das Sonnenlicht über bis zu 222 Tage schichtweise in photoempfindliches Silberpapier ein – ohne Akku, ohne Linse, ohne chemische Dunkelkammerentwicklung.",
     statsActive: "Aktiv",
-    statsStationsCh: "Stationen in",
+    statsStationsCh: "Stationen",
     statsRecord: "Gesamt",
     statsDaysExposure: "Tage Belichtung",
     statsScience: "Chemikalien",
@@ -128,7 +128,7 @@ const translations = {
     projectDescText:
       "A solargraph is the most radical concentrate of duration. Through a tiny pinhole, sunlight burns itself layer by layer into photosensitive silver paper for up to 222 days – without battery, without lens, without chemical darkroom development.",
     statsActive: "Active",
-    statsStationsCh: "Stations in",
+    statsStationsCh: "Stations",
     statsRecord: "Total",
     statsDaysExposure: "Days Exposure",
     statsScience: "Chemicals",
@@ -231,7 +231,7 @@ const translations = {
     projectDescText:
       "Une solargraphie est le concentré le plus radical de la durée. À travers un minuscule trou d'épingle, la lumière du soleil se brûle couche par couche dans du papier argentique photosensible jusqu'à 222 jours – sans batterie, sans objectif, sans développement chimique en chambre noire.",
     statsActive: "Actif",
-    statsStationsCh: "Stations en",
+    statsStationsCh: "Stations",
     statsRecord: "Total",
     statsDaysExposure: "Jours d'exposition",
     statsScience: "Produits chimiques",
@@ -341,7 +341,7 @@ const translations = {
     projectDescText:
       "Una solargrafia è il concentrato più radicale della durata. Attraverso un minuscolo foro stenopeico, la luce del sole si imprime strato dopo strato in carta fotosensibile all'argento per un massimo di 222 giorni – senza batteria, senza lente, senza sviluppo chimico in camera oscura.",
     statsActive: "Attivo",
-    statsStationsCh: "Stazioni in",
+    statsStationsCh: "Stazioni",
     statsRecord: "Totale",
     statsDaysExposure: "Giorni di esposizione",
     statsScience: "Sostanze chimiche",
@@ -446,7 +446,7 @@ const translations = {
     projectDescText:
       "Солярографія - це найрадикальніший концентрат тривалості. Через крихітний отвір (пінхол) сонячне світло шар за шаром випалюється на світлочутливому срібному папері протягом до 222 днів - без акумулятора, без об'єктива, без хімічного проявлення у фотолабораторії.",
     statsActive: "Активно",
-    statsStationsCh: "Станцій у",
+    statsStationsCh: "Станцій",
     statsRecord: "Всього",
     statsDaysExposure: "Днів експозиції",
     statsScience: "Хімікати",
@@ -555,7 +555,7 @@ const translations = {
     projectDescText:
       "Солярография - это самый радикальный концентрат длительности. Через крошечное отверстие (пинхол) солнечный свет слой за слоем выжигается на светочувствительной серебряной бумаге на протяжении до 222 дней - без аккумулятора, без объектива, без химической проявки в фотолаборатории.",
     statsActive: "Активно",
-    statsStationsCh: "Станций в",
+    statsStationsCh: "Станций",
     statsRecord: "Всего",
     statsDaysExposure: "Дней экспозиции",
     statsScience: "Химикаты",
