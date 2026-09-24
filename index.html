@@ -166,7 +166,7 @@
           <button
             id="btn-project"
             class="toggle-btn"
-            onclick="showWipMessage()"
+            onclick="openProjectModal()"
             title="Projekt"
           >
             <svg
@@ -863,6 +863,36 @@
 
       // 6. Sprachwechsel-Funktion
 
+      window.openProjectModal = function () {
+        document
+          .getElementById("project-modal-lightbox")
+          .classList.add("active");
+
+        // Setup toast logic
+        const suggestBtn = document.getElementById("suggestBtn");
+        const toast = document.getElementById("toastMessage");
+        if (suggestBtn && toast) {
+          suggestBtn.onclick = function () {
+            toast.classList.add("active");
+            setTimeout(() => {
+              toast.classList.remove("active");
+            }, 2800);
+          };
+        }
+      };
+
+      window.closeProjectModal = function (e) {
+        if (
+          e.target.id === "project-modal-lightbox" ||
+          e.target.closest(".modal-close") ||
+          e.target.closest(".cta-btn.primary")
+        ) {
+          document
+            .getElementById("project-modal-lightbox")
+            .classList.remove("active");
+        }
+      };
+
       window.showWipMessage = function () {
         const activeDict =
           typeof translations !== "undefined" && translations[currentLang]
@@ -1543,6 +1573,257 @@
         &times;
       </button>
       <img id="lightbox-img" src="" alt="Vollbild" />
+    </div>
+    <!-- Projekt Modal Overlay -->
+    <div
+      id="project-modal-lightbox"
+      class="modal"
+      onclick="closeProjectModal(event)"
+    >
+      <div class="modal-content-wrapper" onclick="event.stopPropagation()">
+        <!-- Header -->
+        <div class="modal-header">
+          <div class="modal-header-left">
+            <div class="modal-header-dot"></div>
+            <div>
+              <h2 id="project-modal-title">EVA & SIMON</h2>
+              <div class="font-body-sm text-body-sm text-on-surface-variant">
+                Observatorische Langzeitfotografie & Geodaten
+              </div>
+            </div>
+          </div>
+          <div class="modal-header-right">
+            <div class="modal-badge">Archiv v3.8</div>
+            <div class="modal-close" onclick="closeProjectModal(event)">
+              <svg
+                viewBox="0 0 24 24"
+                width="24"
+                height="24"
+                stroke="currentColor"
+                stroke-width="2"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-project-badge-container">
+          <div class="modal-project-badge">
+            <div class="modal-badge-dot"></div>
+            <span>Projektbeschrieb</span>
+          </div>
+        </div>
+
+        <!-- Hero Section -->
+        <div class="project-hero-section">
+          <h1 id="pm-desc-title" class="project-hero-title">
+            Die sichtbare Zeit. Wenn Monate der Sonnenbahn verschmelzen.
+          </h1>
+          <p id="pm-desc-text" class="project-hero-text">
+            Eine Solargrafie ist das radikalste Konzentrat von Dauer. Durch eine
+            winzige Lochblende brennt sich das Sonnenlicht über bis zu 222 Tage
+            schichtweise in photoempfindliches Silberpapier ein – ohne Akku,
+            ohne Linse, ohne chemische Dunkelkammerentwicklung.
+          </p>
+        </div>
+
+        <!-- 2x2 Key Stats Matrix Bento -->
+        <div class="project-stats-grid">
+          <div class="project-stat-card">
+            <div class="stat-header">
+              <span class="material-symbols-outlined stat-icon primary-color"
+                >location_on</span
+              >
+              <span id="pm-stats-active" class="stat-label">Aktiv</span>
+            </div>
+            <div class="stat-body">
+              <div class="stat-value">48+</div>
+              <div id="pm-stats-ch" class="stat-subtext">Stationen in CH</div>
+            </div>
+          </div>
+          <div class="project-stat-card">
+            <div class="stat-header">
+              <span class="material-symbols-outlined stat-icon secondary-color"
+                >wb_sunny</span
+              >
+              <span id="pm-stats-record" class="stat-label">Rekord</span>
+            </div>
+            <div class="stat-body">
+              <div class="stat-value">222</div>
+              <div id="pm-stats-days" class="stat-subtext">Tage Belichtung</div>
+            </div>
+          </div>
+          <div class="project-stat-card">
+            <div class="stat-header">
+              <span class="material-symbols-outlined stat-icon error-color"
+                >science</span
+              >
+              <span class="stat-label">0%</span>
+            </div>
+            <div class="stat-body">
+              <div class="stat-value">0%</div>
+              <div id="pm-stats-science" class="stat-subtext">Chemikalien</div>
+            </div>
+          </div>
+          <div class="project-stat-card">
+            <div class="stat-header">
+              <span class="material-symbols-outlined stat-icon tertiary-color"
+                >public</span
+              >
+              <span id="pm-stats-commons" class="stat-label">Commons</span>
+            </div>
+            <div class="stat-body">
+              <div class="stat-value">100%</div>
+              <div id="pm-stats-open" class="stat-subtext">Open Data CH</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- The Three Pillars of the Process -->
+        <div class="project-pillars-section">
+          <div class="pillars-header">
+            <span id="pm-pillars-title" class="pillars-title"
+              >Die drei Pfeiler des Verfahrens</span
+            >
+            <span id="pm-pillars-method" class="pillars-method">Methodik</span>
+          </div>
+
+          <details class="pillar-details" open>
+            <summary class="pillar-summary">
+              <div class="pillar-summary-left">
+                <span class="pillar-number primary-bg primary-text">01</span>
+                <div class="pillar-summary-text">
+                  <span id="pm-p1-title" class="pillar-item-title"
+                    >Apparatur: Die Lochkamera</span
+                  >
+                  <span id="pm-p1-sub" class="pillar-item-sub"
+                    >Upcycling-Dose & 0.2mm Nadelblende</span
+                  >
+                </div>
+              </div>
+              <span class="material-symbols-outlined expand-icon"
+                >expand_more</span
+              >
+            </summary>
+            <div class="pillar-content">
+              <p id="pm-p1-text" class="pillar-desc">
+                Aus gebrauchten 0.5-Liter Aluminiumdosen entstehen wetterfeste,
+                lichtdichte Pinhole-Kammern. Eine mikroskopisch feine 0.2mm
+                Nadelblende in Alufolie fungiert als f/150-Blende – komplett
+                ohne optische Glaslinse, mit physikalisch nahezu unendlicher
+                Schärfentiefe vom Nahbereich bis zum Alpenhorizont.
+              </p>
+              <div class="pillar-tags">
+                <span id="pm-p1-tag1" class="pillar-tag">Brennweite ~40mm</span>
+                <span id="pm-p1-tag2" class="pillar-tag">Blende f/150</span>
+                <span id="pm-p1-tag3" class="pillar-tag">Wetterfest IP67</span>
+              </div>
+            </div>
+          </details>
+
+          <details class="pillar-details" open>
+            <summary class="pillar-summary">
+              <div class="pillar-summary-left">
+                <span class="pillar-number secondary-bg secondary-text"
+                  >02</span
+                >
+                <div class="pillar-summary-text">
+                  <span id="pm-p2-title" class="pillar-item-title"
+                    >Photolyse: Chemielose Belichtung</span
+                  >
+                  <span id="pm-p2-sub" class="pillar-item-sub"
+                    >Direktbelichtung ohne Dunkelkammerbad</span
+                  >
+                </div>
+              </div>
+              <span class="material-symbols-outlined expand-icon"
+                >expand_more</span
+              >
+            </summary>
+            <div class="pillar-content">
+              <p id="pm-p2-text" class="pillar-desc">
+                Reine Direktbelichtung auf analoges
+                Schwarzweiss-Silbergelatine-Fotopapier über bis zu 222 Tage ohne
+                Dunkelkammer-Chemiebad. Durch monatelange UV-Bestrahlung spaltet
+                sich das Silberhalogenid im Papier physikalisch selbstständig ab
+                (Photolyse). Die Spuren werden im Anschluss zerstörungsfrei
+                hochauflösend digitalisiert.
+              </p>
+              <div class="pillar-tags">
+                <span id="pm-p2-tag1" class="pillar-tag">0% Chemie</span>
+                <span id="pm-p2-tag2" class="pillar-tag"
+                  >Silbergelatine-Papier</span
+                >
+                <span id="pm-p2-tag3" class="pillar-tag">Analoge Unikate</span>
+              </div>
+            </div>
+          </details>
+
+          <details class="pillar-details" open>
+            <summary class="pillar-summary">
+              <div class="pillar-summary-left">
+                <span class="pillar-number tertiary-bg tertiary-text">03</span>
+                <div class="pillar-summary-text">
+                  <span id="pm-p3-title" class="pillar-item-title"
+                    >Meteorologie: Klima- & Sonnenarchiv</span
+                  >
+                  <span id="pm-p3-sub" class="pillar-item-sub"
+                    >Wolkenzüge, Nebelmeere & Seismografie</span
+                  >
+                </div>
+              </div>
+              <span class="material-symbols-outlined expand-icon"
+                >expand_more</span
+              >
+            </summary>
+            <div class="pillar-content">
+              <p id="pm-p3-text" class="pillar-desc">
+                Wolkenzüge, Nebelmeere und sonnige Tage zeichnen sich als
+                seismografische Himmelsspur ein. Jeder bewölkte Tag hinterlässt
+                eine Unterbrechung im Lichtbogen, dichte Nebeldecken im
+                Mittelland dämpfen die Strahlung. So entsteht ein authentischer
+                chronologischer Klimazeitzeuge.
+              </p>
+              <div class="pillar-tags">
+                <span id="pm-p3-tag1" class="pillar-tag"
+                  >Meteo-Korrelation</span
+                >
+                <span id="pm-p3-tag2" class="pillar-tag"
+                  >Schweizer Mikroklima</span
+                >
+                <span id="pm-p3-tag3" class="pillar-tag"
+                  >Sonnenstunden-Index</span
+                >
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <!-- Call to Actions -->
+        <div class="project-cta-section">
+          <button class="cta-btn primary" onclick="closeProjectModal(event)">
+            <span class="material-symbols-outlined">map</span>
+            <span id="pm-btn-map">Zurück zur interaktiven Karte</span>
+          </button>
+          <button class="cta-btn secondary" id="suggestBtn">
+            <span class="material-symbols-outlined">add_location_alt</span>
+            <span id="pm-btn-suggest">Neuen Standort vorschlagen</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Micro Modal Feedback Toast -->
+      <div id="toastMessage" class="toast-message">
+        <span class="material-symbols-outlined">check_circle</span>
+        <span id="pm-toast-msg" class="toast-text"
+          >Danke! Vorschlagsformular wird geöffnet...</span
+        >
+      </div>
     </div>
   </body>
 </html>
