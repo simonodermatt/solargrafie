@@ -166,7 +166,7 @@
           <button
             id="btn-project"
             class="toggle-btn"
-            onclick="showWipMessage()"
+            onclick="openProjectModal()"
             title="Projekt"
           >
             <svg
@@ -720,6 +720,204 @@
             const data = await res.json();
             window.solargrafieDaten = data;
             renderMarkers();
+            updateProjectStats();
+
+            // Update Project Modal
+            if (document.getElementById("pm-badge"))
+              document.getElementById("pm-badge").innerText =
+                activeDict.pmBadge || "Projektbeschrieb";
+            if (document.getElementById("pm-title"))
+              document.getElementById("pm-title").innerText =
+                activeDict.pmTitle ||
+                "Die sichtbare Zeit. Wenn Monate der Sonnenbahn verschmelzen.";
+            if (document.getElementById("pm-desc"))
+              document.getElementById("pm-desc").innerText =
+                activeDict.pmDesc ||
+                "Eine Solargrafie ist das radikalste Konzentrat von Dauer. Durch eine winzige Lochblende brennt sich das Sonnenlicht über bis zu 222 Tage schichtweise in photoempfindliches Silberpapier ein – ohne Akku, ohne Linse, ohne chemische Dunkelkammerentwicklung.";
+
+            if (document.getElementById("pm-stat1-title"))
+              document.getElementById("pm-stat1-title").innerHTML =
+                activeDict.pmStat1Title || "48+";
+            if (document.getElementById("pm-stat1-desc"))
+              document.getElementById("pm-stat1-desc").innerText =
+                activeDict.pmStat1Desc || "Stationen in CH";
+
+            if (document.getElementById("pm-stat2-title"))
+              document.getElementById("pm-stat2-title").innerHTML =
+                activeDict.pmStat2Title || "222";
+            if (document.getElementById("pm-stat2-desc"))
+              document.getElementById("pm-stat2-desc").innerText =
+                activeDict.pmStat2Desc || "Tage Belichtung";
+
+            if (document.getElementById("pm-stat3-title"))
+              document.getElementById("pm-stat3-title").innerHTML =
+                activeDict.pmStat3Title || "0%";
+            if (document.getElementById("pm-stat3-desc"))
+              document.getElementById("pm-stat3-desc").innerText =
+                activeDict.pmStat3Desc || "Chemikalien";
+
+            if (document.getElementById("pm-stat4-title"))
+              document.getElementById("pm-stat4-title").innerHTML =
+                activeDict.pmStat4Title || "100%";
+            if (document.getElementById("pm-stat4-desc"))
+              document.getElementById("pm-stat4-desc").innerText =
+                activeDict.pmStat4Desc || "Open Data CH";
+
+            if (document.getElementById("pm-section-title"))
+              document.getElementById("pm-section-title").innerText =
+                activeDict.pmSectionTitle || "DIE DREI PFEILER DES VERFAHRENS";
+
+            if (document.getElementById("pm-pillar1-title"))
+              document.getElementById("pm-pillar1-title").innerText =
+                activeDict.pmPillar1Title || "Apparatur: Die Lochkamera";
+            if (document.getElementById("pm-pillar1-subtitle"))
+              document.getElementById("pm-pillar1-subtitle").innerText =
+                activeDict.pmPillar1Subtitle ||
+                "Upcycling-Dose & 0.2mm Nadelblende";
+            if (document.getElementById("pm-pillar1-desc"))
+              document.getElementById("pm-pillar1-desc").innerText =
+                activeDict.pmPillar1Desc ||
+                "Aus gebrauchten 0.5-Liter Aluminiumdosen entstehen wetterfeste, lichtdichte Pinhole-Kammern. Eine mikroskopisch feine 0.2mm Nadelblende in Alufolie fungiert als f/150-Blende – komplett ohne optische Glaslinse, mit physikalisch nahezu unendlicher Schärfentiefe vom Nahbereich bis zum Alpenhorizont.";
+
+            if (document.getElementById("pm-pillar2-title"))
+              document.getElementById("pm-pillar2-title").innerText =
+                activeDict.pmPillar2Title || "Photolyse: Chemielose Belichtung";
+            if (document.getElementById("pm-pillar2-subtitle"))
+              document.getElementById("pm-pillar2-subtitle").innerText =
+                activeDict.pmPillar2Subtitle ||
+                "Direktbelichtung ohne Dunkelkammerbad";
+            if (document.getElementById("pm-pillar2-desc"))
+              document.getElementById("pm-pillar2-desc").innerText =
+                activeDict.pmPillar2Desc ||
+                "Reine Direktbelichtung auf analoges Schwarzweiss-Silbergelatine-Fotopapier über bis zu 222 Tage ohne Dunkelkammer-Chemiebad. Durch monatelange UV-Bestrahlung spaltet sich das Silberhalogenid im Papier physikalisch selbstständig ab (Photolyse). Die Spuren werden im Scanner als Farb-Negativ digitalisiert und invertiert.";
+
+            if (document.getElementById("pm-pillar3-title"))
+              document.getElementById("pm-pillar3-title").innerText =
+                activeDict.pmPillar3Title || "Geodaten: Kartierung der Zeit";
+            if (document.getElementById("pm-pillar3-subtitle"))
+              document.getElementById("pm-pillar3-subtitle").innerText =
+                activeDict.pmPillar3Subtitle ||
+                "Standort-Metadaten & GIS-Verknüpfung";
+            if (document.getElementById("pm-pillar3-desc"))
+              document.getElementById("pm-pillar3-desc").innerText =
+                activeDict.pmPillar3Desc ||
+                "Jeder Standort wird mit präzisen GPS-Koordinaten, Azimut-Ausrichtung (Kompasswinkel) und Höhenmetern dokumentiert. Die Web-Karte aggregiert diese Metadaten und macht die lokalen Sonnenbahnen interaktiv geografisch erfahrbar.";
+
+            if (document.getElementById("pm-astro-label"))
+              document.getElementById("pm-astro-label").innerText =
+                activeDict.astroLabel || "ASTRONOMISCHES PRINZIP";
+            if (document.getElementById("pm-astro-title"))
+              document.getElementById("pm-astro-title").innerText =
+                activeDict.astroTitle || "Solstitium & Elevation";
+            if (document.getElementById("pm-astro-desc"))
+              document.getElementById("pm-astro-desc").innerText =
+                activeDict.astroDesc ||
+                "Die scheinbare Bahn der Sonne am Himmel verschiebt sich im Jahresverlauf durch die Neigung der Erdachse. Auf der Solargrafie wird dieser Deklinations-Drift als vertikales Bänder-Muster sichtbar: Die oberste Lichtspur markiert das Winter-Solstitium, die unterste das Sommer-Solstitium.";
+
+            if (document.getElementById("pm-svg-east"))
+              document.getElementById("pm-svg-east").innerText =
+                activeDict.astroEast || "OST (90°)";
+            if (document.getElementById("pm-svg-south"))
+              document.getElementById("pm-svg-south").innerText =
+                activeDict.astroSouth || "SÜDEN (180° Zenith)";
+            if (document.getElementById("pm-svg-west"))
+              document.getElementById("pm-svg-west").innerText =
+                activeDict.astroWest || "WEST (270°)";
+
+            if (document.getElementById("pm-svg-summer-text"))
+              document.getElementById("pm-svg-summer-text").innerText =
+                activeDict.astroSummerSvg ||
+                "63.4° Zenit (Sommersolstitium · 21. Juni)";
+            if (document.getElementById("pm-svg-equinox-text"))
+              document.getElementById("pm-svg-equinox-text").innerText =
+                activeDict.astroEquinoxSvg ||
+                "43.0° Äquinoktium (21. März / Sept)";
+            if (document.getElementById("pm-svg-winter-text"))
+              document.getElementById("pm-svg-winter-text").innerText =
+                activeDict.astroWinterSvg ||
+                "16.5° Tiefststand (Wintersolstitium · 21. Dez)";
+
+            if (document.getElementById("pm-diagram-proj"))
+              document.getElementById("pm-diagram-proj").innerText =
+                activeDict.astroProj ||
+                "Zylindrische Projektion der Nadelloch-Belichtungsebene";
+            if (document.getElementById("pm-diagram-drift"))
+              document.getElementById("pm-diagram-drift").innerText =
+                activeDict.astroDrift ||
+                "Neigung der Erdachse: 23.44° · Δ 46.9° Drift";
+
+            if (document.getElementById("pm-winter-card-title"))
+              document.getElementById("pm-winter-card-title").innerText =
+                activeDict.astroWinterTitle || "WINTERSOLSTITIUM";
+            if (document.getElementById("pm-winter-daylength-lbl"))
+              document.getElementById("pm-winter-daylength-lbl").innerText =
+                activeDict.astroDaylength || "Tageslänge";
+            if (document.getElementById("pm-winter-month-lbl"))
+              document.getElementById("pm-winter-month-lbl").innerText =
+                activeDict.astroMonth || "Monat";
+            if (document.getElementById("pm-winter-month-val"))
+              document.getElementById("pm-winter-month-val").innerText =
+                activeDict.astroWinterMonth || "21. Dezember";
+
+            if (document.getElementById("pm-summer-card-title"))
+              document.getElementById("pm-summer-card-title").innerText =
+                activeDict.astroSummerTitle || "SOMMERSOLSTITIUM";
+            if (document.getElementById("pm-summer-daylength-lbl"))
+              document.getElementById("pm-summer-daylength-lbl").innerText =
+                activeDict.astroDaylength || "Tageslänge";
+            if (document.getElementById("pm-summer-month-lbl"))
+              document.getElementById("pm-summer-month-lbl").innerText =
+                activeDict.astroMonth || "Monat";
+            if (document.getElementById("pm-summer-month-val"))
+              document.getElementById("pm-summer-month-val").innerText =
+                activeDict.astroSummerMonth || "21. Juni";
+
+            if (document.getElementById("pm-drift-card-title"))
+              document.getElementById("pm-drift-card-title").innerText =
+                activeDict.astroDriftTitle || "DEKLINATION & DRIFT";
+            if (document.getElementById("pm-drift-span-lbl"))
+              document.getElementById("pm-drift-span-lbl").innerText =
+                activeDict.astroSkySpan || "Himmelsspanne";
+            if (document.getElementById("pm-drift-span-val"))
+              document.getElementById("pm-drift-span-val").innerText =
+                activeDict.astroChPlateau || "Schweizer Mittelland";
+            if (document.getElementById("pm-drift-diff-lbl"))
+              document.getElementById("pm-drift-diff-lbl").innerText =
+                activeDict.astroDaylightDiff || "Tageslicht-Differenz";
+
+            if (document.getElementById("pm-btn-map"))
+              document.getElementById("pm-btn-map").innerText =
+                activeDict.pmBtnMap || "Zurück zur interaktiven Karte";
+            if (document.getElementById("pm-btn-suggest"))
+              document.getElementById("pm-btn-suggest").innerText =
+                activeDict.pmBtnSuggest || "Neuen Standort vorschlagen";
+
+            if (document.getElementById("pm-stats-active"))
+              document.getElementById("pm-stats-active").innerText =
+                activeDict.statsActive || "Aktiv";
+            if (document.getElementById("pm-stats-ch"))
+              document.getElementById("pm-stats-ch").innerText =
+                activeDict.statsStationsCh || "Stationen in CH";
+            if (document.getElementById("pm-stats-record"))
+              document.getElementById("pm-stats-record").innerText =
+                activeDict.statsRecord || "Gesamt";
+            if (document.getElementById("pm-stats-days"))
+              document.getElementById("pm-stats-days").innerText =
+                activeDict.statsDaysExposure || "Tage Belichtung";
+            if (document.getElementById("pm-stats-science"))
+              document.getElementById("pm-stats-science").innerText =
+                activeDict.statsScience || "Chemikalien";
+            if (document.getElementById("pm-stats-commons"))
+              document.getElementById("pm-stats-commons").innerText =
+                activeDict.statsCommons || "Commons";
+            if (document.getElementById("pm-stats-open"))
+              document.getElementById("pm-stats-open").innerText =
+                activeDict.statsOpenData || "Open Data CH";
+
+            if (document.getElementById("pm-toast-msg"))
+              document.getElementById("pm-toast-msg").innerText =
+                activeDict.pmToastMsg ||
+                "Danke! Vorschlagsformular wird geöffnet...";
             return;
           } catch (err) {
             console.warn(
@@ -748,6 +946,206 @@
                 return obj;
               });
               renderMarkers();
+              updateProjectStats();
+
+              // Update Project Modal
+              if (document.getElementById("pm-badge"))
+                document.getElementById("pm-badge").innerText =
+                  activeDict.pmBadge || "Projektbeschrieb";
+              if (document.getElementById("pm-title"))
+                document.getElementById("pm-title").innerText =
+                  activeDict.pmTitle ||
+                  "Die sichtbare Zeit. Wenn Monate der Sonnenbahn verschmelzen.";
+              if (document.getElementById("pm-desc"))
+                document.getElementById("pm-desc").innerText =
+                  activeDict.pmDesc ||
+                  "Eine Solargrafie ist das radikalste Konzentrat von Dauer. Durch eine winzige Lochblende brennt sich das Sonnenlicht über bis zu 222 Tage schichtweise in photoempfindliches Silberpapier ein – ohne Akku, ohne Linse, ohne chemische Dunkelkammerentwicklung.";
+
+              if (document.getElementById("pm-stat1-title"))
+                document.getElementById("pm-stat1-title").innerHTML =
+                  activeDict.pmStat1Title || "48+";
+              if (document.getElementById("pm-stat1-desc"))
+                document.getElementById("pm-stat1-desc").innerText =
+                  activeDict.pmStat1Desc || "Stationen in CH";
+
+              if (document.getElementById("pm-stat2-title"))
+                document.getElementById("pm-stat2-title").innerHTML =
+                  activeDict.pmStat2Title || "222";
+              if (document.getElementById("pm-stat2-desc"))
+                document.getElementById("pm-stat2-desc").innerText =
+                  activeDict.pmStat2Desc || "Tage Belichtung";
+
+              if (document.getElementById("pm-stat3-title"))
+                document.getElementById("pm-stat3-title").innerHTML =
+                  activeDict.pmStat3Title || "0%";
+              if (document.getElementById("pm-stat3-desc"))
+                document.getElementById("pm-stat3-desc").innerText =
+                  activeDict.pmStat3Desc || "Chemikalien";
+
+              if (document.getElementById("pm-stat4-title"))
+                document.getElementById("pm-stat4-title").innerHTML =
+                  activeDict.pmStat4Title || "100%";
+              if (document.getElementById("pm-stat4-desc"))
+                document.getElementById("pm-stat4-desc").innerText =
+                  activeDict.pmStat4Desc || "Open Data CH";
+
+              if (document.getElementById("pm-section-title"))
+                document.getElementById("pm-section-title").innerText =
+                  activeDict.pmSectionTitle ||
+                  "DIE DREI PFEILER DES VERFAHRENS";
+
+              if (document.getElementById("pm-pillar1-title"))
+                document.getElementById("pm-pillar1-title").innerText =
+                  activeDict.pmPillar1Title || "Apparatur: Die Lochkamera";
+              if (document.getElementById("pm-pillar1-subtitle"))
+                document.getElementById("pm-pillar1-subtitle").innerText =
+                  activeDict.pmPillar1Subtitle ||
+                  "Upcycling-Dose & 0.2mm Nadelblende";
+              if (document.getElementById("pm-pillar1-desc"))
+                document.getElementById("pm-pillar1-desc").innerText =
+                  activeDict.pmPillar1Desc ||
+                  "Aus gebrauchten 0.5-Liter Aluminiumdosen entstehen wetterfeste, lichtdichte Pinhole-Kammern. Eine mikroskopisch feine 0.2mm Nadelblende in Alufolie fungiert als f/150-Blende – komplett ohne optische Glaslinse, mit physikalisch nahezu unendlicher Schärfentiefe vom Nahbereich bis zum Alpenhorizont.";
+
+              if (document.getElementById("pm-pillar2-title"))
+                document.getElementById("pm-pillar2-title").innerText =
+                  activeDict.pmPillar2Title ||
+                  "Photolyse: Chemielose Belichtung";
+              if (document.getElementById("pm-pillar2-subtitle"))
+                document.getElementById("pm-pillar2-subtitle").innerText =
+                  activeDict.pmPillar2Subtitle ||
+                  "Direktbelichtung ohne Dunkelkammerbad";
+              if (document.getElementById("pm-pillar2-desc"))
+                document.getElementById("pm-pillar2-desc").innerText =
+                  activeDict.pmPillar2Desc ||
+                  "Reine Direktbelichtung auf analoges Schwarzweiss-Silbergelatine-Fotopapier über bis zu 222 Tage ohne Dunkelkammer-Chemiebad. Durch monatelange UV-Bestrahlung spaltet sich das Silberhalogenid im Papier physikalisch selbstständig ab (Photolyse). Die Spuren werden im Scanner als Farb-Negativ digitalisiert und invertiert.";
+
+              if (document.getElementById("pm-pillar3-title"))
+                document.getElementById("pm-pillar3-title").innerText =
+                  activeDict.pmPillar3Title || "Geodaten: Kartierung der Zeit";
+              if (document.getElementById("pm-pillar3-subtitle"))
+                document.getElementById("pm-pillar3-subtitle").innerText =
+                  activeDict.pmPillar3Subtitle ||
+                  "Standort-Metadaten & GIS-Verknüpfung";
+              if (document.getElementById("pm-pillar3-desc"))
+                document.getElementById("pm-pillar3-desc").innerText =
+                  activeDict.pmPillar3Desc ||
+                  "Jeder Standort wird mit präzisen GPS-Koordinaten, Azimut-Ausrichtung (Kompasswinkel) und Höhenmetern dokumentiert. Die Web-Karte aggregiert diese Metadaten und macht die lokalen Sonnenbahnen interaktiv geografisch erfahrbar.";
+
+              if (document.getElementById("pm-astro-label"))
+                document.getElementById("pm-astro-label").innerText =
+                  activeDict.astroLabel || "ASTRONOMISCHES PRINZIP";
+              if (document.getElementById("pm-astro-title"))
+                document.getElementById("pm-astro-title").innerText =
+                  activeDict.astroTitle || "Solstitium & Elevation";
+              if (document.getElementById("pm-astro-desc"))
+                document.getElementById("pm-astro-desc").innerText =
+                  activeDict.astroDesc ||
+                  "Die scheinbare Bahn der Sonne am Himmel verschiebt sich im Jahresverlauf durch die Neigung der Erdachse. Auf der Solargrafie wird dieser Deklinations-Drift als vertikales Bänder-Muster sichtbar: Die oberste Lichtspur markiert das Winter-Solstitium, die unterste das Sommer-Solstitium.";
+
+              if (document.getElementById("pm-svg-east"))
+                document.getElementById("pm-svg-east").innerText =
+                  activeDict.astroEast || "OST (90°)";
+              if (document.getElementById("pm-svg-south"))
+                document.getElementById("pm-svg-south").innerText =
+                  activeDict.astroSouth || "SÜDEN (180° Zenith)";
+              if (document.getElementById("pm-svg-west"))
+                document.getElementById("pm-svg-west").innerText =
+                  activeDict.astroWest || "WEST (270°)";
+
+              if (document.getElementById("pm-svg-summer-text"))
+                document.getElementById("pm-svg-summer-text").innerText =
+                  activeDict.astroSummerSvg ||
+                  "63.4° Zenit (Sommersolstitium · 21. Juni)";
+              if (document.getElementById("pm-svg-equinox-text"))
+                document.getElementById("pm-svg-equinox-text").innerText =
+                  activeDict.astroEquinoxSvg ||
+                  "43.0° Äquinoktium (21. März / Sept)";
+              if (document.getElementById("pm-svg-winter-text"))
+                document.getElementById("pm-svg-winter-text").innerText =
+                  activeDict.astroWinterSvg ||
+                  "16.5° Tiefststand (Wintersolstitium · 21. Dez)";
+
+              if (document.getElementById("pm-diagram-proj"))
+                document.getElementById("pm-diagram-proj").innerText =
+                  activeDict.astroProj ||
+                  "Zylindrische Projektion der Nadelloch-Belichtungsebene";
+              if (document.getElementById("pm-diagram-drift"))
+                document.getElementById("pm-diagram-drift").innerText =
+                  activeDict.astroDrift ||
+                  "Neigung der Erdachse: 23.44° · Δ 46.9° Drift";
+
+              if (document.getElementById("pm-winter-card-title"))
+                document.getElementById("pm-winter-card-title").innerText =
+                  activeDict.astroWinterTitle || "WINTERSOLSTITIUM";
+              if (document.getElementById("pm-winter-daylength-lbl"))
+                document.getElementById("pm-winter-daylength-lbl").innerText =
+                  activeDict.astroDaylength || "Tageslänge";
+              if (document.getElementById("pm-winter-month-lbl"))
+                document.getElementById("pm-winter-month-lbl").innerText =
+                  activeDict.astroMonth || "Monat";
+              if (document.getElementById("pm-winter-month-val"))
+                document.getElementById("pm-winter-month-val").innerText =
+                  activeDict.astroWinterMonth || "21. Dezember";
+
+              if (document.getElementById("pm-summer-card-title"))
+                document.getElementById("pm-summer-card-title").innerText =
+                  activeDict.astroSummerTitle || "SOMMERSOLSTITIUM";
+              if (document.getElementById("pm-summer-daylength-lbl"))
+                document.getElementById("pm-summer-daylength-lbl").innerText =
+                  activeDict.astroDaylength || "Tageslänge";
+              if (document.getElementById("pm-summer-month-lbl"))
+                document.getElementById("pm-summer-month-lbl").innerText =
+                  activeDict.astroMonth || "Monat";
+              if (document.getElementById("pm-summer-month-val"))
+                document.getElementById("pm-summer-month-val").innerText =
+                  activeDict.astroSummerMonth || "21. Juni";
+
+              if (document.getElementById("pm-drift-card-title"))
+                document.getElementById("pm-drift-card-title").innerText =
+                  activeDict.astroDriftTitle || "DEKLINATION & DRIFT";
+              if (document.getElementById("pm-drift-span-lbl"))
+                document.getElementById("pm-drift-span-lbl").innerText =
+                  activeDict.astroSkySpan || "Himmelsspanne";
+              if (document.getElementById("pm-drift-span-val"))
+                document.getElementById("pm-drift-span-val").innerText =
+                  activeDict.astroChPlateau || "Schweizer Mittelland";
+              if (document.getElementById("pm-drift-diff-lbl"))
+                document.getElementById("pm-drift-diff-lbl").innerText =
+                  activeDict.astroDaylightDiff || "Tageslicht-Differenz";
+
+              if (document.getElementById("pm-btn-map"))
+                document.getElementById("pm-btn-map").innerText =
+                  activeDict.pmBtnMap || "Zurück zur interaktiven Karte";
+              if (document.getElementById("pm-btn-suggest"))
+                document.getElementById("pm-btn-suggest").innerText =
+                  activeDict.pmBtnSuggest || "Neuen Standort vorschlagen";
+
+              if (document.getElementById("pm-stats-active"))
+                document.getElementById("pm-stats-active").innerText =
+                  activeDict.statsActive || "Aktiv";
+              if (document.getElementById("pm-stats-ch"))
+                document.getElementById("pm-stats-ch").innerText =
+                  activeDict.statsStationsCh || "Stationen in CH";
+              if (document.getElementById("pm-stats-record"))
+                document.getElementById("pm-stats-record").innerText =
+                  activeDict.statsRecord || "Gesamt";
+              if (document.getElementById("pm-stats-days"))
+                document.getElementById("pm-stats-days").innerText =
+                  activeDict.statsDaysExposure || "Tage Belichtung";
+              if (document.getElementById("pm-stats-science"))
+                document.getElementById("pm-stats-science").innerText =
+                  activeDict.statsScience || "Chemikalien";
+              if (document.getElementById("pm-stats-commons"))
+                document.getElementById("pm-stats-commons").innerText =
+                  activeDict.statsCommons || "Commons";
+              if (document.getElementById("pm-stats-open"))
+                document.getElementById("pm-stats-open").innerText =
+                  activeDict.statsOpenData || "Open Data CH";
+
+              if (document.getElementById("pm-toast-msg"))
+                document.getElementById("pm-toast-msg").innerText =
+                  activeDict.pmToastMsg ||
+                  "Danke! Vorschlagsformular wird geöffnet...";
               return;
             }
           } catch (err) {
@@ -770,6 +1168,204 @@
           complete: function (results) {
             window.solargrafieDaten = results.data;
             renderMarkers();
+            updateProjectStats();
+
+            // Update Project Modal
+            if (document.getElementById("pm-badge"))
+              document.getElementById("pm-badge").innerText =
+                activeDict.pmBadge || "Projektbeschrieb";
+            if (document.getElementById("pm-title"))
+              document.getElementById("pm-title").innerText =
+                activeDict.pmTitle ||
+                "Die sichtbare Zeit. Wenn Monate der Sonnenbahn verschmelzen.";
+            if (document.getElementById("pm-desc"))
+              document.getElementById("pm-desc").innerText =
+                activeDict.pmDesc ||
+                "Eine Solargrafie ist das radikalste Konzentrat von Dauer. Durch eine winzige Lochblende brennt sich das Sonnenlicht über bis zu 222 Tage schichtweise in photoempfindliches Silberpapier ein – ohne Akku, ohne Linse, ohne chemische Dunkelkammerentwicklung.";
+
+            if (document.getElementById("pm-stat1-title"))
+              document.getElementById("pm-stat1-title").innerHTML =
+                activeDict.pmStat1Title || "48+";
+            if (document.getElementById("pm-stat1-desc"))
+              document.getElementById("pm-stat1-desc").innerText =
+                activeDict.pmStat1Desc || "Stationen in CH";
+
+            if (document.getElementById("pm-stat2-title"))
+              document.getElementById("pm-stat2-title").innerHTML =
+                activeDict.pmStat2Title || "222";
+            if (document.getElementById("pm-stat2-desc"))
+              document.getElementById("pm-stat2-desc").innerText =
+                activeDict.pmStat2Desc || "Tage Belichtung";
+
+            if (document.getElementById("pm-stat3-title"))
+              document.getElementById("pm-stat3-title").innerHTML =
+                activeDict.pmStat3Title || "0%";
+            if (document.getElementById("pm-stat3-desc"))
+              document.getElementById("pm-stat3-desc").innerText =
+                activeDict.pmStat3Desc || "Chemikalien";
+
+            if (document.getElementById("pm-stat4-title"))
+              document.getElementById("pm-stat4-title").innerHTML =
+                activeDict.pmStat4Title || "100%";
+            if (document.getElementById("pm-stat4-desc"))
+              document.getElementById("pm-stat4-desc").innerText =
+                activeDict.pmStat4Desc || "Open Data CH";
+
+            if (document.getElementById("pm-section-title"))
+              document.getElementById("pm-section-title").innerText =
+                activeDict.pmSectionTitle || "DIE DREI PFEILER DES VERFAHRENS";
+
+            if (document.getElementById("pm-pillar1-title"))
+              document.getElementById("pm-pillar1-title").innerText =
+                activeDict.pmPillar1Title || "Apparatur: Die Lochkamera";
+            if (document.getElementById("pm-pillar1-subtitle"))
+              document.getElementById("pm-pillar1-subtitle").innerText =
+                activeDict.pmPillar1Subtitle ||
+                "Upcycling-Dose & 0.2mm Nadelblende";
+            if (document.getElementById("pm-pillar1-desc"))
+              document.getElementById("pm-pillar1-desc").innerText =
+                activeDict.pmPillar1Desc ||
+                "Aus gebrauchten 0.5-Liter Aluminiumdosen entstehen wetterfeste, lichtdichte Pinhole-Kammern. Eine mikroskopisch feine 0.2mm Nadelblende in Alufolie fungiert als f/150-Blende – komplett ohne optische Glaslinse, mit physikalisch nahezu unendlicher Schärfentiefe vom Nahbereich bis zum Alpenhorizont.";
+
+            if (document.getElementById("pm-pillar2-title"))
+              document.getElementById("pm-pillar2-title").innerText =
+                activeDict.pmPillar2Title || "Photolyse: Chemielose Belichtung";
+            if (document.getElementById("pm-pillar2-subtitle"))
+              document.getElementById("pm-pillar2-subtitle").innerText =
+                activeDict.pmPillar2Subtitle ||
+                "Direktbelichtung ohne Dunkelkammerbad";
+            if (document.getElementById("pm-pillar2-desc"))
+              document.getElementById("pm-pillar2-desc").innerText =
+                activeDict.pmPillar2Desc ||
+                "Reine Direktbelichtung auf analoges Schwarzweiss-Silbergelatine-Fotopapier über bis zu 222 Tage ohne Dunkelkammer-Chemiebad. Durch monatelange UV-Bestrahlung spaltet sich das Silberhalogenid im Papier physikalisch selbstständig ab (Photolyse). Die Spuren werden im Scanner als Farb-Negativ digitalisiert und invertiert.";
+
+            if (document.getElementById("pm-pillar3-title"))
+              document.getElementById("pm-pillar3-title").innerText =
+                activeDict.pmPillar3Title || "Geodaten: Kartierung der Zeit";
+            if (document.getElementById("pm-pillar3-subtitle"))
+              document.getElementById("pm-pillar3-subtitle").innerText =
+                activeDict.pmPillar3Subtitle ||
+                "Standort-Metadaten & GIS-Verknüpfung";
+            if (document.getElementById("pm-pillar3-desc"))
+              document.getElementById("pm-pillar3-desc").innerText =
+                activeDict.pmPillar3Desc ||
+                "Jeder Standort wird mit präzisen GPS-Koordinaten, Azimut-Ausrichtung (Kompasswinkel) und Höhenmetern dokumentiert. Die Web-Karte aggregiert diese Metadaten und macht die lokalen Sonnenbahnen interaktiv geografisch erfahrbar.";
+
+            if (document.getElementById("pm-astro-label"))
+              document.getElementById("pm-astro-label").innerText =
+                activeDict.astroLabel || "ASTRONOMISCHES PRINZIP";
+            if (document.getElementById("pm-astro-title"))
+              document.getElementById("pm-astro-title").innerText =
+                activeDict.astroTitle || "Solstitium & Elevation";
+            if (document.getElementById("pm-astro-desc"))
+              document.getElementById("pm-astro-desc").innerText =
+                activeDict.astroDesc ||
+                "Die scheinbare Bahn der Sonne am Himmel verschiebt sich im Jahresverlauf durch die Neigung der Erdachse. Auf der Solargrafie wird dieser Deklinations-Drift als vertikales Bänder-Muster sichtbar: Die oberste Lichtspur markiert das Winter-Solstitium, die unterste das Sommer-Solstitium.";
+
+            if (document.getElementById("pm-svg-east"))
+              document.getElementById("pm-svg-east").innerText =
+                activeDict.astroEast || "OST (90°)";
+            if (document.getElementById("pm-svg-south"))
+              document.getElementById("pm-svg-south").innerText =
+                activeDict.astroSouth || "SÜDEN (180° Zenith)";
+            if (document.getElementById("pm-svg-west"))
+              document.getElementById("pm-svg-west").innerText =
+                activeDict.astroWest || "WEST (270°)";
+
+            if (document.getElementById("pm-svg-summer-text"))
+              document.getElementById("pm-svg-summer-text").innerText =
+                activeDict.astroSummerSvg ||
+                "63.4° Zenit (Sommersolstitium · 21. Juni)";
+            if (document.getElementById("pm-svg-equinox-text"))
+              document.getElementById("pm-svg-equinox-text").innerText =
+                activeDict.astroEquinoxSvg ||
+                "43.0° Äquinoktium (21. März / Sept)";
+            if (document.getElementById("pm-svg-winter-text"))
+              document.getElementById("pm-svg-winter-text").innerText =
+                activeDict.astroWinterSvg ||
+                "16.5° Tiefststand (Wintersolstitium · 21. Dez)";
+
+            if (document.getElementById("pm-diagram-proj"))
+              document.getElementById("pm-diagram-proj").innerText =
+                activeDict.astroProj ||
+                "Zylindrische Projektion der Nadelloch-Belichtungsebene";
+            if (document.getElementById("pm-diagram-drift"))
+              document.getElementById("pm-diagram-drift").innerText =
+                activeDict.astroDrift ||
+                "Neigung der Erdachse: 23.44° · Δ 46.9° Drift";
+
+            if (document.getElementById("pm-winter-card-title"))
+              document.getElementById("pm-winter-card-title").innerText =
+                activeDict.astroWinterTitle || "WINTERSOLSTITIUM";
+            if (document.getElementById("pm-winter-daylength-lbl"))
+              document.getElementById("pm-winter-daylength-lbl").innerText =
+                activeDict.astroDaylength || "Tageslänge";
+            if (document.getElementById("pm-winter-month-lbl"))
+              document.getElementById("pm-winter-month-lbl").innerText =
+                activeDict.astroMonth || "Monat";
+            if (document.getElementById("pm-winter-month-val"))
+              document.getElementById("pm-winter-month-val").innerText =
+                activeDict.astroWinterMonth || "21. Dezember";
+
+            if (document.getElementById("pm-summer-card-title"))
+              document.getElementById("pm-summer-card-title").innerText =
+                activeDict.astroSummerTitle || "SOMMERSOLSTITIUM";
+            if (document.getElementById("pm-summer-daylength-lbl"))
+              document.getElementById("pm-summer-daylength-lbl").innerText =
+                activeDict.astroDaylength || "Tageslänge";
+            if (document.getElementById("pm-summer-month-lbl"))
+              document.getElementById("pm-summer-month-lbl").innerText =
+                activeDict.astroMonth || "Monat";
+            if (document.getElementById("pm-summer-month-val"))
+              document.getElementById("pm-summer-month-val").innerText =
+                activeDict.astroSummerMonth || "21. Juni";
+
+            if (document.getElementById("pm-drift-card-title"))
+              document.getElementById("pm-drift-card-title").innerText =
+                activeDict.astroDriftTitle || "DEKLINATION & DRIFT";
+            if (document.getElementById("pm-drift-span-lbl"))
+              document.getElementById("pm-drift-span-lbl").innerText =
+                activeDict.astroSkySpan || "Himmelsspanne";
+            if (document.getElementById("pm-drift-span-val"))
+              document.getElementById("pm-drift-span-val").innerText =
+                activeDict.astroChPlateau || "Schweizer Mittelland";
+            if (document.getElementById("pm-drift-diff-lbl"))
+              document.getElementById("pm-drift-diff-lbl").innerText =
+                activeDict.astroDaylightDiff || "Tageslicht-Differenz";
+
+            if (document.getElementById("pm-btn-map"))
+              document.getElementById("pm-btn-map").innerText =
+                activeDict.pmBtnMap || "Zurück zur interaktiven Karte";
+            if (document.getElementById("pm-btn-suggest"))
+              document.getElementById("pm-btn-suggest").innerText =
+                activeDict.pmBtnSuggest || "Neuen Standort vorschlagen";
+
+            if (document.getElementById("pm-stats-active"))
+              document.getElementById("pm-stats-active").innerText =
+                activeDict.statsActive || "Aktiv";
+            if (document.getElementById("pm-stats-ch"))
+              document.getElementById("pm-stats-ch").innerText =
+                activeDict.statsStationsCh || "Stationen in CH";
+            if (document.getElementById("pm-stats-record"))
+              document.getElementById("pm-stats-record").innerText =
+                activeDict.statsRecord || "Gesamt";
+            if (document.getElementById("pm-stats-days"))
+              document.getElementById("pm-stats-days").innerText =
+                activeDict.statsDaysExposure || "Tage Belichtung";
+            if (document.getElementById("pm-stats-science"))
+              document.getElementById("pm-stats-science").innerText =
+                activeDict.statsScience || "Chemikalien";
+            if (document.getElementById("pm-stats-commons"))
+              document.getElementById("pm-stats-commons").innerText =
+                activeDict.statsCommons || "Commons";
+            if (document.getElementById("pm-stats-open"))
+              document.getElementById("pm-stats-open").innerText =
+                activeDict.statsOpenData || "Open Data CH";
+
+            if (document.getElementById("pm-toast-msg"))
+              document.getElementById("pm-toast-msg").innerText =
+                activeDict.pmToastMsg ||
+                "Danke! Vorschlagsformular wird geöffnet...";
           },
           error: function (err) {
             console.error("Fehler beim Abrufen der Tabellendaten:", err);
@@ -778,6 +1374,56 @@
       }
 
       // 5. Marker rendern
+
+      function updateProjectStats() {
+        if (!window.solargrafieDaten || window.solargrafieDaten.length === 0)
+          return;
+
+        let activeCount = 0;
+        let totalDays = 0;
+
+        window.solargrafieDaten.forEach((row) => {
+          const keys = Object.keys(row);
+
+          const getVal = (keywords) => {
+            for (let kw of keywords) {
+              const foundKey = keys.find((k) =>
+                k.toLowerCase().includes(kw.toLowerCase()),
+              );
+              if (
+                foundKey &&
+                row[foundKey] !== undefined &&
+                row[foundKey] !== null
+              ) {
+                return String(row[foundKey]).trim();
+              }
+            }
+            return "";
+          };
+
+          const placed = getVal(["placed", "gesetzt"]);
+          const opened = getVal(["open", "geöffnet", "geoffnet"]);
+          const durationStr = getVal(["dauer", "days", "tage"]);
+
+          if (placed !== "" && opened !== "") {
+            activeCount++;
+          }
+
+          if (durationStr !== "") {
+            const days = parseInt(durationStr, 10);
+            if (!isNaN(days)) {
+              totalDays += days;
+            }
+          }
+        });
+
+        const activeEl = document.getElementById("pm-stats-active-val");
+        if (activeEl) activeEl.innerText = activeCount;
+
+        const recordEl = document.getElementById("pm-stats-record-val");
+        if (recordEl) recordEl.innerText = totalDays;
+      }
+
       function renderMarkers() {
         markersGroup.clearLayers();
         const activeDict =
@@ -863,6 +1509,36 @@
 
       // 6. Sprachwechsel-Funktion
 
+      window.openProjectModal = function () {
+        document
+          .getElementById("project-modal-lightbox")
+          .classList.add("active");
+
+        // Setup toast logic
+        const suggestBtn = document.getElementById("suggestBtn");
+        const toast = document.getElementById("toastMessage");
+        if (suggestBtn && toast) {
+          suggestBtn.onclick = function () {
+            toast.classList.add("active");
+            setTimeout(() => {
+              toast.classList.remove("active");
+            }, 2800);
+          };
+        }
+      };
+
+      window.closeProjectModal = function (e) {
+        if (
+          e.target.id === "project-modal-lightbox" ||
+          e.target.closest(".modal-close") ||
+          e.target.closest(".cta-btn.primary")
+        ) {
+          document
+            .getElementById("project-modal-lightbox")
+            .classList.remove("active");
+        }
+      };
+
       window.showWipMessage = function () {
         const activeDict =
           typeof translations !== "undefined" && translations[currentLang]
@@ -941,7 +1617,203 @@
         }
 
         renderMarkers();
+        updateProjectStats();
 
+        // Update Project Modal
+        if (document.getElementById("pm-badge"))
+          document.getElementById("pm-badge").innerText =
+            activeDict.pmBadge || "Projektbeschrieb";
+        if (document.getElementById("pm-title"))
+          document.getElementById("pm-title").innerText =
+            activeDict.pmTitle ||
+            "Die sichtbare Zeit. Wenn Monate der Sonnenbahn verschmelzen.";
+        if (document.getElementById("pm-desc"))
+          document.getElementById("pm-desc").innerText =
+            activeDict.pmDesc ||
+            "Eine Solargrafie ist das radikalste Konzentrat von Dauer. Durch eine winzige Lochblende brennt sich das Sonnenlicht über bis zu 222 Tage schichtweise in photoempfindliches Silberpapier ein – ohne Akku, ohne Linse, ohne chemische Dunkelkammerentwicklung.";
+
+        if (document.getElementById("pm-stat1-title"))
+          document.getElementById("pm-stat1-title").innerHTML =
+            activeDict.pmStat1Title || "48+";
+        if (document.getElementById("pm-stat1-desc"))
+          document.getElementById("pm-stat1-desc").innerText =
+            activeDict.pmStat1Desc || "Stationen in CH";
+
+        if (document.getElementById("pm-stat2-title"))
+          document.getElementById("pm-stat2-title").innerHTML =
+            activeDict.pmStat2Title || "222";
+        if (document.getElementById("pm-stat2-desc"))
+          document.getElementById("pm-stat2-desc").innerText =
+            activeDict.pmStat2Desc || "Tage Belichtung";
+
+        if (document.getElementById("pm-stat3-title"))
+          document.getElementById("pm-stat3-title").innerHTML =
+            activeDict.pmStat3Title || "0%";
+        if (document.getElementById("pm-stat3-desc"))
+          document.getElementById("pm-stat3-desc").innerText =
+            activeDict.pmStat3Desc || "Chemikalien";
+
+        if (document.getElementById("pm-stat4-title"))
+          document.getElementById("pm-stat4-title").innerHTML =
+            activeDict.pmStat4Title || "100%";
+        if (document.getElementById("pm-stat4-desc"))
+          document.getElementById("pm-stat4-desc").innerText =
+            activeDict.pmStat4Desc || "Open Data CH";
+
+        if (document.getElementById("pm-section-title"))
+          document.getElementById("pm-section-title").innerText =
+            activeDict.pmSectionTitle || "DIE DREI PFEILER DES VERFAHRENS";
+
+        if (document.getElementById("pm-pillar1-title"))
+          document.getElementById("pm-pillar1-title").innerText =
+            activeDict.pmPillar1Title || "Apparatur: Die Lochkamera";
+        if (document.getElementById("pm-pillar1-subtitle"))
+          document.getElementById("pm-pillar1-subtitle").innerText =
+            activeDict.pmPillar1Subtitle ||
+            "Upcycling-Dose & 0.2mm Nadelblende";
+        if (document.getElementById("pm-pillar1-desc"))
+          document.getElementById("pm-pillar1-desc").innerText =
+            activeDict.pmPillar1Desc ||
+            "Aus gebrauchten 0.5-Liter Aluminiumdosen entstehen wetterfeste, lichtdichte Pinhole-Kammern. Eine mikroskopisch feine 0.2mm Nadelblende in Alufolie fungiert als f/150-Blende – komplett ohne optische Glaslinse, mit physikalisch nahezu unendlicher Schärfentiefe vom Nahbereich bis zum Alpenhorizont.";
+
+        if (document.getElementById("pm-pillar2-title"))
+          document.getElementById("pm-pillar2-title").innerText =
+            activeDict.pmPillar2Title || "Photolyse: Chemielose Belichtung";
+        if (document.getElementById("pm-pillar2-subtitle"))
+          document.getElementById("pm-pillar2-subtitle").innerText =
+            activeDict.pmPillar2Subtitle ||
+            "Direktbelichtung ohne Dunkelkammerbad";
+        if (document.getElementById("pm-pillar2-desc"))
+          document.getElementById("pm-pillar2-desc").innerText =
+            activeDict.pmPillar2Desc ||
+            "Reine Direktbelichtung auf analoges Schwarzweiss-Silbergelatine-Fotopapier über bis zu 222 Tage ohne Dunkelkammer-Chemiebad. Durch monatelange UV-Bestrahlung spaltet sich das Silberhalogenid im Papier physikalisch selbstständig ab (Photolyse). Die Spuren werden im Scanner als Farb-Negativ digitalisiert und invertiert.";
+
+        if (document.getElementById("pm-pillar3-title"))
+          document.getElementById("pm-pillar3-title").innerText =
+            activeDict.pmPillar3Title || "Geodaten: Kartierung der Zeit";
+        if (document.getElementById("pm-pillar3-subtitle"))
+          document.getElementById("pm-pillar3-subtitle").innerText =
+            activeDict.pmPillar3Subtitle ||
+            "Standort-Metadaten & GIS-Verknüpfung";
+        if (document.getElementById("pm-pillar3-desc"))
+          document.getElementById("pm-pillar3-desc").innerText =
+            activeDict.pmPillar3Desc ||
+            "Jeder Standort wird mit präzisen GPS-Koordinaten, Azimut-Ausrichtung (Kompasswinkel) und Höhenmetern dokumentiert. Die Web-Karte aggregiert diese Metadaten und macht die lokalen Sonnenbahnen interaktiv geografisch erfahrbar.";
+
+        if (document.getElementById("pm-astro-label"))
+          document.getElementById("pm-astro-label").innerText =
+            activeDict.astroLabel || "ASTRONOMISCHES PRINZIP";
+        if (document.getElementById("pm-astro-title"))
+          document.getElementById("pm-astro-title").innerText =
+            activeDict.astroTitle || "Solstitium & Elevation";
+        if (document.getElementById("pm-astro-desc"))
+          document.getElementById("pm-astro-desc").innerText =
+            activeDict.astroDesc ||
+            "Die scheinbare Bahn der Sonne am Himmel verschiebt sich im Jahresverlauf durch die Neigung der Erdachse. Auf der Solargrafie wird dieser Deklinations-Drift als vertikales Bänder-Muster sichtbar: Die oberste Lichtspur markiert das Winter-Solstitium, die unterste das Sommer-Solstitium.";
+
+        if (document.getElementById("pm-svg-east"))
+          document.getElementById("pm-svg-east").innerText =
+            activeDict.astroEast || "OST (90°)";
+        if (document.getElementById("pm-svg-south"))
+          document.getElementById("pm-svg-south").innerText =
+            activeDict.astroSouth || "SÜDEN (180° Zenith)";
+        if (document.getElementById("pm-svg-west"))
+          document.getElementById("pm-svg-west").innerText =
+            activeDict.astroWest || "WEST (270°)";
+
+        if (document.getElementById("pm-svg-summer-text"))
+          document.getElementById("pm-svg-summer-text").innerText =
+            activeDict.astroSummerSvg ||
+            "63.4° Zenit (Sommersolstitium · 21. Juni)";
+        if (document.getElementById("pm-svg-equinox-text"))
+          document.getElementById("pm-svg-equinox-text").innerText =
+            activeDict.astroEquinoxSvg || "43.0° Äquinoktium (21. März / Sept)";
+        if (document.getElementById("pm-svg-winter-text"))
+          document.getElementById("pm-svg-winter-text").innerText =
+            activeDict.astroWinterSvg ||
+            "16.5° Tiefststand (Wintersolstitium · 21. Dez)";
+
+        if (document.getElementById("pm-diagram-proj"))
+          document.getElementById("pm-diagram-proj").innerText =
+            activeDict.astroProj ||
+            "Zylindrische Projektion der Nadelloch-Belichtungsebene";
+        if (document.getElementById("pm-diagram-drift"))
+          document.getElementById("pm-diagram-drift").innerText =
+            activeDict.astroDrift ||
+            "Neigung der Erdachse: 23.44° · Δ 46.9° Drift";
+
+        if (document.getElementById("pm-winter-card-title"))
+          document.getElementById("pm-winter-card-title").innerText =
+            activeDict.astroWinterTitle || "WINTERSOLSTITIUM";
+        if (document.getElementById("pm-winter-daylength-lbl"))
+          document.getElementById("pm-winter-daylength-lbl").innerText =
+            activeDict.astroDaylength || "Tageslänge";
+        if (document.getElementById("pm-winter-month-lbl"))
+          document.getElementById("pm-winter-month-lbl").innerText =
+            activeDict.astroMonth || "Monat";
+        if (document.getElementById("pm-winter-month-val"))
+          document.getElementById("pm-winter-month-val").innerText =
+            activeDict.astroWinterMonth || "21. Dezember";
+
+        if (document.getElementById("pm-summer-card-title"))
+          document.getElementById("pm-summer-card-title").innerText =
+            activeDict.astroSummerTitle || "SOMMERSOLSTITIUM";
+        if (document.getElementById("pm-summer-daylength-lbl"))
+          document.getElementById("pm-summer-daylength-lbl").innerText =
+            activeDict.astroDaylength || "Tageslänge";
+        if (document.getElementById("pm-summer-month-lbl"))
+          document.getElementById("pm-summer-month-lbl").innerText =
+            activeDict.astroMonth || "Monat";
+        if (document.getElementById("pm-summer-month-val"))
+          document.getElementById("pm-summer-month-val").innerText =
+            activeDict.astroSummerMonth || "21. Juni";
+
+        if (document.getElementById("pm-drift-card-title"))
+          document.getElementById("pm-drift-card-title").innerText =
+            activeDict.astroDriftTitle || "DEKLINATION & DRIFT";
+        if (document.getElementById("pm-drift-span-lbl"))
+          document.getElementById("pm-drift-span-lbl").innerText =
+            activeDict.astroSkySpan || "Himmelsspanne";
+        if (document.getElementById("pm-drift-span-val"))
+          document.getElementById("pm-drift-span-val").innerText =
+            activeDict.astroChPlateau || "Schweizer Mittelland";
+        if (document.getElementById("pm-drift-diff-lbl"))
+          document.getElementById("pm-drift-diff-lbl").innerText =
+            activeDict.astroDaylightDiff || "Tageslicht-Differenz";
+
+        if (document.getElementById("pm-btn-map"))
+          document.getElementById("pm-btn-map").innerText =
+            activeDict.pmBtnMap || "Zurück zur interaktiven Karte";
+        if (document.getElementById("pm-btn-suggest"))
+          document.getElementById("pm-btn-suggest").innerText =
+            activeDict.pmBtnSuggest || "Neuen Standort vorschlagen";
+
+        if (document.getElementById("pm-stats-active"))
+          document.getElementById("pm-stats-active").innerText =
+            activeDict.statsActive || "Aktiv";
+        if (document.getElementById("pm-stats-ch"))
+          document.getElementById("pm-stats-ch").innerText =
+            activeDict.statsStationsCh || "Stationen in CH";
+        if (document.getElementById("pm-stats-record"))
+          document.getElementById("pm-stats-record").innerText =
+            activeDict.statsRecord || "Gesamt";
+        if (document.getElementById("pm-stats-days"))
+          document.getElementById("pm-stats-days").innerText =
+            activeDict.statsDaysExposure || "Tage Belichtung";
+        if (document.getElementById("pm-stats-science"))
+          document.getElementById("pm-stats-science").innerText =
+            activeDict.statsScience || "Chemikalien";
+        if (document.getElementById("pm-stats-commons"))
+          document.getElementById("pm-stats-commons").innerText =
+            activeDict.statsCommons || "Commons";
+        if (document.getElementById("pm-stats-open"))
+          document.getElementById("pm-stats-open").innerText =
+            activeDict.statsOpenData || "Open Data CH";
+
+        if (document.getElementById("pm-toast-msg"))
+          document.getElementById("pm-toast-msg").innerText =
+            activeDict.pmToastMsg ||
+            "Danke! Vorschlagsformular wird geöffnet...";
         if (currentModalIndex !== null) {
           openModalById(currentModalIndex);
         }
@@ -1543,6 +2415,632 @@
         &times;
       </button>
       <img id="lightbox-img" src="" alt="Vollbild" />
+    </div>
+    <!-- Projekt Modal Overlay -->
+    <div
+      id="project-modal-lightbox"
+      class="modal"
+      onclick="closeProjectModal(event)"
+    >
+      <div class="modal-content-wrapper" onclick="event.stopPropagation()">
+        <!-- Header -->
+        <div class="modal-header">
+          <div class="modal-header-left">
+            <div class="modal-header-dot"></div>
+            <div>
+              <h2 id="project-modal-title">EVA & SIMON</h2>
+              <div class="font-body-sm text-body-sm text-on-surface-variant">
+                Observatorische Langzeitfotografie & Geodaten
+              </div>
+            </div>
+          </div>
+          <div class="modal-header-right">
+            <div class="modal-close" onclick="closeProjectModal(event)">
+              <svg
+                viewBox="0 0 24 24"
+                width="24"
+                height="24"
+                stroke="currentColor"
+                stroke-width="2"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="project-modal-body">
+          <!-- Hero Section -->
+          <div class="project-hero-section">
+            <h1 id="pm-desc-title" class="project-hero-title">
+              Die sichtbare Zeit. Wenn Monate der Sonnenbahn verschmelzen.
+            </h1>
+            <p id="pm-desc-text" class="project-hero-text">
+              Eine Solargrafie ist das radikalste Konzentrat von Dauer. Durch
+              eine winzige Lochblende brennt sich das Sonnenlicht über bis zu
+              222 Tage schichtweise in photoempfindliches Silberpapier ein –
+              ohne Akku, ohne Linse, ohne chemische Dunkelkammerentwicklung.
+            </p>
+          </div>
+
+          <!-- 2x2 Key Stats Matrix Bento -->
+          <div class="project-stats-grid">
+            <div class="project-stat-card">
+              <div class="stat-header">
+                <span class="material-symbols-outlined stat-icon primary-color"
+                  >location_on</span
+                >
+                <span id="pm-stats-active" class="stat-label">Aktiv</span>
+              </div>
+              <div class="stat-body">
+                <div class="stat-value" id="pm-stats-active-val">48+</div>
+                <div id="pm-stats-ch" class="stat-subtext">Stationen in CH</div>
+              </div>
+            </div>
+            <div class="project-stat-card">
+              <div class="stat-header">
+                <span
+                  class="material-symbols-outlined stat-icon secondary-color"
+                  >wb_sunny</span
+                >
+                <span id="pm-stats-record" class="stat-label">Rekord</span>
+              </div>
+              <div class="stat-body">
+                <div class="stat-value" id="pm-stats-record-val">222</div>
+                <div id="pm-stats-days" class="stat-subtext">
+                  Tage Belichtung
+                </div>
+              </div>
+            </div>
+            <div class="project-stat-card">
+              <div class="stat-header">
+                <span class="material-symbols-outlined stat-icon error-color"
+                  >science</span
+                >
+                <span class="stat-label">0%</span>
+              </div>
+              <div class="stat-body">
+                <div class="stat-value">0%</div>
+                <div id="pm-stats-science" class="stat-subtext">
+                  Chemikalien
+                </div>
+              </div>
+            </div>
+            <div class="project-stat-card">
+              <div class="stat-header">
+                <span class="material-symbols-outlined stat-icon tertiary-color"
+                  >public</span
+                >
+                <span id="pm-stats-commons" class="stat-label">Commons</span>
+              </div>
+              <div class="stat-body">
+                <div class="stat-value">100%</div>
+                <div id="pm-stats-open" class="stat-subtext">Open Data CH</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- The Three Pillars of the Process -->
+          <div class="project-pillars-section">
+            <div class="pillars-header">
+              <span id="pm-pillars-title" class="pillars-title"
+                >Die drei Pfeiler des Verfahrens</span
+              >
+              <span id="pm-pillars-method" class="pillars-method"
+                >Methodik</span
+              >
+            </div>
+
+            <details class="pillar-details" open>
+              <summary class="pillar-summary">
+                <div class="pillar-summary-left">
+                  <span class="pillar-number primary-bg primary-text">01</span>
+                  <div class="pillar-summary-text">
+                    <span id="pm-p1-title" class="pillar-item-title"
+                      >Apparatur: Die Lochkamera</span
+                    >
+                    <span id="pm-p1-sub" class="pillar-item-sub"
+                      >Upcycling-Dose & 0.2mm Nadelblende</span
+                    >
+                  </div>
+                </div>
+                <span class="material-symbols-outlined expand-icon"
+                  >expand_more</span
+                >
+              </summary>
+              <div class="pillar-content">
+                <p id="pm-p1-text" class="pillar-desc">
+                  Aus gebrauchten 0.5-Liter Aluminiumdosen entstehen
+                  wetterfeste, lichtdichte Pinhole-Kammern. Eine mikroskopisch
+                  feine 0.2mm Nadelblende in Alufolie fungiert als f/150-Blende
+                  – komplett ohne optische Glaslinse, mit physikalisch nahezu
+                  unendlicher Schärfentiefe vom Nahbereich bis zum
+                  Alpenhorizont.
+                </p>
+                <div class="pillar-tags">
+                  <span id="pm-p1-tag1" class="pillar-tag"
+                    >Brennweite ~40mm</span
+                  >
+                  <span id="pm-p1-tag2" class="pillar-tag">Blende f/150</span>
+                  <span id="pm-p1-tag3" class="pillar-tag"
+                    >Wetterfest IP67</span
+                  >
+                </div>
+              </div>
+            </details>
+
+            <details class="pillar-details" open>
+              <summary class="pillar-summary">
+                <div class="pillar-summary-left">
+                  <span class="pillar-number secondary-bg secondary-text"
+                    >02</span
+                  >
+                  <div class="pillar-summary-text">
+                    <span id="pm-p2-title" class="pillar-item-title"
+                      >Photolyse: Chemielose Belichtung</span
+                    >
+                    <span id="pm-p2-sub" class="pillar-item-sub"
+                      >Direktbelichtung ohne Dunkelkammerbad</span
+                    >
+                  </div>
+                </div>
+                <span class="material-symbols-outlined expand-icon"
+                  >expand_more</span
+                >
+              </summary>
+              <div class="pillar-content">
+                <p id="pm-p2-text" class="pillar-desc">
+                  Reine Direktbelichtung auf analoges
+                  Schwarzweiss-Silbergelatine-Fotopapier über bis zu 222 Tage
+                  ohne Dunkelkammer-Chemiebad. Durch monatelange UV-Bestrahlung
+                  spaltet sich das Silberhalogenid im Papier physikalisch
+                  selbstständig ab (Photolyse). Die Spuren werden im Anschluss
+                  zerstörungsfrei hochauflösend digitalisiert.
+                </p>
+                <div class="pillar-tags">
+                  <span id="pm-p2-tag1" class="pillar-tag">0% Chemie</span>
+                  <span id="pm-p2-tag2" class="pillar-tag"
+                    >Silbergelatine-Papier</span
+                  >
+                  <span id="pm-p2-tag3" class="pillar-tag"
+                    >Analoge Unikate</span
+                  >
+                </div>
+              </div>
+            </details>
+
+            <details class="pillar-details" open>
+              <summary class="pillar-summary">
+                <div class="pillar-summary-left">
+                  <span class="pillar-number tertiary-bg tertiary-text"
+                    >03</span
+                  >
+                  <div class="pillar-summary-text">
+                    <span id="pm-p3-title" class="pillar-item-title"
+                      >Meteorologie: Klima- & Sonnenarchiv</span
+                    >
+                    <span id="pm-p3-sub" class="pillar-item-sub"
+                      >Wolkenzüge, Nebelmeere & Seismografie</span
+                    >
+                  </div>
+                </div>
+                <span class="material-symbols-outlined expand-icon"
+                  >expand_more</span
+                >
+              </summary>
+              <div class="pillar-content">
+                <p id="pm-p3-text" class="pillar-desc">
+                  Wolkenzüge, Nebelmeere und sonnige Tage zeichnen sich als
+                  seismografische Himmelsspur ein. Jeder bewölkte Tag
+                  hinterlässt eine Unterbrechung im Lichtbogen, dichte
+                  Nebeldecken im Mittelland dämpfen die Strahlung. So entsteht
+                  ein authentischer chronologischer Klimazeitzeuge.
+                </p>
+                <div class="pillar-tags">
+                  <span id="pm-p3-tag1" class="pillar-tag"
+                    >Meteo-Korrelation</span
+                  >
+                  <span id="pm-p3-tag2" class="pillar-tag"
+                    >Schweizer Mikroklima</span
+                  >
+                  <span id="pm-p3-tag3" class="pillar-tag"
+                    >Sonnenstunden-Index</span
+                  >
+                </div>
+              </div>
+            </details>
+          </div>
+
+          <!-- Astronomical Elevation Section (Interactive Solstice Diagram) -->
+          <div class="project-astronomy-section">
+            <div class="astronomy-header">
+              <div class="astronomy-title-row">
+                <span
+                  class="w-2 h-2 rounded-full bg-secondary animate-pulse"
+                ></span>
+                <span id="pm-astro-label" class="astronomy-label"
+                  >ASTRONOMISCHES PRINZIP · SOLSTITIUM & ELEVATION</span
+                >
+                <div class="flex-1 divider-line"></div>
+                <span id="pm-astro-badge" class="astronomy-badge"
+                  >Lat 47.0° N · Helvetischer Horizont</span
+                >
+              </div>
+              <h2 id="pm-astro-title" class="astronomy-title">
+                182 geschichtete Himmelsbögen zwischen zwei Extremen
+              </h2>
+              <p id="pm-astro-desc" class="astronomy-desc">
+                Vom tiefsten Stand der Wintersonnenwende bis zum Zenit der
+                Mittsommerhitze: 182 geschichtete Himmelsbögen spiegeln die
+                Neigung der Erdachse (23.44°) über der Schweiz (47° N). Jeder
+                einzelne Tag belichtet eine neue, infinitesimale Spur in das
+                Silberhalogenid-Papier.
+              </p>
+            </div>
+
+            <div class="astronomy-grid">
+              <div class="astronomy-diagram-card">
+                <div class="diagram-header">
+                  <div class="diagram-title">
+                    <span class="material-symbols-outlined primary-color"
+                      >explore</span
+                    >
+                    <span id="pm-diagram-title"
+                      >Sonnenbahnen am Schweizer Horizont (Südprojektion
+                      180°)</span
+                    >
+                  </div>
+                  <div class="diagram-legend">
+                    <div class="legend-item secondary-color">
+                      <span class="legend-dot bg-secondary"></span>
+                      <span id="pm-legend-summer">21. JUNI (63.4°)</span>
+                    </div>
+                    <div class="legend-item muted-color">
+                      <span class="legend-dot bg-muted"></span>
+                      <span id="pm-legend-equinox">ÄQUINOX (43.0°)</span>
+                    </div>
+                    <div class="legend-item primary-color">
+                      <span class="legend-dot bg-primary"></span>
+                      <span id="pm-legend-winter">21. DEZ (16.5°)</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="diagram-svg-container">
+                  <svg class="diagram-svg" fill="none" viewBox="0 0 720 240">
+                    <defs>
+                      <linearGradient
+                        id="summerGlow"
+                        x1="0%"
+                        x2="100%"
+                        y1="0%"
+                        y2="0%"
+                      >
+                        <stop
+                          offset="0%"
+                          stop-color="#ee9800"
+                          stop-opacity="0.2"
+                        ></stop>
+                        <stop
+                          offset="50%"
+                          stop-color="#ffb95f"
+                          stop-opacity="1"
+                        ></stop>
+                        <stop
+                          offset="100%"
+                          stop-color="#ee9800"
+                          stop-opacity="0.2"
+                        ></stop>
+                      </linearGradient>
+                      <linearGradient
+                        id="winterGlow"
+                        x1="0%"
+                        x2="100%"
+                        y1="0%"
+                        y2="0%"
+                      >
+                        <stop
+                          offset="0%"
+                          stop-color="#006591"
+                          stop-opacity="0.2"
+                        ></stop>
+                        <stop
+                          offset="50%"
+                          stop-color="#89ceff"
+                          stop-opacity="0.95"
+                        ></stop>
+                        <stop
+                          offset="100%"
+                          stop-color="#006591"
+                          stop-opacity="0.2"
+                        ></stop>
+                      </linearGradient>
+                      <radialGradient
+                        cx="50%"
+                        cy="100%"
+                        id="horizonAura"
+                        r="80%"
+                      >
+                        <stop
+                          offset="0%"
+                          stop-color="#0ea5e9"
+                          stop-opacity="0.12"
+                        ></stop>
+                        <stop
+                          offset="100%"
+                          stop-color="#0ea5e9"
+                          stop-opacity="0"
+                        ></stop>
+                      </radialGradient>
+                    </defs>
+                    <rect
+                      fill="url(#horizonAura)"
+                      height="200"
+                      width="720"
+                      x="0"
+                      y="0"
+                    ></rect>
+                    <line
+                      stroke="#31353e"
+                      stroke-width="1.5"
+                      x1="40"
+                      x2="680"
+                      y1="195"
+                      y2="195"
+                    ></line>
+                    <line
+                      stroke="#262a33"
+                      stroke-dasharray="4 4"
+                      stroke-width="1"
+                      x1="40"
+                      x2="680"
+                      y1="145"
+                      y2="145"
+                    ></line>
+                    <line
+                      stroke="#262a33"
+                      stroke-dasharray="4 4"
+                      stroke-width="1"
+                      x1="40"
+                      x2="680"
+                      y1="95"
+                      y2="95"
+                    ></line>
+                    <line
+                      stroke="#262a33"
+                      stroke-dasharray="4 4"
+                      stroke-width="1"
+                      x1="40"
+                      x2="680"
+                      y1="35"
+                      y2="35"
+                    ></line>
+                    <text
+                      fill="#88929b"
+                      font-family="Inter"
+                      font-size="10"
+                      x="15"
+                      y="199"
+                    >
+                      0°
+                    </text>
+                    <text
+                      fill="#88929b"
+                      font-family="Inter"
+                      font-size="10"
+                      x="15"
+                      y="149"
+                    >
+                      20°
+                    </text>
+                    <text
+                      fill="#88929b"
+                      font-family="Inter"
+                      font-size="10"
+                      x="15"
+                      y="99"
+                    >
+                      45°
+                    </text>
+                    <text
+                      fill="#88929b"
+                      font-family="Inter"
+                      font-size="10"
+                      x="15"
+                      y="39"
+                    >
+                      65°
+                    </text>
+
+                    <text
+                      id="pm-svg-east"
+                      fill="#bec8d2"
+                      font-family="Inter"
+                      font-size="11"
+                      font-weight="600"
+                      x="60"
+                      y="215"
+                    >
+                      OST (90°)
+                    </text>
+                    <text
+                      id="pm-svg-south"
+                      fill="#dfe2ee"
+                      font-family="Inter"
+                      font-size="11"
+                      font-weight="600"
+                      text-anchor="middle"
+                      x="360"
+                      y="215"
+                    >
+                      SÜDEN (180° Zenith)
+                    </text>
+                    <text
+                      id="pm-svg-west"
+                      fill="#bec8d2"
+                      font-family="Inter"
+                      font-size="11"
+                      font-weight="600"
+                      text-anchor="end"
+                      x="660"
+                      y="215"
+                    >
+                      WEST (270°)
+                    </text>
+
+                    <path
+                      d="M 70 190 Q 360 20 650 190"
+                      fill="none"
+                      stroke="url(#summerGlow)"
+                      stroke-linecap="round"
+                      stroke-width="3.5"
+                    ></path>
+                    <circle cx="360" cy="20" fill="#ffb95f" r="5.5"></circle>
+                    <text
+                      id="pm-svg-summer-text"
+                      fill="#ffb95f"
+                      font-family="Inter"
+                      font-size="11"
+                      font-weight="700"
+                      x="375"
+                      y="24"
+                    >
+                      63.4° Zenit (Sommersolstitium · 21. Juni)
+                    </text>
+
+                    <path
+                      d="M 125 192 Q 360 88 595 192"
+                      fill="none"
+                      opacity="0.65"
+                      stroke="#88929b"
+                      stroke-dasharray="5 4"
+                      stroke-width="1.8"
+                    ></path>
+                    <circle cx="360" cy="88" fill="#88929b" r="3.5"></circle>
+                    <text
+                      id="pm-svg-equinox-text"
+                      fill="#bec8d2"
+                      font-family="Inter"
+                      font-size="10"
+                      x="375"
+                      y="92"
+                    >
+                      43.0° Äquinoktium (21. März / Sept)
+                    </text>
+
+                    <path
+                      d="M 180 194 Q 360 148 540 194"
+                      fill="none"
+                      stroke="url(#winterGlow)"
+                      stroke-linecap="round"
+                      stroke-width="3"
+                    ></path>
+                    <circle cx="360" cy="148" fill="#89ceff" r="4.5"></circle>
+                    <text
+                      id="pm-svg-winter-text"
+                      fill="#89ceff"
+                      font-family="Inter"
+                      font-size="11"
+                      font-weight="700"
+                      x="375"
+                      y="152"
+                    >
+                      16.5° Tiefststand (Wintersolstitium · 21. Dez)
+                    </text>
+                  </svg>
+                </div>
+                <div class="diagram-footer">
+                  <span id="pm-diagram-proj"
+                    >Zylindrische Projektion der
+                    Nadelloch-Belichtungsebene</span
+                  >
+                  <span id="pm-diagram-drift" class="tertiary-color"
+                    >Neigung der Erdachse: 23.44° · Δ 46.9° Drift</span
+                  >
+                </div>
+              </div>
+
+              <div class="astronomy-stats-col">
+                <div class="astro-stat-card">
+                  <div class="astro-stat-header">
+                    <span id="pm-winter-card-title" class="primary-color"
+                      >WINTERSOLSTITIUM</span
+                    >
+                    <span class="astro-stat-val primary-color">16.5°</span>
+                  </div>
+                  <div class="astro-stat-row">
+                    <span id="pm-winter-daylength-lbl">Tageslänge</span>
+                    <span class="astro-stat-bold">~8h 28min</span>
+                  </div>
+                  <div class="astro-stat-row">
+                    <span id="pm-winter-month-lbl">Monat</span>
+                    <span
+                      class="astro-stat-bold primary-color"
+                      id="pm-winter-month-val"
+                      >21. Dezember</span
+                    >
+                  </div>
+                </div>
+
+                <div class="astro-stat-card">
+                  <div class="astro-stat-header">
+                    <span id="pm-summer-card-title" class="secondary-color"
+                      >SOMMERSOLSTITIUM</span
+                    >
+                    <span class="astro-stat-val secondary-color">63.4°</span>
+                  </div>
+                  <div class="astro-stat-row">
+                    <span id="pm-summer-daylength-lbl">Tageslänge</span>
+                    <span class="astro-stat-bold">~15h 53min</span>
+                  </div>
+                  <div class="astro-stat-row">
+                    <span id="pm-summer-month-lbl">Monat</span>
+                    <span
+                      class="astro-stat-bold secondary-color"
+                      id="pm-summer-month-val"
+                      >21. Juni</span
+                    >
+                  </div>
+                </div>
+
+                <div class="astro-stat-card tertiary-border">
+                  <div class="astro-stat-header">
+                    <span id="pm-drift-card-title" class="tertiary-color"
+                      >DEKLINATION & DRIFT</span
+                    >
+                    <span class="astro-stat-val tertiary-color">Δ 46.9°</span>
+                  </div>
+                  <div class="astro-stat-row">
+                    <span id="pm-drift-span-lbl">Himmelsspanne</span>
+                    <span class="astro-stat-bold" id="pm-drift-span-val"
+                      >Schweizer Mittelland</span
+                    >
+                  </div>
+                  <div class="astro-stat-row">
+                    <span id="pm-drift-diff-lbl">Tageslicht-Differenz</span>
+                    <span class="astro-stat-bold tertiary-color"
+                      >+7h 25min</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- End of project-modal-body -->
+      </div>
+
+      <!-- Micro Modal Feedback Toast -->
+      <div id="toastMessage" class="toast-message">
+        <span class="material-symbols-outlined">check_circle</span>
+        <span id="pm-toast-msg" class="toast-text"
+          >Danke! Vorschlagsformular wird geöffnet...</span
+        >
+      </div>
     </div>
   </body>
 </html>
