@@ -37,27 +37,34 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
+
   if (
-    event.request.url.includes("googleapis.com") ||
-    event.request.url.includes("google.com") ||
     event.request.url.includes("arcgisonline.com") ||
     event.request.url.includes("openstreetmap.org")
   ) {
     return;
   }
+
+  // Create a clean URL without the cache-busting 't' parameter for the cache key
+  const urlObj = new URL(event.request.url);
+  urlObj.searchParams.delete("t");
+  const cacheKey = urlObj.toString();
+
   event.respondWith(
     fetch(event.request)
       .then((response) => {
         if (response.status === 200) {
           const responseToCache = response.clone();
           caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
+            // Store with the clean URL as the key
+            cache.put(cacheKey, responseToCache);
           });
         }
         return response;
       })
       .catch(() => {
-        return caches.match(event.request);
+        // Retrieve using the clean URL as the key
+        return caches.match(cacheKey);
       }),
   );
 });
