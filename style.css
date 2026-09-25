@@ -15,6 +15,18 @@
   --color-text-muted: #bec8d2;
   --font-body: "Inter", sans-serif;
   --font-head: "Plus Jakarta Sans", sans-serif;
+  --z-map-controls: 500;
+  --z-header: 1000;
+  --z-modal: 2000;
+  --z-lightbox: 10000;
+  --z-lightbox-close: 10001;
+  --z-pin-hover: 1000;
+  --z-toast: 1000;
+  --z-dropdown: 999;
+  --z-diagram-point: 10;
+  --z-sun-dot: 100;
+  --color-map-bg: #121212;
+  --color-surface-lowest: #0a0e16;
 }
 
 body {
@@ -39,7 +51,7 @@ header {
   border-radius: 16px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
   gap: 10px;
-  z-index: 9999;
+  z-index: var(--z-header);
 }
 header h1 {
   font-family: var(--font-head);
@@ -103,7 +115,7 @@ header h1 {
   bottom: 0;
   left: 0;
   right: 0;
-  background: #121212;
+  background: var(--color-map-bg);
 }
 
 /* Dunkler Satelliten-Karten-Filter */
@@ -114,9 +126,9 @@ header h1 {
 
 /* Foto Pins */
 .foto-pin {
+  position: relative;
   border: 2px solid rgba(255, 255, 255, 0.8);
   border-radius: 50%;
-  box-shadow: 0 0 12px rgba(14, 165, 233, 0.6);
   object-fit: cover;
   transition:
     transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
@@ -124,21 +136,34 @@ header h1 {
     box-shadow 0.3s;
   cursor: pointer;
   background-color: var(--color-bg);
-  animation: pulse-cyan 3s infinite alternate;
+}
+.foto-pin::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: 0 0 16px rgba(14, 165, 233, 0.8);
+  z-index: -1;
+  animation: pulse-cyan-gpu 3s infinite alternate;
 }
 .foto-pin:hover {
   transform: scale(1.15) translateY(-5px);
   border-color: var(--color-secondary);
   box-shadow: 0 0 20px rgba(245, 158, 11, 0.7);
-  z-index: 1000 !important;
+  z-index: var(--z-pin-hover) !important;
   animation: none;
 }
-@keyframes pulse-cyan {
+.foto-pin:hover::before {
+  animation: none;
+}
+@keyframes pulse-cyan-gpu {
   0% {
-    box-shadow: 0 0 8px rgba(14, 165, 233, 0.4);
+    transform: scale(0.9);
+    opacity: 0.5;
   }
   100% {
-    box-shadow: 0 0 16px rgba(14, 165, 233, 0.8);
+    transform: scale(1.2);
+    opacity: 1;
   }
 }
 
@@ -218,7 +243,7 @@ header h1 {
 .modal {
   display: none;
   position: fixed;
-  z-index: 2000;
+  z-index: var(--z-modal);
   top: 0;
   left: 0;
   width: 100%;
@@ -505,7 +530,7 @@ header h1 {
   position: absolute;
   top: 100px;
   left: 20px;
-  z-index: 1000;
+  z-index: var(--z-map-controls);
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -596,7 +621,7 @@ header h1 {
   width: 100vw;
   height: 60px;
   background-color: #0b0f17; /* Very dark background as in screenshot */
-  z-index: 500;
+  z-index: var(--z-map-controls);
   display: flex;
   align-items: center;
 }
@@ -666,7 +691,7 @@ header h1 {
   border-radius: 16px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
   gap: 15px;
-  z-index: 1000;
+  z-index: var(--z-header);
   transition:
     transform 0.4s ease,
     opacity 0.4s ease;
@@ -863,7 +888,7 @@ header h1 {
     top: 80px;
     right: 10px;
     left: auto;
-    z-index: 999;
+    z-index: var(--z-dropdown);
   }
 
   .map-controls-left .control-group {
@@ -954,7 +979,7 @@ header h1 {
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 10000;
+  z-index: var(--z-lightbox);
   background: rgba(0, 0, 0, 0.9);
   display: flex;
   align-items: center;
@@ -988,7 +1013,7 @@ header h1 {
   font-size: 3rem;
   line-height: 1;
   cursor: pointer;
-  z-index: 10001;
+  z-index: var(--z-lightbox-close);
   padding: 10px;
   width: 60px;
   height: 60px;
@@ -1161,7 +1186,7 @@ body.impressum-page {
   padding: 24px 32px 16px;
   margin-bottom: 0;
   background: var(--color-bg);
-  z-index: 10;
+  z-index: var(--z-diagram-point);
   position: sticky;
   top: 0;
 }
@@ -1485,7 +1510,7 @@ body.impressum-page {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
   align-items: center;
   gap: 12px;
-  z-index: 100;
+  z-index: var(--z-sun-dot);
   width: max-content;
   max-width: 90%;
 }
@@ -1604,7 +1629,7 @@ body.impressum-page {
 }
 
 .astronomy-diagram-card {
-  background: #0a0e16; /* surface-container-lowest */
+  background: var(--color-surface-lowest); /* surface-container-lowest */
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
   padding: 20px;
