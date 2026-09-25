@@ -16,7 +16,7 @@ jobs:
 
       - name: Archiv erstellen
         run: |
-        # 1. Erstellt das Archiv eine Ebene höher (../), damit tar es nicht sieht
+          # 1. Erstellt das Archiv eine Ebene hoeher (../), damit tar es nicht sieht
           tar -czf ../github-backup-$(date +%F).tar.gz .
           
           # 2. Verschiebt das fertige Archiv wieder in den aktuellen Ordner
