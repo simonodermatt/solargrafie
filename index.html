@@ -1112,6 +1112,12 @@
       // 6. Sprachwechsel-Funktion
 
       window.openProjectModal = function () {
+        const activeDict =
+          typeof translations !== "undefined" && translations[currentLang]
+            ? translations[currentLang]
+            : defaultTranslations.de;
+        updateProjectModalTranslations(activeDict);
+
         document
           .getElementById("project-modal-lightbox")
           .classList.add("active");
