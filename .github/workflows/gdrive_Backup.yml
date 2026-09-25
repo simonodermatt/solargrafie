@@ -16,7 +16,7 @@ jobs:
 
       - name: Archiv erstellen
         run: |
-          tar -czf github-backup-$(date +%F).tar.gz .
+          tar --exclude="all-repos-backup-*.tar.gz" -czf all-repos-backup-$(date +%F).tar.gz all-github-backups/
 
       - name: Rclone installieren
         run: sudo apt-get install -y rclone
