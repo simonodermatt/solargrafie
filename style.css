@@ -1038,30 +1038,30 @@ body.lightbox-open {
   max-width: 800px;
   margin: 100px auto 40px auto;
   padding: 30px;
-  background: var(--glass-bg);
+  background: var(--color-surface);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg);
-  color: var(--text-light);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  color: var(--color-text-main);
   line-height: 1.6;
 }
 
 .impressum-content h1 {
-  font-family: var(--font-heading);
+  font-family: var(--font-head);
   font-weight: 700;
   font-size: 2.2rem;
-  color: var(--text-light);
+  color: var(--color-text-main);
   margin-bottom: 30px;
-  border-bottom: 1px solid var(--glass-border);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   padding-bottom: 15px;
 }
 
 .impressum-content h2 {
-  font-family: var(--font-heading);
+  font-family: var(--font-head);
   font-weight: 600;
   font-size: 1.4rem;
-  color: var(--primary);
+  color: var(--color-primary);
   margin-top: 30px;
   margin-bottom: 15px;
 }
@@ -1071,13 +1071,13 @@ body.lightbox-open {
 }
 
 .impressum-content a {
-  color: var(--primary);
+  color: var(--color-primary);
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
 .impressum-content a:hover {
-  color: var(--secondary);
+  color: var(--color-secondary);
 }
 
 .footer-icon {
