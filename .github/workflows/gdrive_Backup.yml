@@ -1,4 +1,4 @@
-name: Backup to Google Drive
+name: Backup to GitHub Artifacts
 
 on:
   schedule:
@@ -12,7 +12,7 @@ jobs:
       - name: Repository klonen
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # Wichtig: Holt die gesamte Git-Historie
 
       - name: Archiv erstellen
         run: |
@@ -22,23 +22,9 @@ jobs:
           # 2. Verschiebt das fertige Archiv wieder in den aktuellen Ordner
           mv ../github-backup-*.tar.gz .
 
-      - name: Rclone installieren
-        run: sudo apt-get install -y rclone
-
-      - name: Rclone konfigurieren & Upload starten
-        env:
-          GDRIVE_SA_JSON: ${{ secrets.GDRIVE_CREDENTIALS_DATA }}
-          FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
-        run: |
-          mkdir -p ~/.config/rclone
-          echo "$GDRIVE_SA_JSON" > /tmp/sa.json
-          
-          cat <<EOF > ~/.config/rclone/rclone.conf
-          [gdrive]
-          type = drive
-          scope = drive
-          service_account_file = /tmp/sa.json
-          root_folder_id = $FOLDER_ID
-          EOF
-          
-          rclone copy github-backup-*.tar.gz gdrive:
+      - name: Archiv als Artifact in GitHub speichern
+        uses: actions/upload-artifact@v4
+        with:
+          name: repository-backup
+          path: github-backup-*.tar.gz
+          retention-days: 30 # Die Datei bleibt 30 Tage lang zum Download verfuegbar
