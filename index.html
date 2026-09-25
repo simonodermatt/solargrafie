@@ -2,10 +2,7 @@
 <html lang="de">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#0b0f17" />
@@ -582,6 +579,35 @@
       let currentModalIndex = null;
       window.solargrafieDaten = [];
 
+      // Global Utility Functions
+      function getVal(row, keywords) {
+        if (!row) return "";
+        const keys = Object.keys(row);
+        for (let kw of keywords) {
+          const foundKey = keys.find((k) =>
+            k.toLowerCase().includes(kw.toLowerCase()),
+          );
+          if (
+            foundKey &&
+            row[foundKey] !== undefined &&
+            row[foundKey] !== null
+          ) {
+            return String(row[foundKey]).trim();
+          }
+        }
+        return "";
+      }
+
+      function escapeHtml(str) {
+        if (!str) return "";
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
       // 1. Karte initialisieren
       const map = L.map("map", {
         zoomControl: false,
@@ -970,30 +996,14 @@
         window.solargrafieDaten.forEach((row) => {
           const keys = Object.keys(row);
 
-          const getVal = (keywords) => {
-            for (let kw of keywords) {
-              const foundKey = keys.find((k) =>
-                k.toLowerCase().includes(kw.toLowerCase()),
-              );
-              if (
-                foundKey &&
-                row[foundKey] !== undefined &&
-                row[foundKey] !== null
-              ) {
-                return String(row[foundKey]).trim();
-              }
-            }
-            return "";
-          };
-
-          const placed = getVal([
+          const placed = getVal(row, [
             "placed",
             "aufgestellt",
             "start",
             "datum",
             "gesetzt",
           ]);
-          const opened = getVal([
+          const opened = getVal(row, [
             "opened",
             "geöffnet",
             "geoeffnet",
@@ -1037,24 +1047,7 @@
           return;
 
         window.solargrafieDaten.forEach((row, idx) => {
-          const getVal = (keywords) => {
-            const keys = Object.keys(row);
-            for (let kw of keywords) {
-              const foundKey = keys.find((k) =>
-                k.toLowerCase().includes(kw.toLowerCase()),
-              );
-              if (
-                foundKey &&
-                row[foundKey] !== undefined &&
-                row[foundKey] !== null
-              ) {
-                return String(row[foundKey]).trim();
-              }
-            }
-            return "";
-          };
-
-          const pos = getVal([
+          const pos = getVal(row, [
             "position",
             "koordinaten",
             "standort",
@@ -1070,22 +1063,22 @@
           const lng = parseFloat(parts[1].trim());
           if (isNaN(lat) || isNaN(lng)) return;
 
-          const id = getVal(["id"]) || idx + 1;
-          const titel = getVal(["titel", "name", "bezeichnung"]) || "";
-          const status = getVal(["status", "zustand"]) || "";
+          const id = getVal(row, ["id"]) || idx + 1;
+          const titel = getVal(row, ["titel", "name", "bezeichnung"]) || "";
+          const status = getVal(row, ["status", "zustand"]) || "";
           const placed =
-            getVal(["placed", "aufgestellt", "start", "datum"]) || "";
+            getVal(row, ["placed", "aufgestellt", "start", "datum"]) || "";
           const opened =
-            getVal(["opened", "geöffnet", "geoeffnet", "ende"]) || "";
+            getVal(row, ["opened", "geöffnet", "geoeffnet", "ende"]) || "";
           const comment =
-            getVal(["comment", "notiz", "kommentar", "bemerkung"]) || "";
-          const extId = getVal(["externe_id", "ext", "externe"]) || "";
+            getVal(row, ["comment", "notiz", "kommentar", "bemerkung"]) || "";
+          const extId = getVal(row, ["externe_id", "ext", "externe"]) || "";
 
           // Split-Hosting Auswertung:
           const rawBild =
-            getVal(["bild", "foto", "image", "datei", "upload"]) || "";
+            getVal(row, ["bild", "foto", "image", "datei", "upload"]) || "";
           const bildUrl = resolveImageUrl(rawBild);
-          const gPhotos = getVal(["google", "url", "link", "fotos"]) || "";
+          const gPhotos = getVal(row, ["google", "url", "link", "fotos"]) || "";
 
           const statusAnzeige = status ? `(${status})` : "";
           const titelZusatz = `#${id} ${titel} ${statusAnzeige}`.trim();
@@ -1286,37 +1279,21 @@
         const count = reversedData.length;
         const regionsDict = activeDict.regions || {};
         const chStr = regionsDict.ch || "Schweiz";
-        document.getElementById("archive-subtitle").innerText =
-          `${chStr}weit ${count} Stationen`;
+        document.getElementById("archive-subtitle").innerText = (
+          activeDict.stationsText || "{count} Stationen"
+        ).replace("{count}", count);
 
         reversedData.forEach((row, reversedIdx) => {
           // Original index in the unreversed array is needed for openModalById
           const originalIdx = window.solargrafieDaten.length - 1 - reversedIdx;
 
-          const getVal = (keywords) => {
-            const keys = Object.keys(row);
-            for (let kw of keywords) {
-              const foundKey = keys.find((k) =>
-                k.toLowerCase().includes(kw.toLowerCase()),
-              );
-              if (
-                foundKey &&
-                row[foundKey] !== undefined &&
-                row[foundKey] !== null
-              ) {
-                return String(row[foundKey]).trim();
-              }
-            }
-            return "";
-          };
-
-          const titel = getVal(["titel", "name", "bezeichnung"]) || "";
+          const titel = getVal(row, ["titel", "name", "bezeichnung"]) || "";
           const placedStr =
-            getVal(["placed", "aufgestellt", "start", "datum"]) || "";
+            getVal(row, ["placed", "aufgestellt", "start", "datum"]) || "";
           const openedStr =
-            getVal(["opened", "geöffnet", "geoeffnet", "ende"]) || "";
+            getVal(row, ["opened", "geöffnet", "geoeffnet", "ende"]) || "";
           const rawBild =
-            getVal(["bild", "foto", "image", "datei", "upload"]) || "";
+            getVal(row, ["bild", "foto", "image", "datei", "upload"]) || "";
           const bildUrl =
             resolveImageUrl(rawBild) ||
             "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png";
@@ -1350,10 +1327,10 @@
 
           const itemHtml = `
             <div class="archive-item" onclick="openModalById('${originalIdx}')">
-              <img src="${bildUrl}" class="archive-item-img" alt="${titel}" onerror="this.src='https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png'">
+              <img src="${escapeHtml(bildUrl)}" class="archive-item-img" alt="${escapeHtml(titel)}" onerror="this.src='https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png'">
               <div class="archive-item-info">
-                <div class="archive-item-title">${titel}</div>
-                <div class="archive-item-details">${detailsText}</div>
+                <div class="archive-item-title">${escapeHtml(titel)}</div>
+                <div class="archive-item-details">${escapeHtml(detailsText)}</div>
               </div>
             </div>
           `;
@@ -1417,9 +1394,7 @@
         if (geocodeCache[key]) return geocodeCache[key];
         try {
           const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=10`;
-          const res = await fetch(url, {
-            headers: { "User-Agent": "solargrafie/1.0" },
-          });
+          const res = await fetch(url);
           const data = await res.json();
           let canton = data.address?.state || data.address?.county || "";
           geocodeCache[key] = canton;
@@ -1430,7 +1405,7 @@
         }
       }
 
-      function getSunAltitude(date, lat, lon) {
+      function getSunAltitude(date, lat) {
         if (!date || isNaN(date.getTime())) return null;
         const PI = Math.PI,
           sin = Math.sin,
@@ -1482,46 +1457,34 @@
             ? translations[currentLang]
             : defaultTranslations.de;
 
-        const getVal = (keywords) => {
-          const keys = Object.keys(row);
-          for (let kw of keywords) {
-            const foundKey = keys.find((k) =>
-              k.toLowerCase().includes(kw.toLowerCase()),
-            );
-            if (
-              foundKey &&
-              row[foundKey] !== undefined &&
-              row[foundKey] !== null
-            ) {
-              return String(row[foundKey]).trim();
-            }
-          }
-          return "";
-        };
-
-        const id = getVal(["id"]) || parseInt(index) + 1;
-        const titel = getVal(["titel", "name", "bezeichnung"]) || "";
+        const id = getVal(row, ["id"]) || parseInt(index) + 1;
+        const titel = getVal(row, ["titel", "name", "bezeichnung"]) || "";
         const placed =
-          getVal(["placed", "aufgestellt", "start", "datum"]) || "";
+          getVal(row, ["placed", "aufgestellt", "start", "datum"]) || "";
         const opened =
-          getVal(["opened", "geöffnet", "geoeffnet", "ende"]) || "";
+          getVal(row, ["opened", "geöffnet", "geoeffnet", "ende"]) || "";
         const comment =
-          getVal(["comment", "notiz", "kommentar", "bemerkung", "kurator"]) ||
-          "";
+          getVal(row, [
+            "comment",
+            "notiz",
+            "kommentar",
+            "bemerkung",
+            "kurator",
+          ]) || "";
         const rawBild =
-          getVal(["bild", "foto", "image", "datei", "upload"]) || "";
+          getVal(row, ["bild", "foto", "image", "datei", "upload"]) || "";
         const bildUrl = resolveImageUrl(rawBild);
 
         // New columns
-        const posStr = getVal([
+        const posStr = getVal(row, [
           "position",
           "koordinaten",
           "standort",
           "lat,lng",
           "ort",
         ]);
-        const kamera = getVal(["kamera", "aufbau"]) || "";
-        const medium = getVal(["medium", "papier", "fotopapier"]) || "";
+        const kamera = getVal(row, ["kamera", "aufbau"]) || "";
+        const medium = getVal(row, ["medium", "papier", "fotopapier"]) || "";
 
         // Setup image
         const imgElem = document.getElementById("modal-img");
@@ -1648,7 +1611,7 @@
             d <= openedDate;
             d.setDate(d.getDate() + 1)
           ) {
-            const alt = getSunAltitude(new Date(d), lat, lng || 0);
+            const alt = getSunAltitude(new Date(d), lat);
             if (alt !== null) {
               if (alt > maxAlt) {
                 maxAlt = alt;
