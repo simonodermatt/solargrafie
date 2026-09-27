@@ -1,13 +1,13 @@
 const CACHE_NAME = "solargrafie-cache-v1";
 const MAX_CACHE_ITEMS = 50;
 const ASSETS_TO_CACHE = [
-  "/",
-  "/index.html",
-  "/style.css",
-  "/config.js",
-  "/translations.js",
-  "/logo.jpg",
-  "/manifest.json",
+  "./",
+  "./index.html",
+  "./style.css",
+  "./config.js",
+  "./translations.js",
+  "./logo.jpg",
+  "./manifest.json",
 ];
 
 async function trimCache(cacheName, maxItems) {
