@@ -1,0 +1,30 @@
+name: Backup to GitHub Artifacts
+
+on:
+  schedule:
+    - cron: '0 3 * * 0' # Backup jeden Sonntag um 03:00 Uhr
+  workflow_dispatch: # Erlaubt manuelles Starten per Button
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository klonen
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Wichtig: Holt die gesamte Git-Historie
+
+      - name: Archiv erstellen
+        run: |
+          # 1. Erstellt das Archiv eine Ebene hoeher (../), damit tar es nicht sieht
+          tar -czf ../github-backup-$(date +%F).tar.gz .
+          
+          # 2. Verschiebt das fertige Archiv wieder in den aktuellen Ordner
+          mv ../github-backup-*.tar.gz .
+
+      - name: Archiv als Artifact in GitHub speichern
+        uses: actions/upload-artifact@v4
+        with:
+          name: repository-backup
+          path: github-backup-*.tar.gz
+          retention-days: 30 # Die Datei bleibt 30 Tage lang zum Download verfuegbar
