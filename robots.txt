@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://map.solargrafie.ch/sitemap.xml
