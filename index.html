@@ -15,7 +15,26 @@
     <link rel="apple-touch-icon" href="icon-192x192.png" />
     <link rel="manifest" href="manifest.json" />
 
-    <title>Solargrafie Karte (Eva & Simon)</title>
+    <title>
+      Solargrafie Karte | Analoge Langzeitbelichtungen mit der Lochkamera
+    </title>
+    <meta
+      name="description"
+      content="Interaktive Karte mit weltweiten Solargrafien. Entdecke extreme Langzeitbelichtungen, eingefangen mit selbstgebauten Lochkameras auf analogem Fotopapier."
+    />
+
+    <!-- Open Graph Tags -->
+    <meta
+      property="og:title"
+      content="Solargrafie Karte | Analoge Langzeitbelichtungen mit der Lochkamera"
+    />
+    <meta
+      property="og:description"
+      content="Interaktive Karte mit weltweiten Solargrafien. Entdecke extreme Langzeitbelichtungen, eingefangen mit selbstgebauten Lochkameras auf analogem Fotopapier."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://map.solargrafie.ch" />
+    <meta property="og:image" content="https://map.solargrafie.ch/logo.png" />
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -1327,7 +1346,7 @@
 
           const itemHtml = `
             <div class="archive-item" onclick="openModalById('${originalIdx}')">
-              <img src="${escapeHtml(bildUrl)}" class="archive-item-img" alt="${escapeHtml(titel)}" onerror="this.src='https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png'">
+              <img src="${escapeHtml(bildUrl)}" class="archive-item-img" alt="Solargrafie Langzeitbelichtung - Standort: ${escapeHtml(titel)}" onerror="this.src='https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png'">
               <div class="archive-item-info">
                 <div class="archive-item-title">${escapeHtml(titel)}</div>
                 <div class="archive-item-details">${escapeHtml(detailsText)}</div>
@@ -1489,6 +1508,9 @@
         // Setup image
         const imgElem = document.getElementById("modal-img");
         imgElem.src = bildUrl;
+        imgElem.alt = titel
+          ? "Solargrafie Langzeitbelichtung - Standort: " + titel
+          : "Solargrafie Langzeitbelichtung";
         imgElem.style.display = bildUrl ? "block" : "none";
 
         // Title and Badge
@@ -1647,6 +1669,7 @@
         const lightbox = document.getElementById("image-lightbox");
         const lightboxImg = document.getElementById("lightbox-img");
         lightboxImg.src = e.target.src;
+        lightboxImg.alt = e.target.alt || "Solargrafie Langzeitbelichtung";
         lightbox.classList.add("active");
         document.body.classList.add("lightbox-open");
       };
