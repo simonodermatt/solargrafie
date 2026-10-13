@@ -1112,7 +1112,13 @@
             updateProjectStats();
 
             // Update Project Modal
-            updateProjectModalTranslations(activeDict);
+            const ad =
+              typeof window.translations !== "undefined" &&
+              window.translations !== null &&
+              window.translations[currentLang]
+                ? window.translations[currentLang]
+                : defaultTranslations.de;
+            updateProjectModalTranslations(ad);
             return;
           } catch (err) {
             console.warn(
@@ -1144,7 +1150,13 @@
               updateProjectStats();
 
               // Update Project Modal
-              updateProjectModalTranslations(activeDict);
+              const ad =
+                typeof window.translations !== "undefined" &&
+                window.translations !== null &&
+                window.translations[currentLang]
+                  ? window.translations[currentLang]
+                  : defaultTranslations.de;
+              updateProjectModalTranslations(ad);
               return;
             }
           } catch (err) {
@@ -1170,7 +1182,13 @@
             updateProjectStats();
 
             // Update Project Modal
-            updateProjectModalTranslations(activeDict);
+            const ad =
+              typeof window.translations !== "undefined" &&
+              window.translations !== null &&
+              window.translations[currentLang]
+                ? window.translations[currentLang]
+                : defaultTranslations.de;
+            updateProjectModalTranslations(ad);
           },
           error: function (err) {
             console.error("Fehler beim Abrufen der Tabellendaten:", err);
@@ -1348,9 +1366,10 @@
       window.setLanguage = function (lang) {
         const activeDict =
           typeof window.translations !== "undefined" &&
+          window.translations !== null &&
           window.translations[lang]
             ? window.translations[lang]
-            : defaultTranslations.de;
+            : defaultTranslations[lang] || defaultTranslations.de;
         currentLang = lang;
 
         if (document.getElementById("header-title")) {
@@ -1427,7 +1446,13 @@
         updateProjectStats();
 
         // Update Project Modal
-        updateProjectModalTranslations(activeDict);
+        const ad =
+          typeof window.translations !== "undefined" &&
+          window.translations !== null &&
+          window.translations[currentLang]
+            ? window.translations[currentLang]
+            : defaultTranslations.de;
+        updateProjectModalTranslations(ad);
         if (currentModalIndex !== null) {
           openModalById(currentModalIndex);
         }
