@@ -992,31 +992,29 @@
         const sheetId =
           cfg.sheetId || "1zny1pBIQilY5wJXTN8eYEdIBoW3lJp9W13mKceeZbKI";
 
+        // Expected columns: A=key, B=de, C=en, D=fr, E=it, F=uk, G=ru, H=es
         const buildTranslationsObj = (rows) => {
           const transObj = {};
-          // Initialize languages
           const langs = ["de", "en", "fr", "it", "uk", "ru", "es"];
           langs.forEach((l) => {
             transObj[l] = { regions: {} };
           });
 
           rows.forEach((row) => {
-            const key =
-              row["key"] ||
-              row["Schlüssel"] ||
-              row["Key"] ||
-              row[Object.keys(row)[0]]; // fallback key column
+            const key = row[0];
             if (!key) return;
 
-            // Check if key is a nested region key e.g. "regions.ch"
+            // map columns to languages: row[1]=de, row[2]=en, row[3]=fr, etc.
             if (key.startsWith("regions.")) {
               const regionKey = key.split(".")[1];
-              langs.forEach((lang) => {
-                if (row[lang]) transObj[lang].regions[regionKey] = row[lang];
+              langs.forEach((lang, idx) => {
+                const val = row[idx + 1];
+                if (val) transObj[lang].regions[regionKey] = val;
               });
             } else {
-              langs.forEach((lang) => {
-                if (row[lang]) transObj[lang][key] = row[lang];
+              langs.forEach((lang, idx) => {
+                const val = row[idx + 1];
+                if (val) transObj[lang][key] = val;
               });
             }
           });
@@ -1024,7 +1022,7 @@
         };
 
         return new Promise(async (resolve) => {
-          // Try Option 2: Google Sheets v4 REST API (mit API-Key)
+          // Option 2: REST API
           if (
             cfg.sheetId &&
             cfg.googleApiKey &&
@@ -1035,15 +1033,14 @@
             try {
               const res = await fetch(apiUrl, { cache: "no-store" });
               const json = await res.json();
-              if (json.values && json.values.length > 1) {
-                const headers = json.values[0];
-                const rows = json.values.slice(1).map((row) => {
-                  const obj = {};
-                  headers.forEach((h, i) => {
-                    obj[h.toLowerCase()] = row[i] !== undefined ? row[i] : "";
-                  });
-                  return obj;
-                });
+              if (json.values && json.values.length > 0) {
+                // Determine if first row is header. If row[0] === 'key', slice it.
+                const firstRowKey = String(json.values[0][0]).toLowerCase();
+                const rows =
+                  firstRowKey === "key" || firstRowKey === "schlüssel"
+                    ? json.values.slice(1)
+                    : json.values;
+
                 const resObj = buildTranslationsObj(rows);
                 if (resObj && resObj.de && Object.keys(resObj.de).length > 1) {
                   window.translations = resObj;
@@ -1051,6 +1048,7 @@
                   console.warn(
                     "Translations sheet is empty or not formatted correctly. Using default fallback.",
                   );
+                  window.translations = null;
                 }
                 return resolve(true);
               }
@@ -1063,34 +1061,35 @@
           }
 
           // Option 3: GViz CSV Fallback
-          const gvizUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=translations&t=${new Date().getTime()}`;
+          const gvizUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=translations&headers=0&t=${new Date().getTime()}`;
           Papa.parse(gvizUrl, {
             download: true,
-            header: true,
+            header: false, // NO HEADER!
             skipEmptyLines: true,
             complete: function (results) {
-              // Normalisiere headers to lowercase for consistency
-              const rows = results.data.map((row) => {
-                const newRow = {};
-                for (let k in row) {
-                  newRow[k.toLowerCase()] = row[k];
-                }
-                return newRow;
-              });
+              const firstRowKey =
+                results.data.length > 0
+                  ? String(results.data[0][0]).toLowerCase()
+                  : "";
+              const rows =
+                firstRowKey === "key" || firstRowKey === "schlüssel"
+                  ? results.data.slice(1)
+                  : results.data;
+
               const resObj = buildTranslationsObj(rows);
-              // Check if we actually got translations
               if (resObj && resObj.de && Object.keys(resObj.de).length > 1) {
                 window.translations = resObj;
               } else {
                 console.warn(
                   "Translations sheet is empty or not formatted correctly. Using default fallback.",
                 );
+                window.translations = null;
               }
               resolve(true);
             },
             error: function (err) {
               console.error("Fehler beim Abrufen der Übersetzungen:", err);
-              // Fallback to defaultTranslations logic later if window.translations is empty
+              window.translations = null;
               resolve(false);
             },
           });
