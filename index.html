@@ -272,6 +272,13 @@
           >
             RU
           </button>
+          <button
+            id="lang-es"
+            class="toggle-btn lang-btn"
+            onclick="setLanguage('es')"
+          >
+            ES
+          </button>
         </div>
       </div>
     </header>
@@ -575,15 +582,11 @@
             </div>
             <strong id="label-sensitive-medium">Sensibles Medium</strong>
             <div
-               id="modal-medium-details" 
-               class="card-value"              
-               style="font-size: 0.9em; 
-               margin-bottom: 2px"
-            ></div>            
-            <div
-              id="modal-camera-details"
+              id="modal-medium-details"
+              class="card-value"
+              style="font-size: 0.9em; margin-bottom: 2px"
             ></div>
-
+            <div id="modal-camera-details"></div>
           </div>
 
           <div class="modal-info-card">
@@ -626,9 +629,9 @@
 
     <!-- Konfiguration & Übersetzungen -->
     <script src="config.js"></script>
-    <script src="translations.js"></script>
 
     <script>
+      window.translations = {};
       const defaultTranslations = {
         de: {
           header: "SOLARGRAFIE PROJEKT",
@@ -647,7 +650,7 @@
         },
       };
 
-      const supportedLangs = ["de", "en", "fr", "it", "uk", "ru"];
+      const supportedLangs = ["de", "en", "fr", "it", "uk", "ru", "es"];
       const browserLang = (navigator.language || navigator.userLanguage || "en")
         .substring(0, 2)
         .toLowerCase();
@@ -984,6 +987,115 @@
             "Danke! Vorschlagsformular wird geöffnet...";
       }
 
+      async function fetchTranslationsData() {
+        const cfg = typeof APP_CONFIG !== "undefined" ? APP_CONFIG : {};
+        const sheetId =
+          cfg.sheetId || "1zny1pBIQilY5wJXTN8eYEdIBoW3lJp9W13mKceeZbKI";
+
+        // Expected columns: A=key, B=de, C=en, D=fr, E=it, F=uk, G=ru, H=es
+        const buildTranslationsObj = (rows) => {
+          const transObj = {};
+          const langs = ["de", "en", "fr", "it", "uk", "ru", "es"];
+          langs.forEach((l) => {
+            transObj[l] = { regions: {} };
+          });
+
+          rows.forEach((row) => {
+            const key = row[0];
+            if (!key) return;
+
+            // map columns to languages: row[1]=de, row[2]=en, row[3]=fr, etc.
+            if (key.startsWith("regions.")) {
+              const regionKey = key.split(".")[1];
+              langs.forEach((lang, idx) => {
+                const val = row[idx + 1];
+                if (val) transObj[lang].regions[regionKey] = val;
+              });
+            } else {
+              langs.forEach((lang, idx) => {
+                const val = row[idx + 1];
+                if (val) transObj[lang][key] = val;
+              });
+            }
+          });
+          return transObj;
+        };
+
+        return new Promise(async (resolve) => {
+          // Option 2: REST API
+          if (
+            cfg.sheetId &&
+            cfg.googleApiKey &&
+            cfg.googleApiKey.trim() !== ""
+          ) {
+            const range = encodeURIComponent("translations");
+            const apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${cfg.sheetId}/values/${range}?key=${cfg.googleApiKey}&t=${new Date().getTime()}`;
+            try {
+              const res = await fetch(apiUrl, { cache: "no-store" });
+              const json = await res.json();
+              if (json.values && json.values.length > 0) {
+                // Determine if first row is header. If row[0] === 'key', slice it.
+                const firstRowKey = String(json.values[0][0]).toLowerCase();
+                const rows =
+                  firstRowKey === "key" || firstRowKey === "schlüssel"
+                    ? json.values.slice(1)
+                    : json.values;
+
+                const resObj = buildTranslationsObj(rows);
+                if (resObj && resObj.de && Object.keys(resObj.de).length > 1) {
+                  window.translations = resObj;
+                } else {
+                  console.warn(
+                    "Translations sheet is empty or not formatted correctly. Using default fallback.",
+                  );
+                  window.translations = null;
+                }
+                return resolve(true);
+              }
+            } catch (err) {
+              console.warn(
+                "Translations API fehlgeschlagen, wechsle auf Fallback:",
+                err,
+              );
+            }
+          }
+
+          // Option 3: GViz CSV Fallback
+          const gvizUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=translations&headers=0&t=${new Date().getTime()}`;
+          Papa.parse(gvizUrl, {
+            download: true,
+            header: false, // NO HEADER!
+            skipEmptyLines: true,
+            complete: function (results) {
+              const firstRowKey =
+                results.data.length > 0
+                  ? String(results.data[0][0]).toLowerCase()
+                  : "";
+              const rows =
+                firstRowKey === "key" || firstRowKey === "schlüssel"
+                  ? results.data.slice(1)
+                  : results.data;
+
+              const resObj = buildTranslationsObj(rows);
+              if (resObj && resObj.de && Object.keys(resObj.de).length > 1) {
+                window.translations = resObj;
+              } else {
+                console.warn(
+                  "Translations sheet is empty or not formatted correctly. Using default fallback.",
+                );
+                window.translations = null;
+              }
+              resolve(true);
+            },
+            error: function (err) {
+              console.error("Fehler beim Abrufen der Übersetzungen:", err);
+              window.translations = null;
+              resolve(false);
+            },
+          });
+        });
+      }
+
       async function fetchSolargrafieDaten() {
         const cfg = typeof APP_CONFIG !== "undefined" ? APP_CONFIG : {};
 
@@ -999,7 +1111,13 @@
             updateProjectStats();
 
             // Update Project Modal
-            updateProjectModalTranslations(activeDict);
+            const ad =
+              typeof window.translations !== "undefined" &&
+              window.translations !== null &&
+              window.translations[currentLang]
+                ? window.translations[currentLang]
+                : defaultTranslations.de;
+            updateProjectModalTranslations(ad);
             return;
           } catch (err) {
             console.warn(
@@ -1031,7 +1149,13 @@
               updateProjectStats();
 
               // Update Project Modal
-              updateProjectModalTranslations(activeDict);
+              const ad =
+                typeof window.translations !== "undefined" &&
+                window.translations !== null &&
+                window.translations[currentLang]
+                  ? window.translations[currentLang]
+                  : defaultTranslations.de;
+              updateProjectModalTranslations(ad);
               return;
             }
           } catch (err) {
@@ -1057,7 +1181,13 @@
             updateProjectStats();
 
             // Update Project Modal
-            updateProjectModalTranslations(activeDict);
+            const ad =
+              typeof window.translations !== "undefined" &&
+              window.translations !== null &&
+              window.translations[currentLang]
+                ? window.translations[currentLang]
+                : defaultTranslations.de;
+            updateProjectModalTranslations(ad);
           },
           error: function (err) {
             console.error("Fehler beim Abrufen der Tabellendaten:", err);
@@ -1120,8 +1250,9 @@
       function renderMarkers() {
         markersGroup.clearLayers();
         const activeDict =
-          typeof translations !== "undefined" && translations[currentLang]
-            ? translations[currentLang]
+          typeof window.translations !== "undefined" &&
+          window.translations[currentLang]
+            ? window.translations[currentLang]
             : defaultTranslations.de;
 
         if (!window.solargrafieDaten || window.solargrafieDaten.length === 0)
@@ -1187,8 +1318,9 @@
 
       window.openProjectModal = function () {
         const activeDict =
-          typeof translations !== "undefined" && translations[currentLang]
-            ? translations[currentLang]
+          typeof window.translations !== "undefined" &&
+          window.translations[currentLang]
+            ? window.translations[currentLang]
             : defaultTranslations.de;
         updateProjectModalTranslations(activeDict);
 
@@ -1223,17 +1355,20 @@
 
       window.showWipMessage = function () {
         const activeDict =
-          typeof translations !== "undefined" && translations[currentLang]
-            ? translations[currentLang]
+          typeof window.translations !== "undefined" &&
+          window.translations[currentLang]
+            ? window.translations[currentLang]
             : defaultTranslations.de;
         alert(activeDict.workInProgress || "Work in Progress");
       };
 
       window.setLanguage = function (lang) {
         const activeDict =
-          typeof translations !== "undefined" && translations[lang]
-            ? translations[lang]
-            : defaultTranslations.de;
+          typeof window.translations !== "undefined" &&
+          window.translations !== null &&
+          window.translations[lang]
+            ? window.translations[lang]
+            : defaultTranslations[lang] || defaultTranslations.de;
         currentLang = lang;
 
         if (document.getElementById("header-title")) {
@@ -1245,8 +1380,7 @@
         }
         if (document.getElementById("header-subtitle")) {
           document.getElementById("header-subtitle").innerText =
-            activeDict.subtitle ||
-            "Pinhole Solar Path Cartography";
+            activeDict.subtitle || "Pinhole Solar Path Cartography";
         }
         if (document.getElementById("btn-archive")) {
           document
@@ -1311,7 +1445,13 @@
         updateProjectStats();
 
         // Update Project Modal
-        updateProjectModalTranslations(activeDict);
+        const ad =
+          typeof window.translations !== "undefined" &&
+          window.translations !== null &&
+          window.translations[currentLang]
+            ? window.translations[currentLang]
+            : defaultTranslations.de;
+        updateProjectModalTranslations(ad);
         if (currentModalIndex !== null) {
           openModalById(currentModalIndex);
         }
@@ -1347,8 +1487,9 @@
           return;
 
         const activeDict =
-          typeof translations !== "undefined" && translations[currentLang]
-            ? translations[currentLang]
+          typeof window.translations !== "undefined" &&
+          window.translations[currentLang]
+            ? window.translations[currentLang]
             : defaultTranslations.de;
 
         document.getElementById("archive-title-main").innerText =
@@ -1534,8 +1675,9 @@
         if (!row) return;
 
         const activeDict =
-          typeof translations !== "undefined" && translations[currentLang]
-            ? translations[currentLang]
+          typeof window.translations !== "undefined" &&
+          window.translations[currentLang]
+            ? window.translations[currentLang]
             : defaultTranslations.de;
 
         const id = getVal(row, ["id"]) || parseInt(index) + 1;
@@ -1776,9 +1918,16 @@
       // Start-Ablauf
       const initialReg =
         (typeof APP_CONFIG !== "undefined" && APP_CONFIG.defaultRegion) || "ch";
-      window.setViewRegion(initialReg);
-      window.setLanguage(currentLang);
-      fetchSolargrafieDaten();
+
+      async function initializeApp() {
+        console.log("translations after fetch:", window.translations);
+        await fetchTranslationsData();
+        window.setViewRegion(initialReg);
+        window.setLanguage(currentLang);
+        fetchSolargrafieDaten();
+      }
+
+      initializeApp();
 
       // PWA Service Worker Registration
       if ("serviceWorker" in navigator) {
