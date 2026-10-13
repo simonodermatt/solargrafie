@@ -2,7 +2,7 @@ const translations = {
   de: {
     header: "SOLARGRAFIE PROJEKT",
     observatoryDeck: "OBSERVATORY DECK",
-    subtitle: "Eva & Simon · Pinhole Solar Path Cartography",
+    subtitle: "Pinhole Solar Path Cartography",
     archive: "Archiv",
     contact: "Kontakt",
     project: "Projekt",
@@ -106,7 +106,7 @@ const translations = {
   en: {
     header: "SOLARGRAPHY PROJECT",
     observatoryDeck: "OBSERVATORY DECK",
-    subtitle: "Eva & Simon · Pinhole Solar Path Cartography",
+    subtitle: "Pinhole Solar Path Cartography",
     archive: "Archive",
     contact: "Contact",
     project: "Project",
@@ -208,7 +208,7 @@ const translations = {
   fr: {
     header: "PROJET SOLARGRAPHIE",
     observatoryDeck: "OBSERVATORY DECK",
-    subtitle: "Eva & Simon · Pinhole Solar Path Cartography",
+    subtitle: "Pinhole Solar Path Cartography",
     archive: "Archives",
     contact: "Contact",
     project: "Projet",
@@ -313,7 +313,7 @@ const translations = {
   it: {
     header: "PROGETTO SOLARGRAFIA",
     observatoryDeck: "OBSERVATORY DECK",
-    subtitle: "Eva & Simon · Pinhole Solar Path Cartography",
+    subtitle: "Pinhole Solar Path Cartography",
     archive: "Archivio",
     contact: "Contatto",
     project: "Progetto",
@@ -418,7 +418,7 @@ const translations = {
   uk: {
     header: "ПРОЄКТ СОЛЯРОГРАФІЯ",
     observatoryDeck: "OBSERVATORY DECK",
-    subtitle: "Eva & Simon · Pinhole Solar Path Cartography",
+    subtitle: "Pinhole Solar Path Cartography",
     archive: "Архів",
     contact: "Контакт",
     project: "Проєкт",
@@ -522,7 +522,7 @@ const translations = {
   ru: {
     header: "ПРОЕКТ СОЛЯРОГРАФИЯ",
     observatoryDeck: "OBSERVATORY DECK",
-    subtitle: "Eva & Simon · Pinhole Solar Path Cartography",
+    subtitle: "Pinhole Solar Path Cartography",
     archive: "Архив",
     contact: "Контакт",
     project: "Проект",
