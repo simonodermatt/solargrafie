@@ -625,7 +625,6 @@
     <!-- Bibliotheken (GENAU IN DIESER REIHENFOLGE EINMALIG LADEN) -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
     <!-- Konfiguration & Übersetzungen -->
     <script src="config.js"></script>
@@ -989,10 +988,8 @@
 
       async function fetchTranslationsData() {
         const cfg = typeof APP_CONFIG !== "undefined" ? APP_CONFIG : {};
-        const sheetId =
-          cfg.sheetId || "1zny1pBIQilY5wJXTN8eYEdIBoW3lJp9W13mKceeZbKI";
 
-        // Expected columns: A=key, B=de, C=en, D=fr, E=it, F=uk, G=ru, H=es
+        // Expected columns: key, de, en, fr, it, uk, ru, es
         const buildTranslationsObj = (rows) => {
           const transObj = {};
           const langs = ["de", "en", "fr", "it", "uk", "ru", "es"];
@@ -1001,19 +998,18 @@
           });
 
           rows.forEach((row) => {
-            const key = row[0];
+            const key = row.key;
             if (!key) return;
 
-            // map columns to languages: row[1]=de, row[2]=en, row[3]=fr, etc.
             if (key.startsWith("regions.")) {
               const regionKey = key.split(".")[1];
-              langs.forEach((lang, idx) => {
-                const val = row[idx + 1];
+              langs.forEach((lang) => {
+                const val = row[lang];
                 if (val) transObj[lang].regions[regionKey] = val;
               });
             } else {
-              langs.forEach((lang, idx) => {
-                const val = row[idx + 1];
+              langs.forEach((lang) => {
+                const val = row[lang];
                 if (val) transObj[lang][key] = val;
               });
             }
@@ -1021,178 +1017,103 @@
           return transObj;
         };
 
-        return new Promise(async (resolve) => {
-          // Option 2: REST API
-          if (
-            cfg.sheetId &&
-            cfg.googleApiKey &&
-            cfg.googleApiKey.trim() !== ""
-          ) {
-            const range = encodeURIComponent("translations");
-            const apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${cfg.sheetId}/values/${range}?key=${cfg.googleApiKey}&t=${new Date().getTime()}`;
-            try {
-              const res = await fetch(apiUrl, { cache: "no-store" });
-              const json = await res.json();
-              if (json.values && json.values.length > 0) {
-                // Determine if first row is header. If row[0] === 'key', slice it.
-                const firstRowKey = String(json.values[0][0]).toLowerCase();
-                const rows =
-                  firstRowKey === "key" || firstRowKey === "schlüssel"
-                    ? json.values.slice(1)
-                    : json.values;
+        if (!cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY) {
+          console.warn(
+            "Supabase credentials not configured. Using default translations.",
+          );
+          window.translations = null;
+          return false;
+        }
 
-                const resObj = buildTranslationsObj(rows);
-                if (resObj && resObj.de && Object.keys(resObj.de).length > 1) {
-                  window.translations = resObj;
-                } else {
-                  console.warn(
-                    "Translations sheet is empty or not formatted correctly. Using default fallback.",
-                  );
-                  window.translations = null;
-                }
-                return resolve(true);
-              }
-            } catch (err) {
-              console.warn(
-                "Translations API fehlgeschlagen, wechsle auf Fallback:",
-                err,
-              );
-            }
-          }
+        try {
+          const apiUrl = `${cfg.SUPABASE_URL}/rest/v1/translations?select=*`;
+          const headers = {
+            apikey: cfg.SUPABASE_ANON_KEY,
+            Authorization: "Bearer " + cfg.SUPABASE_ANON_KEY,
+            "Content-Type": "application/json",
+          };
 
-          // Option 3: GViz CSV Fallback
-          const gvizUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=translations&headers=0&t=${new Date().getTime()}`;
-          Papa.parse(gvizUrl, {
-            download: true,
-            header: false, // NO HEADER!
-            skipEmptyLines: true,
-            complete: function (results) {
-              const firstRowKey =
-                results.data.length > 0
-                  ? String(results.data[0][0]).toLowerCase()
-                  : "";
-              const rows =
-                firstRowKey === "key" || firstRowKey === "schlüssel"
-                  ? results.data.slice(1)
-                  : results.data;
-
-              const resObj = buildTranslationsObj(rows);
-              if (resObj && resObj.de && Object.keys(resObj.de).length > 1) {
-                window.translations = resObj;
-              } else {
-                console.warn(
-                  "Translations sheet is empty or not formatted correctly. Using default fallback.",
-                );
-                window.translations = null;
-              }
-              resolve(true);
-            },
-            error: function (err) {
-              console.error("Fehler beim Abrufen der Übersetzungen:", err);
-              window.translations = null;
-              resolve(false);
-            },
+          const res = await fetch(apiUrl, {
+            headers: headers,
+            cache: "no-store",
           });
-        });
+          if (!res.ok) {
+            throw new Error("HTTP error " + res.status);
+          }
+          const data = await res.json();
+
+          if (data && data.length > 0) {
+            const resObj = buildTranslationsObj(data);
+            if (resObj && resObj.de && Object.keys(resObj.de).length > 1) {
+              window.translations = resObj;
+            } else {
+              console.warn(
+                "Translations sheet is empty or not formatted correctly. Using default fallback.",
+              );
+              window.translations = null;
+            }
+            return true;
+          } else {
+            console.warn(
+              "Translations sheet is empty. Using default fallback.",
+            );
+            window.translations = null;
+            return true;
+          }
+        } catch (err) {
+          console.warn(
+            "Translations API fehlgeschlagen, wechsle auf Fallback:",
+            err,
+          );
+          window.translations = null;
+          return false;
+        }
       }
 
       async function fetchSolargrafieDaten() {
         const cfg = typeof APP_CONFIG !== "undefined" ? APP_CONFIG : {};
 
-        // Option 1: Custom Backend Proxy falls definiert
-        if (cfg.customApiUrl && cfg.customApiUrl.trim() !== "") {
-          try {
-            const urlObj = new URL(cfg.customApiUrl, window.location.href);
-            urlObj.searchParams.set("t", new Date().getTime());
-            const res = await fetch(urlObj.toString(), { cache: "no-store" });
-            const data = await res.json();
-            window.solargrafieDaten = data;
-            renderMarkers();
-            updateProjectStats();
-
-            // Update Project Modal
-            const ad =
-              typeof window.translations !== "undefined" &&
-              window.translations !== null &&
-              window.translations[currentLang]
-                ? window.translations[currentLang]
-                : defaultTranslations.de;
-            updateProjectModalTranslations(ad);
-            return;
-          } catch (err) {
-            console.warn(
-              "Custom API fehlgeschlagen, wechsle auf Fallback:",
-              err,
-            );
-          }
-        }
-
-        // Option 2: Google Sheets v4 REST API (mit API-Key)
-        if (cfg.sheetId && cfg.googleApiKey && cfg.googleApiKey.trim() !== "") {
-          const range = encodeURIComponent(
-            cfg.sheetRange || "Formularantworten 1",
+        if (!cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY) {
+          console.warn(
+            "Supabase credentials not configured. Cannot fetch solargrafieDaten.",
           );
-          const apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${cfg.sheetId}/values/${range}?key=${cfg.googleApiKey}&t=${new Date().getTime()}`;
-          try {
-            const res = await fetch(apiUrl, { cache: "no-store" });
-            const json = await res.json();
-            if (json.values && json.values.length > 1) {
-              const headers = json.values[0];
-              window.solargrafieDaten = json.values.slice(1).map((row) => {
-                const obj = {};
-                headers.forEach((h, i) => {
-                  obj[h] = row[i] !== undefined ? row[i] : "";
-                });
-                return obj;
-              });
-              renderMarkers();
-              updateProjectStats();
-
-              // Update Project Modal
-              const ad =
-                typeof window.translations !== "undefined" &&
-                window.translations !== null &&
-                window.translations[currentLang]
-                  ? window.translations[currentLang]
-                  : defaultTranslations.de;
-              updateProjectModalTranslations(ad);
-              return;
-            }
-          } catch (err) {
-            console.warn(
-              "Google REST API Aufruf fehlgeschlagen, wechsle auf GViz:",
-              err,
-            );
-          }
+          return;
         }
 
-        // Option 3: GViz CSV Fallback (kein API-Key erforderlich)
-        const sheetId =
-          cfg.sheetId || "1zny1pBIQilY5wJXTN8eYEdIBoW3lJp9W13mKceeZbKI";
-        const gvizUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&t=${new Date().getTime()}`;
+        try {
+          const apiUrl = `${cfg.SUPABASE_URL}/rest/v1/solargrafien?select=*`;
+          const headers = {
+            apikey: cfg.SUPABASE_ANON_KEY,
+            Authorization: "Bearer " + cfg.SUPABASE_ANON_KEY,
+            "Content-Type": "application/json",
+          };
 
-        Papa.parse(gvizUrl, {
-          download: true,
-          header: true,
-          skipEmptyLines: true,
-          complete: function (results) {
-            window.solargrafieDaten = results.data;
-            renderMarkers();
-            updateProjectStats();
+          const res = await fetch(apiUrl, {
+            headers: headers,
+            cache: "no-store",
+          });
+          if (!res.ok) {
+            throw new Error("HTTP error " + res.status);
+          }
+          const data = await res.json();
 
-            // Update Project Modal
-            const ad =
-              typeof window.translations !== "undefined" &&
-              window.translations !== null &&
-              window.translations[currentLang]
-                ? window.translations[currentLang]
-                : defaultTranslations.de;
-            updateProjectModalTranslations(ad);
-          },
-          error: function (err) {
-            console.error("Fehler beim Abrufen der Tabellendaten:", err);
-          },
-        });
+          window.solargrafieDaten = data;
+          renderMarkers();
+          updateProjectStats();
+
+          // Update Project Modal
+          const ad =
+            typeof window.translations !== "undefined" &&
+            window.translations !== null &&
+            window.translations[currentLang]
+              ? window.translations[currentLang]
+              : defaultTranslations.de;
+          updateProjectModalTranslations(ad);
+          return true;
+        } catch (err) {
+          console.error("Fehler beim Abrufen der Tabellendaten:", err);
+          return false;
+        }
       }
 
       // 5. Marker rendern
@@ -1259,20 +1180,26 @@
           return;
 
         window.solargrafieDaten.forEach((row, idx) => {
-          const pos = getVal(row, [
-            "position",
-            "koordinaten",
-            "standort",
-            "lat,lng",
-            "ort",
-          ]);
-          if (!pos) return;
+          let lat, lng;
+          if (row.lat !== undefined && row.lng !== undefined) {
+            lat = parseFloat(row.lat);
+            lng = parseFloat(row.lng);
+          } else {
+            const pos = getVal(row, [
+              "position",
+              "koordinaten",
+              "standort",
+              "lat,lng",
+              "ort",
+            ]);
+            if (!pos) return;
 
-          const parts = pos.split(",");
-          if (parts.length < 2) return;
+            const parts = pos.split(",");
+            if (parts.length < 2) return;
 
-          const lat = parseFloat(parts[0].trim());
-          const lng = parseFloat(parts[1].trim());
+            lat = parseFloat(parts[0].trim());
+            lng = parseFloat(parts[1].trim());
+          }
           if (isNaN(lat) || isNaN(lng)) return;
 
           const id = getVal(row, ["id"]) || idx + 1;
@@ -1288,9 +1215,23 @@
 
           // Split-Hosting Auswertung:
           const rawBild =
-            getVal(row, ["bild", "foto", "image", "datei", "upload"]) || "";
+            getVal(row, [
+              "bild_url",
+              "bild",
+              "foto",
+              "image",
+              "datei",
+              "upload",
+            ]) || "";
           const bildUrl = resolveImageUrl(rawBild);
-          const gPhotos = getVal(row, ["google", "url", "link", "fotos"]) || "";
+          const gPhotos =
+            getVal(row, [
+              "google_fotos_url",
+              "google",
+              "url",
+              "link",
+              "fotos",
+            ]) || "";
 
           const statusAnzeige = status ? `(${status})` : "";
           const titelZusatz = `#${id} ${titel} ${statusAnzeige}`.trim();
@@ -1515,7 +1456,14 @@
           const openedStr =
             getVal(row, ["opened", "geöffnet", "geoeffnet", "ende"]) || "";
           const rawBild =
-            getVal(row, ["bild", "foto", "image", "datei", "upload"]) || "";
+            getVal(row, [
+              "bild_url",
+              "bild",
+              "foto",
+              "image",
+              "datei",
+              "upload",
+            ]) || "";
           const bildUrl =
             resolveImageUrl(rawBild) ||
             "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png";
@@ -1695,7 +1643,14 @@
             "kurator",
           ]) || "";
         const rawBild =
-          getVal(row, ["bild", "foto", "image", "datei", "upload"]) || "";
+          getVal(row, [
+            "bild_url",
+            "bild",
+            "foto",
+            "image",
+            "datei",
+            "upload",
+          ]) || "";
         const bildUrl = resolveImageUrl(rawBild);
 
         // New columns
@@ -1707,11 +1662,12 @@
           "ort",
         ]);
         const kamera = getVal(row, ["kamera", "aufbau"]) || "";
-        const medium = getVal(row, ["medium", "papier", "fotopapier"]) || "";
+        const medium = getVal(row, ["fotopapier", "medium", "papier"]) || "";
         const owner =
           getVal(row, ["owner", "besitzer", "inhaber"]) || row[14] || "";
         const gPhotosUrl =
-          getVal(row, ["google", "url", "link", "fotos"]) || "";
+          getVal(row, ["google_fotos_url", "google", "url", "link", "fotos"]) ||
+          "";
 
         // Setup image
         const imgElem = document.getElementById("modal-img");
@@ -1920,11 +1876,9 @@
         (typeof APP_CONFIG !== "undefined" && APP_CONFIG.defaultRegion) || "ch";
 
       async function initializeApp() {
-        console.log("translations after fetch:", window.translations);
-        await fetchTranslationsData();
+        await Promise.all([fetchTranslationsData(), fetchSolargrafieDaten()]);
         window.setViewRegion(initialReg);
         window.setLanguage(currentLang);
-        fetchSolargrafieDaten();
       }
 
       initializeApp();
