@@ -1417,7 +1417,9 @@
         if (parts.length === 3) {
           return new Date(parts[2], parts[1] - 1, parts[0]);
         }
-        return new Date(dateStr);
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return null;
+        return d;
       }
 
       function renderArchive() {
@@ -1694,7 +1696,11 @@
         // Subtitle (Canton and coordinates)
         let lat = null,
           lng = null;
-        if (posStr) {
+
+        if (row.lat !== undefined && row.lng !== undefined) {
+          lat = parseFloat(row.lat);
+          lng = parseFloat(row.lng);
+        } else if (posStr) {
           const parts = posStr.split(",");
           if (parts.length >= 2) {
             lat = parseFloat(parts[0].trim());
