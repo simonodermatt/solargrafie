@@ -447,40 +447,6 @@
         <!-- Project Overview / Image -->
 
         <div class="modal-image-container" style="position: relative">
-          <a
-            id="modal-gphotos-link"
-            href="#"
-            target="_blank"
-            rel="noopener noreferrer"
-            style="
-              display: none;
-              position: absolute;
-              top: 10px;
-              right: 10px;
-              background: rgba(0, 0, 0, 0.6);
-              border-radius: 50%;
-              padding: 8px;
-              z-index: 10;
-              backdrop-filter: blur(4px);
-              transition: background 0.3s;
-            "
-            title="In Google Fotos öffnen"
-          >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#fff"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-              <circle cx="8.5" cy="8.5" r="1.5"></circle>
-              <polyline points="21 15 16 10 5 21"></polyline>
-            </svg>
-          </a>
           <img
             id="modal-img"
             src=""
@@ -625,7 +591,6 @@
     <!-- Bibliotheken (GENAU IN DIESER REIHENFOLGE EINMALIG LADEN) -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
     <!-- Konfiguration & Übersetzungen -->
     <script src="config.js"></script>
@@ -634,6 +599,10 @@
       window.translations = {};
       const defaultTranslations = {
         de: {
+          welcome_prompt_title: "Projekt Info Anzeigen?",
+          welcome_prompt_text: "Möchtest du die Projektinformationen lesen?",
+          welcome_prompt_yes: "Ja",
+          welcome_prompt_no: "Nein",
           header: "SOLARGRAFIE PROJEKT",
           observatoryDeck: "OBSERVATORY DECK",
           subtitle: "Pinhole Solar Path Cartography",
@@ -645,7 +614,6 @@
           note: "Notiz",
           extId: "Ext. ID",
           viewLarge: "Großansicht",
-          openGPhotos: "In Google Fotos öffnen →",
           regions: { ch: "Schweiz", eu: "Europa", world: "Welt" },
         },
       };
@@ -707,6 +675,8 @@
         spiderfyOnMaxZoom: true,
         showCoverageOnHover: false,
         zoomToBoundsOnClick: true,
+        spiderfyDistanceMultiplier: 2,
+        maxClusterRadius: 100,
       });
       map.addLayer(markersGroup);
 
@@ -814,7 +784,6 @@
             ? APP_CONFIG.localImageFolder
             : "./Bilder/";
 
-        // Fall A: Reiner Dateiname (z.B. "Reuss_01.jpg") -> Lokales Hosting
         if (
           !val.startsWith("http://") &&
           !val.startsWith("https://") &&
@@ -823,24 +792,48 @@
           return localBase + val;
         }
 
-        // Fall B: Google Drive Link -> Thumbnail-Schnittstelle
-        if (val.includes("drive.google.com")) {
-          let fileId = "";
-          if (val.includes("id=")) {
-            fileId = val.split("id=")[1].split("&")[0];
-          } else if (val.includes("/d/")) {
-            fileId = val.split("/d/")[1].split("/")[0];
-          }
-          if (fileId) {
-            return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
-          }
-        }
-
-        // Fall C: Direkte Web-URL
         return val;
       }
 
       // 4. Universeller Datenabruf (API vs. GViz CSV)
+
+      function updateWelcomeModalTranslations(activeDict) {
+        if (document.getElementById("welcome-prompt-title"))
+          document.getElementById("welcome-prompt-title").innerText =
+            activeDict.welcome_prompt_title || "Projekt Info Anzeigen?";
+        if (document.getElementById("welcome-prompt-text"))
+          document.getElementById("welcome-prompt-text").innerText =
+            activeDict.welcome_prompt_text ||
+            "Möchtest du die Projektinformationen lesen?";
+        if (document.getElementById("welcome-btn-no"))
+          document.getElementById("welcome-btn-no").innerText =
+            activeDict.welcome_prompt_no || "Nein";
+        if (document.getElementById("welcome-btn-yes"))
+          document.getElementById("welcome-btn-yes").innerText =
+            activeDict.welcome_prompt_yes || "Ja";
+      }
+
+      window.closeWelcomeModal = function (e) {
+        if (
+          e.target.id === "welcome-modal-lightbox" ||
+          e.target.closest(".modal-close")
+        ) {
+          document
+            .getElementById("welcome-modal-lightbox")
+            .classList.remove("active");
+          localStorage.setItem("hasSeenWelcomePrompt", "true");
+        }
+      };
+
+      window.handleWelcome = function (showInfo) {
+        localStorage.setItem("hasSeenWelcomePrompt", "true");
+        document
+          .getElementById("welcome-modal-lightbox")
+          .classList.remove("active");
+        if (showInfo) {
+          window.openProjectModal();
+        }
+      };
 
       function updateProjectModalTranslations(activeDict) {
         if (document.getElementById("pm-badge"))
@@ -989,10 +982,8 @@
 
       async function fetchTranslationsData() {
         const cfg = typeof APP_CONFIG !== "undefined" ? APP_CONFIG : {};
-        const sheetId =
-          cfg.sheetId || "1zny1pBIQilY5wJXTN8eYEdIBoW3lJp9W13mKceeZbKI";
 
-        // Expected columns: A=key, B=de, C=en, D=fr, E=it, F=uk, G=ru, H=es
+        // Expected columns: key, de, en, fr, it, uk, ru, es
         const buildTranslationsObj = (rows) => {
           const transObj = {};
           const langs = ["de", "en", "fr", "it", "uk", "ru", "es"];
@@ -1001,19 +992,18 @@
           });
 
           rows.forEach((row) => {
-            const key = row[0];
+            const key = row.key;
             if (!key) return;
 
-            // map columns to languages: row[1]=de, row[2]=en, row[3]=fr, etc.
             if (key.startsWith("regions.")) {
               const regionKey = key.split(".")[1];
-              langs.forEach((lang, idx) => {
-                const val = row[idx + 1];
+              langs.forEach((lang) => {
+                const val = row[lang];
                 if (val) transObj[lang].regions[regionKey] = val;
               });
             } else {
-              langs.forEach((lang, idx) => {
-                const val = row[idx + 1];
+              langs.forEach((lang) => {
+                const val = row[lang];
                 if (val) transObj[lang][key] = val;
               });
             }
@@ -1021,178 +1011,107 @@
           return transObj;
         };
 
-        return new Promise(async (resolve) => {
-          // Option 2: REST API
-          if (
-            cfg.sheetId &&
-            cfg.googleApiKey &&
-            cfg.googleApiKey.trim() !== ""
-          ) {
-            const range = encodeURIComponent("translations");
-            const apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${cfg.sheetId}/values/${range}?key=${cfg.googleApiKey}&t=${new Date().getTime()}`;
-            try {
-              const res = await fetch(apiUrl, { cache: "no-store" });
-              const json = await res.json();
-              if (json.values && json.values.length > 0) {
-                // Determine if first row is header. If row[0] === 'key', slice it.
-                const firstRowKey = String(json.values[0][0]).toLowerCase();
-                const rows =
-                  firstRowKey === "key" || firstRowKey === "schlüssel"
-                    ? json.values.slice(1)
-                    : json.values;
+        if (!cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY) {
+          console.warn(
+            "Supabase credentials not configured. Using default translations.",
+          );
+          window.translations = null;
+          return false;
+        }
 
-                const resObj = buildTranslationsObj(rows);
-                if (resObj && resObj.de && Object.keys(resObj.de).length > 1) {
-                  window.translations = resObj;
-                } else {
-                  console.warn(
-                    "Translations sheet is empty or not formatted correctly. Using default fallback.",
-                  );
-                  window.translations = null;
-                }
-                return resolve(true);
-              }
-            } catch (err) {
-              console.warn(
-                "Translations API fehlgeschlagen, wechsle auf Fallback:",
-                err,
-              );
-            }
-          }
+        try {
+          const apiUrl = `${cfg.SUPABASE_URL}/rest/v1/translations?select=*`;
+          const headers = {
+            apikey: cfg.SUPABASE_ANON_KEY,
+            Authorization: "Bearer " + cfg.SUPABASE_ANON_KEY,
+            "Content-Type": "application/json",
+          };
 
-          // Option 3: GViz CSV Fallback
-          const gvizUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=translations&headers=0&t=${new Date().getTime()}`;
-          Papa.parse(gvizUrl, {
-            download: true,
-            header: false, // NO HEADER!
-            skipEmptyLines: true,
-            complete: function (results) {
-              const firstRowKey =
-                results.data.length > 0
-                  ? String(results.data[0][0]).toLowerCase()
-                  : "";
-              const rows =
-                firstRowKey === "key" || firstRowKey === "schlüssel"
-                  ? results.data.slice(1)
-                  : results.data;
-
-              const resObj = buildTranslationsObj(rows);
-              if (resObj && resObj.de && Object.keys(resObj.de).length > 1) {
-                window.translations = resObj;
-              } else {
-                console.warn(
-                  "Translations sheet is empty or not formatted correctly. Using default fallback.",
-                );
-                window.translations = null;
-              }
-              resolve(true);
-            },
-            error: function (err) {
-              console.error("Fehler beim Abrufen der Übersetzungen:", err);
-              window.translations = null;
-              resolve(false);
-            },
+          const res = await fetch(apiUrl, {
+            headers: headers,
+            cache: "no-store",
           });
-        });
+          if (!res.ok) {
+            throw new Error("HTTP error " + res.status);
+          }
+          const data = await res.json();
+
+          if (data && data.length > 0) {
+            const resObj = buildTranslationsObj(data);
+            if (resObj && resObj.de && Object.keys(resObj.de).length > 1) {
+              window.translations = resObj;
+            } else {
+              console.warn(
+                "Translations database is empty or not formatted correctly. Using default fallback.",
+              );
+              window.translations = null;
+            }
+            return true;
+          } else {
+            console.warn(
+              "Translations database is empty. Using default fallback.",
+            );
+            window.translations = null;
+            return true;
+          }
+        } catch (err) {
+          console.warn(
+            "Translations API fehlgeschlagen, wechsle auf Fallback:",
+            err,
+          );
+          window.translations = null;
+          return false;
+        }
       }
 
       async function fetchSolargrafieDaten() {
         const cfg = typeof APP_CONFIG !== "undefined" ? APP_CONFIG : {};
 
-        // Option 1: Custom Backend Proxy falls definiert
-        if (cfg.customApiUrl && cfg.customApiUrl.trim() !== "") {
-          try {
-            const urlObj = new URL(cfg.customApiUrl, window.location.href);
-            urlObj.searchParams.set("t", new Date().getTime());
-            const res = await fetch(urlObj.toString(), { cache: "no-store" });
-            const data = await res.json();
-            window.solargrafieDaten = data;
-            renderMarkers();
-            updateProjectStats();
-
-            // Update Project Modal
-            const ad =
-              typeof window.translations !== "undefined" &&
-              window.translations !== null &&
-              window.translations[currentLang]
-                ? window.translations[currentLang]
-                : defaultTranslations.de;
-            updateProjectModalTranslations(ad);
-            return;
-          } catch (err) {
-            console.warn(
-              "Custom API fehlgeschlagen, wechsle auf Fallback:",
-              err,
-            );
-          }
-        }
-
-        // Option 2: Google Sheets v4 REST API (mit API-Key)
-        if (cfg.sheetId && cfg.googleApiKey && cfg.googleApiKey.trim() !== "") {
-          const range = encodeURIComponent(
-            cfg.sheetRange || "Formularantworten 1",
+        if (!cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY) {
+          console.warn(
+            "Supabase credentials not configured. Cannot fetch solargrafieDaten.",
           );
-          const apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${cfg.sheetId}/values/${range}?key=${cfg.googleApiKey}&t=${new Date().getTime()}`;
-          try {
-            const res = await fetch(apiUrl, { cache: "no-store" });
-            const json = await res.json();
-            if (json.values && json.values.length > 1) {
-              const headers = json.values[0];
-              window.solargrafieDaten = json.values.slice(1).map((row) => {
-                const obj = {};
-                headers.forEach((h, i) => {
-                  obj[h] = row[i] !== undefined ? row[i] : "";
-                });
-                return obj;
-              });
-              renderMarkers();
-              updateProjectStats();
-
-              // Update Project Modal
-              const ad =
-                typeof window.translations !== "undefined" &&
-                window.translations !== null &&
-                window.translations[currentLang]
-                  ? window.translations[currentLang]
-                  : defaultTranslations.de;
-              updateProjectModalTranslations(ad);
-              return;
-            }
-          } catch (err) {
-            console.warn(
-              "Google REST API Aufruf fehlgeschlagen, wechsle auf GViz:",
-              err,
-            );
-          }
+          return;
         }
 
-        // Option 3: GViz CSV Fallback (kein API-Key erforderlich)
-        const sheetId =
-          cfg.sheetId || "1zny1pBIQilY5wJXTN8eYEdIBoW3lJp9W13mKceeZbKI";
-        const gvizUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&t=${new Date().getTime()}`;
+        try {
+          const apiUrl = `${cfg.SUPABASE_URL}/rest/v1/solargrafien?select=*`;
+          const headers = {
+            apikey: cfg.SUPABASE_ANON_KEY,
+            Authorization: "Bearer " + cfg.SUPABASE_ANON_KEY,
+            "Content-Type": "application/json",
+          };
 
-        Papa.parse(gvizUrl, {
-          download: true,
-          header: true,
-          skipEmptyLines: true,
-          complete: function (results) {
-            window.solargrafieDaten = results.data;
-            renderMarkers();
-            updateProjectStats();
+          const res = await fetch(apiUrl, {
+            headers: headers,
+            cache: "no-store",
+          });
+          if (!res.ok) {
+            throw new Error("HTTP error " + res.status);
+          }
+          const data = await res.json();
 
-            // Update Project Modal
-            const ad =
-              typeof window.translations !== "undefined" &&
-              window.translations !== null &&
-              window.translations[currentLang]
-                ? window.translations[currentLang]
-                : defaultTranslations.de;
-            updateProjectModalTranslations(ad);
-          },
-          error: function (err) {
-            console.error("Fehler beim Abrufen der Tabellendaten:", err);
-          },
-        });
+          window.solargrafieDaten = data;
+          renderMarkers();
+          updateProjectStats();
+
+          // Update Project Modal
+          const ad =
+            typeof window.translations !== "undefined" &&
+            window.translations !== null &&
+            window.translations[currentLang]
+              ? window.translations[currentLang]
+              : defaultTranslations.de;
+          updateWelcomeModalTranslations(ad);
+          updateProjectModalTranslations(ad);
+          return true;
+        } catch (err) {
+          console.error("Fehler beim Abrufen der Tabellendaten:", err);
+          document
+            .getElementById("error-modal-lightbox")
+            .classList.remove("hidden");
+          return false;
+        }
       }
 
       // 5. Marker rendern
@@ -1259,20 +1178,26 @@
           return;
 
         window.solargrafieDaten.forEach((row, idx) => {
-          const pos = getVal(row, [
-            "position",
-            "koordinaten",
-            "standort",
-            "lat,lng",
-            "ort",
-          ]);
-          if (!pos) return;
+          let lat, lng;
+          if (row.lat !== undefined && row.lng !== undefined) {
+            lat = parseFloat(row.lat);
+            lng = parseFloat(row.lng);
+          } else {
+            const pos = getVal(row, [
+              "position",
+              "koordinaten",
+              "standort",
+              "lat,lng",
+              "ort",
+            ]);
+            if (!pos) return;
 
-          const parts = pos.split(",");
-          if (parts.length < 2) return;
+            const parts = pos.split(",");
+            if (parts.length < 2) return;
 
-          const lat = parseFloat(parts[0].trim());
-          const lng = parseFloat(parts[1].trim());
+            lat = parseFloat(parts[0].trim());
+            lng = parseFloat(parts[1].trim());
+          }
           if (isNaN(lat) || isNaN(lng)) return;
 
           const id = getVal(row, ["id"]) || idx + 1;
@@ -1288,9 +1213,15 @@
 
           // Split-Hosting Auswertung:
           const rawBild =
-            getVal(row, ["bild", "foto", "image", "datei", "upload"]) || "";
+            getVal(row, [
+              "bild_url",
+              "bild",
+              "foto",
+              "image",
+              "datei",
+              "upload",
+            ]) || "";
           const bildUrl = resolveImageUrl(rawBild);
-          const gPhotos = getVal(row, ["google", "url", "link", "fotos"]) || "";
 
           const statusAnzeige = status ? `(${status})` : "";
           const titelZusatz = `#${id} ${titel} ${statusAnzeige}`.trim();
@@ -1476,7 +1407,9 @@
         if (parts.length === 3) {
           return new Date(parts[2], parts[1] - 1, parts[0]);
         }
-        return new Date(dateStr);
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return null;
+        return d;
       }
 
       function renderArchive() {
@@ -1515,7 +1448,14 @@
           const openedStr =
             getVal(row, ["opened", "geöffnet", "geoeffnet", "ende"]) || "";
           const rawBild =
-            getVal(row, ["bild", "foto", "image", "datei", "upload"]) || "";
+            getVal(row, [
+              "bild_url",
+              "bild",
+              "foto",
+              "image",
+              "datei",
+              "upload",
+            ]) || "";
           const bildUrl =
             resolveImageUrl(rawBild) ||
             "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png";
@@ -1695,7 +1635,14 @@
             "kurator",
           ]) || "";
         const rawBild =
-          getVal(row, ["bild", "foto", "image", "datei", "upload"]) || "";
+          getVal(row, [
+            "bild_url",
+            "bild",
+            "foto",
+            "image",
+            "datei",
+            "upload",
+          ]) || "";
         const bildUrl = resolveImageUrl(rawBild);
 
         // New columns
@@ -1707,11 +1654,9 @@
           "ort",
         ]);
         const kamera = getVal(row, ["kamera", "aufbau"]) || "";
-        const medium = getVal(row, ["medium", "papier", "fotopapier"]) || "";
+        const medium = getVal(row, ["fotopapier", "medium", "papier"]) || "";
         const owner =
           getVal(row, ["owner", "besitzer", "inhaber"]) || row[14] || "";
-        const gPhotosUrl =
-          getVal(row, ["google", "url", "link", "fotos"]) || "";
 
         // Setup image
         const imgElem = document.getElementById("modal-img");
@@ -1721,16 +1666,6 @@
           : "Solargrafie Langzeitbelichtung";
         imgElem.style.display = bildUrl ? "block" : "none";
 
-        const gPhotosLinkElem = document.getElementById("modal-gphotos-link");
-        if (gPhotosLinkElem) {
-          if (gPhotosUrl) {
-            gPhotosLinkElem.href = gPhotosUrl;
-            gPhotosLinkElem.style.display = "block";
-          } else {
-            gPhotosLinkElem.style.display = "none";
-          }
-        }
-
         // Title and Badge
         document.getElementById("modal-title").innerText = titel;
         document.getElementById("modal-badge").innerText = id;
@@ -1738,7 +1673,11 @@
         // Subtitle (Canton and coordinates)
         let lat = null,
           lng = null;
-        if (posStr) {
+
+        if (row.lat !== undefined && row.lng !== undefined) {
+          lat = parseFloat(row.lat);
+          lng = parseFloat(row.lng);
+        } else if (posStr) {
           const parts = posStr.split(",");
           if (parts.length >= 2) {
             lat = parseFloat(parts[0].trim());
@@ -1920,11 +1859,25 @@
         (typeof APP_CONFIG !== "undefined" && APP_CONFIG.defaultRegion) || "ch";
 
       async function initializeApp() {
-        console.log("translations after fetch:", window.translations);
-        await fetchTranslationsData();
+        await Promise.all([fetchTranslationsData(), fetchSolargrafieDaten()]);
         window.setViewRegion(initialReg);
+
+        const hasSeenPrompt = localStorage.getItem("hasSeenWelcomePrompt");
+        if (!hasSeenPrompt) {
+          const activeDict =
+            typeof window.translations !== "undefined" &&
+            window.translations !== null &&
+            window.translations[currentLang]
+              ? window.translations[currentLang]
+              : defaultTranslations.de;
+          updateWelcomeModalTranslations(activeDict);
+          setTimeout(() => {
+            document
+              .getElementById("welcome-modal-lightbox")
+              .classList.add("active");
+          }, 500); // Slight delay for smoother entry
+        }
         window.setLanguage(currentLang);
-        fetchSolargrafieDaten();
       }
 
       initializeApp();
@@ -2039,9 +1992,105 @@
           </svg>
           <span class="link-text">Impressum</span>
         </a>
+        <a
+          href="admin.html"
+          target="_blank"
+          id="footer-link-admin"
+          class="footer-link"
+        >
+          <svg
+            class="footer-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <span class="link-text">Admin</span>
+        </a>
       </div>
     </footer>
 
+    <!-- Welcome Modal -->
+    <div
+      id="welcome-modal-lightbox"
+      class="modal"
+      onclick="closeWelcomeModal(event)"
+    >
+      <div
+        class="modal-content-wrapper welcome-content"
+        onclick="event.stopPropagation()"
+      >
+        <div class="modal-header">
+          <div class="modal-header-left">
+            <h2 id="welcome-prompt-title">Projekt Info Anzeigen?</h2>
+          </div>
+        </div>
+
+        <!-- Error Modal -->
+        <div id="error-modal-lightbox" class="modal-lightbox hidden">
+          <div
+            class="modal-content"
+            style="max-width: 400px; text-align: center; padding: 24px"
+          >
+            <h2
+              style="
+                color: #ef4444;
+                margin-bottom: 16px;
+                font-family: var(--font-head);
+              "
+            >
+              Verbindungsfehler
+            </h2>
+            <p
+              style="
+                color: var(--color-text-muted);
+                font-family: var(--font-body);
+                margin-bottom: 24px;
+              "
+            >
+              Die Datenbank konnte nicht erreicht werden. Bitte überprüfe deine
+              Internetverbindung oder lade die Seite neu.
+            </p>
+            <button class="cta-btn primary" onclick="location.reload()">
+              Neu laden
+            </button>
+          </div>
+        </div>
+
+        <div class="welcome-body">
+          <p
+            id="welcome-prompt-text"
+            style="margin-bottom: 24px; color: var(--color-text-muted)"
+          >
+            Möchtest du die Projektinformationen lesen?
+          </p>
+          <div style="display: flex; gap: 16px; justify-content: flex-end">
+            <button
+              id="welcome-btn-no"
+              class="cta-btn secondary"
+              onclick="handleWelcome(false)"
+            >
+              Nein
+            </button>
+            <button
+              id="welcome-btn-yes"
+              class="cta-btn primary"
+              onclick="handleWelcome(true)"
+            >
+              Ja
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
     <!-- Image Lightbox Modal -->
     <div id="image-lightbox" onclick="closeImageLightbox(event)">
       <button id="lightbox-close" onclick="closeImageLightbox(event)">
