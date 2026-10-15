@@ -447,40 +447,6 @@
         <!-- Project Overview / Image -->
 
         <div class="modal-image-container" style="position: relative">
-          <a
-            id="modal-gphotos-link"
-            href="#"
-            target="_blank"
-            rel="noopener noreferrer"
-            style="
-              display: none;
-              position: absolute;
-              top: 10px;
-              right: 10px;
-              background: rgba(0, 0, 0, 0.6);
-              border-radius: 50%;
-              padding: 8px;
-              z-index: 10;
-              backdrop-filter: blur(4px);
-              transition: background 0.3s;
-            "
-            title="In Google Fotos öffnen"
-          >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#fff"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-              <circle cx="8.5" cy="8.5" r="1.5"></circle>
-              <polyline points="21 15 16 10 5 21"></polyline>
-            </svg>
-          </a>
           <img
             id="modal-img"
             src=""
@@ -648,7 +614,6 @@
           note: "Notiz",
           extId: "Ext. ID",
           viewLarge: "Großansicht",
-          openGPhotos: "In Google Fotos öffnen →",
           regions: { ch: "Schweiz", eu: "Europa", world: "Welt" },
         },
       };
@@ -819,7 +784,6 @@
             ? APP_CONFIG.localImageFolder
             : "./Bilder/";
 
-        // Fall A: Reiner Dateiname (z.B. "Reuss_01.jpg") -> Lokales Hosting
         if (
           !val.startsWith("http://") &&
           !val.startsWith("https://") &&
@@ -828,20 +792,6 @@
           return localBase + val;
         }
 
-        // Fall B: Google Drive Link -> Thumbnail-Schnittstelle
-        if (val.includes("drive.google.com")) {
-          let fileId = "";
-          if (val.includes("id=")) {
-            fileId = val.split("id=")[1].split("&")[0];
-          } else if (val.includes("/d/")) {
-            fileId = val.split("/d/")[1].split("/")[0];
-          }
-          if (fileId) {
-            return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
-          }
-        }
-
-        // Fall C: Direkte Web-URL
         return val;
       }
 
@@ -1092,14 +1042,14 @@
               window.translations = resObj;
             } else {
               console.warn(
-                "Translations sheet is empty or not formatted correctly. Using default fallback.",
+                "Translations database is empty or not formatted correctly. Using default fallback.",
               );
               window.translations = null;
             }
             return true;
           } else {
             console.warn(
-              "Translations sheet is empty. Using default fallback.",
+              "Translations database is empty. Using default fallback.",
             );
             window.translations = null;
             return true;
@@ -1157,6 +1107,9 @@
           return true;
         } catch (err) {
           console.error("Fehler beim Abrufen der Tabellendaten:", err);
+          document
+            .getElementById("error-modal-lightbox")
+            .classList.remove("hidden");
           return false;
         }
       }
@@ -1269,14 +1222,6 @@
               "upload",
             ]) || "";
           const bildUrl = resolveImageUrl(rawBild);
-          const gPhotos =
-            getVal(row, [
-              "google_fotos_url",
-              "google",
-              "url",
-              "link",
-              "fotos",
-            ]) || "";
 
           const statusAnzeige = status ? `(${status})` : "";
           const titelZusatz = `#${id} ${titel} ${statusAnzeige}`.trim();
@@ -1712,9 +1657,6 @@
         const medium = getVal(row, ["fotopapier", "medium", "papier"]) || "";
         const owner =
           getVal(row, ["owner", "besitzer", "inhaber"]) || row[14] || "";
-        const gPhotosUrl =
-          getVal(row, ["google_fotos_url", "google", "url", "link", "fotos"]) ||
-          "";
 
         // Setup image
         const imgElem = document.getElementById("modal-img");
@@ -1723,16 +1665,6 @@
           ? "Solargrafie Langzeitbelichtung - Standort: " + titel
           : "Solargrafie Langzeitbelichtung";
         imgElem.style.display = bildUrl ? "block" : "none";
-
-        const gPhotosLinkElem = document.getElementById("modal-gphotos-link");
-        if (gPhotosLinkElem) {
-          if (gPhotosUrl) {
-            gPhotosLinkElem.href = gPhotosUrl;
-            gPhotosLinkElem.style.display = "block";
-          } else {
-            gPhotosLinkElem.style.display = "none";
-          }
-        }
 
         // Title and Badge
         document.getElementById("modal-title").innerText = titel;
@@ -2101,6 +2033,38 @@
             <h2 id="welcome-prompt-title">Projekt Info Anzeigen?</h2>
           </div>
         </div>
+
+        <!-- Error Modal -->
+        <div id="error-modal-lightbox" class="modal-lightbox hidden">
+          <div
+            class="modal-content"
+            style="max-width: 400px; text-align: center; padding: 24px"
+          >
+            <h2
+              style="
+                color: #ef4444;
+                margin-bottom: 16px;
+                font-family: var(--font-head);
+              "
+            >
+              Verbindungsfehler
+            </h2>
+            <p
+              style="
+                color: var(--color-text-muted);
+                font-family: var(--font-body);
+                margin-bottom: 24px;
+              "
+            >
+              Die Datenbank konnte nicht erreicht werden. Bitte überprüfe deine
+              Internetverbindung oder lade die Seite neu.
+            </p>
+            <button class="cta-btn primary" onclick="location.reload()">
+              Neu laden
+            </button>
+          </div>
+        </div>
+
         <div class="welcome-body">
           <p
             id="welcome-prompt-text"
