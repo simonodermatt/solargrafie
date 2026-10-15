@@ -633,6 +633,10 @@
       window.translations = {};
       const defaultTranslations = {
         de: {
+          welcome_prompt_title: "Projekt Info Anzeigen?",
+          welcome_prompt_text: "Möchtest du die Projektinformationen lesen?",
+          welcome_prompt_yes: "Ja",
+          welcome_prompt_no: "Nein",
           header: "SOLARGRAFIE PROJEKT",
           observatoryDeck: "OBSERVATORY DECK",
           subtitle: "Pinhole Solar Path Cartography",
@@ -842,6 +846,44 @@
       }
 
       // 4. Universeller Datenabruf (API vs. GViz CSV)
+
+      function updateWelcomeModalTranslations(activeDict) {
+        if (document.getElementById("welcome-prompt-title"))
+          document.getElementById("welcome-prompt-title").innerText =
+            activeDict.welcome_prompt_title || "Projekt Info Anzeigen?";
+        if (document.getElementById("welcome-prompt-text"))
+          document.getElementById("welcome-prompt-text").innerText =
+            activeDict.welcome_prompt_text ||
+            "Möchtest du die Projektinformationen lesen?";
+        if (document.getElementById("welcome-btn-no"))
+          document.getElementById("welcome-btn-no").innerText =
+            activeDict.welcome_prompt_no || "Nein";
+        if (document.getElementById("welcome-btn-yes"))
+          document.getElementById("welcome-btn-yes").innerText =
+            activeDict.welcome_prompt_yes || "Ja";
+      }
+
+      window.closeWelcomeModal = function (e) {
+        if (
+          e.target.id === "welcome-modal-lightbox" ||
+          e.target.closest(".modal-close")
+        ) {
+          document
+            .getElementById("welcome-modal-lightbox")
+            .classList.remove("active");
+          localStorage.setItem("hasSeenWelcomePrompt", "true");
+        }
+      };
+
+      window.handleWelcome = function (showInfo) {
+        localStorage.setItem("hasSeenWelcomePrompt", "true");
+        document
+          .getElementById("welcome-modal-lightbox")
+          .classList.remove("active");
+        if (showInfo) {
+          window.openProjectModal();
+        }
+      };
 
       function updateProjectModalTranslations(activeDict) {
         if (document.getElementById("pm-badge"))
@@ -1110,6 +1152,7 @@
             window.translations[currentLang]
               ? window.translations[currentLang]
               : defaultTranslations.de;
+          updateWelcomeModalTranslations(ad);
           updateProjectModalTranslations(ad);
           return true;
         } catch (err) {
@@ -1886,6 +1929,22 @@
       async function initializeApp() {
         await Promise.all([fetchTranslationsData(), fetchSolargrafieDaten()]);
         window.setViewRegion(initialReg);
+
+        const hasSeenPrompt = localStorage.getItem("hasSeenWelcomePrompt");
+        if (!hasSeenPrompt) {
+          const activeDict =
+            typeof window.translations !== "undefined" &&
+            window.translations !== null &&
+            window.translations[currentLang]
+              ? window.translations[currentLang]
+              : defaultTranslations.de;
+          updateWelcomeModalTranslations(activeDict);
+          setTimeout(() => {
+            document
+              .getElementById("welcome-modal-lightbox")
+              .classList.add("active");
+          }, 500); // Slight delay for smoother entry
+        }
         window.setLanguage(currentLang);
       }
 
@@ -2027,6 +2086,47 @@
       </div>
     </footer>
 
+    <!-- Welcome Modal -->
+    <div
+      id="welcome-modal-lightbox"
+      class="modal"
+      onclick="closeWelcomeModal(event)"
+    >
+      <div
+        class="modal-content-wrapper welcome-content"
+        onclick="event.stopPropagation()"
+      >
+        <div class="modal-header">
+          <div class="modal-header-left">
+            <h2 id="welcome-prompt-title">Projekt Info Anzeigen?</h2>
+          </div>
+        </div>
+        <div class="welcome-body">
+          <p
+            id="welcome-prompt-text"
+            style="margin-bottom: 24px; color: var(--color-text-muted)"
+          >
+            Möchtest du die Projektinformationen lesen?
+          </p>
+          <div style="display: flex; gap: 16px; justify-content: flex-end">
+            <button
+              id="welcome-btn-no"
+              class="cta-btn secondary"
+              onclick="handleWelcome(false)"
+            >
+              Nein
+            </button>
+            <button
+              id="welcome-btn-yes"
+              class="cta-btn primary"
+              onclick="handleWelcome(true)"
+            >
+              Ja
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
     <!-- Image Lightbox Modal -->
     <div id="image-lightbox" onclick="closeImageLightbox(event)">
       <button id="lightbox-close" onclick="closeImageLightbox(event)">
