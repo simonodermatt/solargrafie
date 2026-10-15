@@ -1769,3 +1769,55 @@ body.impressum-page {
     grid-template-columns: 2fr 1fr;
   }
 }
+
+/* Welcome Modal */
+#welcome-modal-lightbox .welcome-content {
+  max-width: 450px;
+  max-height: auto;
+  padding: 32px;
+}
+#welcome-modal-lightbox .modal-header {
+  margin-bottom: 16px;
+}
+#welcome-modal-lightbox .welcome-body {
+  display: flex;
+  flex-direction: column;
+}
+@media (max-width: 768px) {
+  #welcome-modal-lightbox .welcome-content {
+    margin: 20px;
+    border-radius: 24px; /* Keeping it rounded even on mobile for small dialogs */
+    max-height: auto;
+  }
+}
+
+/* Global Scrollbar Styles for Dark Mode */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg); /* Dark background */
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(
+    255,
+    255,
+    255,
+    0.2
+  ); /* Decent dark grey/semi-transparent white */
+  border-radius: 8px;
+  border: 2px solid var(--color-bg); /* Padding effect */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3); /* Slightly lighter on hover */
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) var(--color-bg); /* For Firefox */
+}
