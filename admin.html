@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin - Solargrafie</title>
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#0b0f17" />
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="style.css" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Config -->
+    <script src="config.js"></script>
+
+    <style>
+      /* Zusätzliche Admin-spezifische Styles, angelehnt an das Hauptdesign */
+      body {
+        background-color: var(--color-bg);
+        color: var(--color-text-main);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+        box-sizing: border-box;
+      }
+
+      .admin-card {
+        background: rgba(25, 28, 36, 0.6);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 40px;
+        max-width: 500px;
+        width: 100%;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        text-align: center;
+      }
+
+      .admin-card h1 {
+        font-family: var(--font-head);
+        color: var(--color-primary);
+        margin-top: 0;
+        margin-bottom: 24px;
+        font-size: 2rem;
+      }
+
+      .admin-card p {
+        font-family: var(--font-body);
+        color: var(--color-text-muted);
+        line-height: 1.6;
+        margin-bottom: 32px;
+      }
+
+      .btn {
+        background: rgba(14, 165, 233, 0.15);
+        border: 1px solid var(--color-primary);
+        color: var(--color-primary);
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-family: var(--font-body);
+        font-weight: 500;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        text-decoration: none;
+      }
+
+      .btn:hover {
+        background: var(--color-primary);
+        color: #000;
+        box-shadow: 0 0 15px rgba(14, 165, 233, 0.4);
+      }
+
+      .btn-secondary {
+        background: transparent;
+        border-color: var(--color-text-muted);
+        color: var(--color-text-muted);
+      }
+
+      .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--color-text-main);
+        border-color: var(--color-text-main);
+        box-shadow: none;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      .user-info {
+        margin-bottom: 24px;
+        font-family: var(--font-body);
+        font-weight: 500;
+      }
+
+      .user-email {
+        color: var(--color-primary);
+      }
+
+      .dashboard-content {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 24px;
+        border: 1px dashed rgba(255, 255, 255, 0.1);
+      }
+
+      .back-link {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        color: var(--color-text-muted);
+        text-decoration: none;
+        font-family: var(--font-body);
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: color 0.3s;
+      }
+
+      .back-link:hover {
+        color: var(--color-primary);
+      }
+    </style>
+  </head>
+  <body>
+    <a href="index.html" class="back-link">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      Zurück zur Karte
+    </a>
+
+    <div class="admin-card">
+      <h1>Admin Bereich</h1>
+
+      <!-- Lade-Indikator -->
+      <div id="loading-container">
+        <p>Status wird geprüft...</p>
+      </div>
+
+      <!-- Login Ansicht -->
+      <div id="login-container" class="hidden">
+        <p>Bitte melde dich an, um den Administrationsbereich zu betreten.</p>
+        <button id="btn-login" class="btn">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+            <polyline points="10 17 15 12 10 7"></polyline>
+            <line x1="15" y1="12" x2="3" y2="12"></line>
+          </svg>
+          Mit Google anmelden
+        </button>
+      </div>
+
+      <!-- Dashboard Ansicht -->
+      <div id="dashboard-container" class="hidden">
+        <div class="user-info">
+          Eingeloggt als: <span id="user-email" class="user-email"></span>
+        </div>
+
+        <div class="dashboard-content">
+          <p>Hier entsteht die Verwaltung der Solargrafien...</p>
+        </div>
+
+        <button id="btn-logout" class="btn btn-secondary">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          Abmelden
+        </button>
+      </div>
+    </div>
+
+    <!-- Admin Logik -->
+    <script src="admin.js"></script>
+  </body>
+</html>
