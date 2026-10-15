@@ -21,6 +21,7 @@ function updateUI(session) {
     loginContainer.classList.add("hidden");
     dashboardContainer.classList.remove("hidden");
     userEmailSpan.textContent = session.user.email;
+    loadSolargrafien();
   } else {
     // User ist NICHT eingeloggt
     dashboardContainer.classList.add("hidden");
@@ -76,3 +77,229 @@ async function initAuth() {
 
 // Start
 document.addEventListener("DOMContentLoaded", initAuth);
+
+// DOM Elemente CRUD
+const solargrafienList = document.getElementById("solargrafien-list");
+const solargrafieForm = document.getElementById("solargrafie-form");
+const statusMessage = document.getElementById("status-message");
+const btnNew = document.getElementById("btn-new");
+const btnCancel = document.getElementById("btn-cancel");
+const btnSubmit = document.getElementById("btn-submit");
+const formTitle = document.getElementById("form-title");
+
+// Globale Daten
+let alleSolargrafien = [];
+
+// Hilfsfunktion: Nachrichten anzeigen
+function showMessage(msg, isError = false) {
+  statusMessage.textContent = msg;
+  statusMessage.className = "message-box";
+  statusMessage.classList.add(isError ? "error" : "success");
+
+  // Nach 5 Sekunden ausblenden
+  setTimeout(() => {
+    statusMessage.style.display = "none";
+    statusMessage.className = "message-box";
+  }, 5000);
+}
+
+// 1. READ: Daten laden und rendern
+async function loadSolargrafien() {
+  solargrafienList.innerHTML = "<p>Lade Daten...</p>";
+  try {
+    const { data, error } = await supabaseClient
+      .from("solargrafien")
+      .select("*")
+      .order("placed", { ascending: false });
+
+    if (error) throw error;
+
+    alleSolargrafien = data;
+    renderList(data);
+  } catch (error) {
+    console.error("Fehler beim Laden:", error.message);
+    solargrafienList.innerHTML = `<p style="color: #ef4444;">Fehler: ${error.message}</p>`;
+  }
+}
+
+// Hilfsfunktion: Liste rendern
+function renderList(data) {
+  if (!data || data.length === 0) {
+    solargrafienList.innerHTML = "<p>Keine Einträge gefunden.</p>";
+    return;
+  }
+
+  solargrafienList.innerHTML = "";
+  data.forEach((item) => {
+    const div = document.createElement("div");
+    div.className = "list-item";
+
+    // Fallback für undefinierte Werte
+    const placedDate = item.placed ? item.placed : "Unbekannt";
+    const title = item.titel ? item.titel : "Ohne Titel";
+
+    div.innerHTML = `
+      <div class="list-item-info">
+        <strong>${escapeHtml(title)}</strong>
+        <span>Placed: ${escapeHtml(placedDate)}</span>
+      </div>
+      <div class="list-item-actions">
+        <button class="btn btn-small btn-edit" data-id="${item.id}">Edit</button>
+        <button class="btn btn-small btn-danger btn-delete" data-id="${item.id}">Delete</button>
+      </div>
+    `;
+    solargrafienList.appendChild(div);
+  });
+
+  // Event Listener für Edit/Delete Buttons hinzufügen
+  document.querySelectorAll(".btn-edit").forEach((btn) => {
+    btn.addEventListener("click", (e) => loadFormForEdit(e.target.dataset.id));
+  });
+
+  document.querySelectorAll(".btn-delete").forEach((btn) => {
+    btn.addEventListener("click", (e) =>
+      deleteSolargrafie(e.target.dataset.id),
+    );
+  });
+}
+
+// Hilfsfunktion XSS Schutz
+function escapeHtml(unsafe) {
+  if (!unsafe) return "";
+  return unsafe
+    .toString()
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+// 2. LOAD: Formular für Edit füllen
+function loadFormForEdit(id) {
+  const item = alleSolargrafien.find((s) => s.id == id);
+  if (!item) return;
+
+  // Felder füllen
+  document.getElementById("edit-id").value = item.id;
+  document.getElementById("titel").value = item.titel || "";
+  document.getElementById("lat").value = item.lat || "";
+  document.getElementById("lng").value = item.lng || "";
+  document.getElementById("placed").value = item.placed || "";
+  document.getElementById("opened").value = item.opened || "";
+  document.getElementById("kamera").value = item.kamera || "";
+  document.getElementById("fotopapier").value = item.fotopapier || "";
+  document.getElementById("bild_url").value = item.bild_url || "";
+  document.getElementById("comment_status").value =
+    item.comment_status || "open";
+  document.getElementById("notizen").value = item.notizen || "";
+
+  // UI anpassen
+  formTitle.textContent = "Eintrag bearbeiten";
+  btnSubmit.textContent = "Aktualisieren";
+  btnCancel.classList.remove("hidden");
+
+  // Zum Formular scrollen
+  formTitle.scrollIntoView({ behavior: "smooth" });
+}
+
+// Formular leeren (Neuer Eintrag)
+function resetForm() {
+  solargrafieForm.reset();
+  document.getElementById("edit-id").value = "";
+
+  // UI anpassen
+  formTitle.textContent = "Neuer Eintrag erstellen";
+  btnSubmit.textContent = "Speichern";
+  btnCancel.classList.add("hidden");
+}
+
+btnNew.addEventListener("click", resetForm);
+btnCancel.addEventListener("click", resetForm);
+
+// 3. CREATE / UPDATE: Formular absenden
+solargrafieForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  // Werte auslesen
+  const id = document.getElementById("edit-id").value;
+
+  // Datensatz zusammenbauen
+  const record = {
+    titel: document.getElementById("titel").value,
+    lat: parseFloat(document.getElementById("lat").value),
+    lng: parseFloat(document.getElementById("lng").value),
+    placed: document.getElementById("placed").value,
+    opened: document.getElementById("opened").value,
+    kamera: document.getElementById("kamera").value,
+    fotopapier: document.getElementById("fotopapier").value,
+    bild_url: document.getElementById("bild_url").value,
+    comment_status: document.getElementById("comment_status").value,
+    notizen: document.getElementById("notizen").value,
+  };
+
+  try {
+    // Disable Button während des Speicherns
+    btnSubmit.disabled = true;
+    btnSubmit.textContent = "Speichert...";
+
+    if (id) {
+      // UPDATE
+      const { error } = await supabaseClient
+        .from("solargrafien")
+        .update(record)
+        .eq("id", id);
+
+      if (error) throw error;
+      showMessage("Eintrag erfolgreich aktualisiert!");
+    } else {
+      // CREATE
+      const { error } = await supabaseClient
+        .from("solargrafien")
+        .insert([record]);
+
+      if (error) throw error;
+      showMessage("Neuer Eintrag erfolgreich gespeichert!");
+    }
+
+    resetForm();
+    loadSolargrafien();
+  } catch (error) {
+    console.error("Fehler beim Speichern:", error.message);
+    showMessage("Fehler: " + error.message, true);
+  } finally {
+    btnSubmit.disabled = false;
+    btnSubmit.textContent = id ? "Aktualisieren" : "Speichern";
+  }
+});
+
+// 4. DELETE: Eintrag löschen
+async function deleteSolargrafie(id) {
+  if (
+    !confirm(
+      "Möchtest du diesen Eintrag wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    )
+  ) {
+    return;
+  }
+
+  try {
+    const { error } = await supabaseClient
+      .from("solargrafien")
+      .delete()
+      .eq("id", id);
+
+    if (error) throw error;
+
+    showMessage("Eintrag erfolgreich gelöscht.");
+    loadSolargrafien();
+
+    // Wenn der gelöschte Eintrag gerade bearbeitet wurde, Formular leeren
+    if (document.getElementById("edit-id").value === id.toString()) {
+      resetForm();
+    }
+  } catch (error) {
+    console.error("Fehler beim Löschen:", error.message);
+    showMessage("Fehler beim Löschen: " + error.message, true);
+  }
+}
