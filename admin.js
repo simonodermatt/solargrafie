@@ -108,18 +108,6 @@ function resolveImageUrl(val) {
     return localBase + val;
   }
 
-  if (val.includes("drive.google.com")) {
-    let fileId = "";
-    if (val.includes("id=")) {
-      fileId = val.split("id=")[1].split("&")[0];
-    } else if (val.includes("/d/")) {
-      fileId = val.split("/d/")[1].split("/")[0];
-    }
-    if (fileId) {
-      return "https://lh3.googleusercontent.com/d/" + fileId + "=s600";
-    }
-  }
-
   return val;
 }
 
