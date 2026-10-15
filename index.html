@@ -2018,6 +2018,37 @@
       </div>
     </footer>
 
+    <!-- Error Modal -->
+    <div id="error-modal-lightbox" class="modal-lightbox hidden">
+      <div
+        class="modal-content"
+        style="max-width: 400px; text-align: center; padding: 24px"
+      >
+        <h2
+          style="
+            color: #ef4444;
+            margin-bottom: 16px;
+            font-family: var(--font-head);
+          "
+        >
+          Verbindungsfehler
+        </h2>
+        <p
+          style="
+            color: var(--color-text-muted);
+            font-family: var(--font-body);
+            margin-bottom: 24px;
+          "
+        >
+          Die Datenbank konnte nicht erreicht werden. Bitte überprüfe deine
+          Internetverbindung oder lade die Seite neu.
+        </p>
+        <button class="cta-btn primary" onclick="location.reload()">
+          Neu laden
+        </button>
+      </div>
+    </div>
+
     <!-- Welcome Modal -->
     <div
       id="welcome-modal-lightbox"
@@ -2031,37 +2062,6 @@
         <div class="modal-header">
           <div class="modal-header-left">
             <h2 id="welcome-prompt-title">Projekt Info Anzeigen?</h2>
-          </div>
-        </div>
-
-        <!-- Error Modal -->
-        <div id="error-modal-lightbox" class="modal-lightbox hidden">
-          <div
-            class="modal-content"
-            style="max-width: 400px; text-align: center; padding: 24px"
-          >
-            <h2
-              style="
-                color: #ef4444;
-                margin-bottom: 16px;
-                font-family: var(--font-head);
-              "
-            >
-              Verbindungsfehler
-            </h2>
-            <p
-              style="
-                color: var(--color-text-muted);
-                font-family: var(--font-body);
-                margin-bottom: 24px;
-              "
-            >
-              Die Datenbank konnte nicht erreicht werden. Bitte überprüfe deine
-              Internetverbindung oder lade die Seite neu.
-            </p>
-            <button class="cta-btn primary" onclick="location.reload()">
-              Neu laden
-            </button>
           </div>
         </div>
 
