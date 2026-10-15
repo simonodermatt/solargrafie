@@ -128,6 +128,7 @@ function showMessage(msg, isError = false) {
   statusMessage.textContent = msg;
   statusMessage.className = "message-box";
   statusMessage.classList.add(isError ? "error" : "success");
+  statusMessage.style.display = "block";
 
   // Nach 5 Sekunden ausblenden
   setTimeout(() => {
@@ -224,8 +225,8 @@ function loadFormForEdit(id) {
   // Felder füllen
   document.getElementById("edit-id").value = item.id;
   document.getElementById("titel").value = item.titel || "";
-  document.getElementById("lat").value = item.lat || "";
-  document.getElementById("lng").value = item.lng || "";
+  document.getElementById("lat").value = item.lat ?? "";
+  document.getElementById("lng").value = item.lng ?? "";
   document.getElementById("placed").value = item.placed || "";
   document.getElementById("opened").value = item.opened || "";
   document.getElementById("kamera").value = item.kamera || "";
@@ -233,7 +234,8 @@ function loadFormForEdit(id) {
   document.getElementById("bild_url").value = item.bild_url || "";
   document.getElementById("comment_status").value =
     item.comment_status || "open";
-  document.getElementById("notizen").value = item.notizen || "";
+  // The database column is named 'status', mapping it to the 'notizen' form field
+  document.getElementById("notizen").value = item.status || "";
 
   // UI anpassen
   formTitle.textContent = "Eintrag bearbeiten";
@@ -285,8 +287,10 @@ solargrafieForm.addEventListener("submit", async (e) => {
     fotopapier: getValue("fotopapier"),
     bild_url: getValue("bild_url"),
     comment_status: document.getElementById("comment_status").value,
-    notizen: getValue("notizen"),
   };
+
+  const notizenVal = getValue("notizen");
+  record.status = notizenVal;
 
   try {
     // Disable Button während des Speicherns
