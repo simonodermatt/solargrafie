@@ -1821,3 +1821,7 @@ body.impressum-page {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.2) var(--color-bg); /* For Firefox */
 }
+
+.hidden {
+  display: none !important;
+}
