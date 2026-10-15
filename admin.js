@@ -265,18 +265,27 @@ solargrafieForm.addEventListener("submit", async (e) => {
   // Werte auslesen
   const id = document.getElementById("edit-id").value;
 
+  // Hilfsfunktion: Leere Strings zu null machen
+  const getValue = (id) => {
+    const val = document.getElementById(id).value.trim();
+    return val === "" ? null : val;
+  };
+
+  const latVal = document.getElementById("lat").value;
+  const lngVal = document.getElementById("lng").value;
+
   // Datensatz zusammenbauen
   const record = {
-    titel: document.getElementById("titel").value,
-    lat: parseFloat(document.getElementById("lat").value),
-    lng: parseFloat(document.getElementById("lng").value),
-    placed: document.getElementById("placed").value,
-    opened: document.getElementById("opened").value,
-    kamera: document.getElementById("kamera").value,
-    fotopapier: document.getElementById("fotopapier").value,
-    bild_url: document.getElementById("bild_url").value,
+    titel: getValue("titel"),
+    lat: latVal === "" ? null : parseFloat(latVal),
+    lng: lngVal === "" ? null : parseFloat(lngVal),
+    placed: getValue("placed"),
+    opened: getValue("opened"),
+    kamera: getValue("kamera"),
+    fotopapier: getValue("fotopapier"),
+    bild_url: getValue("bild_url"),
     comment_status: document.getElementById("comment_status").value,
-    notizen: document.getElementById("notizen").value,
+    notizen: getValue("notizen"),
   };
 
   try {
@@ -310,7 +319,9 @@ solargrafieForm.addEventListener("submit", async (e) => {
     showMessage("Fehler: " + error.message, true);
   } finally {
     btnSubmit.disabled = false;
-    btnSubmit.textContent = id ? "Aktualisieren" : "Speichern";
+    // resetForm sets text to 'Speichern', so we only update it if we are still editing
+    const currentId = document.getElementById("edit-id").value;
+    btnSubmit.textContent = currentId ? "Aktualisieren" : "Speichern";
   }
 });
 
