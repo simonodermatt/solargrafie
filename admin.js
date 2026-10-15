@@ -90,6 +90,39 @@ const formTitle = document.getElementById("form-title");
 // Globale Daten
 let alleSolargrafien = [];
 
+// Bild URL auflösen (wie im Haupt-Frontend)
+function resolveImageUrl(val) {
+  if (!val) return "";
+  val = String(val).trim();
+
+  const localBase =
+    typeof APP_CONFIG !== "undefined" && APP_CONFIG.localImageFolder
+      ? APP_CONFIG.localImageFolder
+      : "./Bilder/";
+
+  if (
+    !val.startsWith("http://") &&
+    !val.startsWith("https://") &&
+    !val.startsWith("data:")
+  ) {
+    return localBase + val;
+  }
+
+  if (val.includes("drive.google.com")) {
+    let fileId = "";
+    if (val.includes("id=")) {
+      fileId = val.split("id=")[1].split("&")[0];
+    } else if (val.includes("/d/")) {
+      fileId = val.split("/d/")[1].split("/")[0];
+    }
+    if (fileId) {
+      return "https://lh3.googleusercontent.com/d/" + fileId + "=s600";
+    }
+  }
+
+  return val;
+}
+
 // Hilfsfunktion: Nachrichten anzeigen
 function showMessage(msg, isError = false) {
   statusMessage.textContent = msg;
@@ -140,7 +173,7 @@ function renderList(data) {
 
     // Thumbnail Fallback (z.B. ein Platzhalter, falls keine URL vorhanden ist)
     const imgUrl = item.bild_url
-      ? escapeHtml(item.bild_url)
+      ? escapeHtml(resolveImageUrl(item.bild_url))
       : 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="%23bec8d2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>';
 
     div.innerHTML = `
