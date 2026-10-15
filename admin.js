@@ -83,6 +83,7 @@ const solargrafienList = document.getElementById("solargrafien-list");
 const solargrafieForm = document.getElementById("solargrafie-form");
 const statusMessage = document.getElementById("status-message");
 const btnNew = document.getElementById("btn-new");
+const btnRefresh = document.getElementById("btn-refresh");
 const btnCancel = document.getElementById("btn-cancel");
 const btnSubmit = document.getElementById("btn-submit");
 const formTitle = document.getElementById("form-title");
@@ -213,6 +214,12 @@ function loadFormForEdit(id) {
   // Felder füllen
   document.getElementById("edit-id").value = item.id;
   document.getElementById("titel").value = item.titel || "";
+  document.getElementById("zeitstempel").value = item.zeitstempel || "";
+  document.getElementById("google_fotos_url").value =
+    item.google_fotos_url || "";
+  document.getElementById("externe_id").value = item.externe_id || "";
+  document.getElementById("email").value = item.email || "";
+  document.getElementById("owner").value = item.owner || "";
   document.getElementById("lat").value = item.lat ?? "";
   document.getElementById("lng").value = item.lng ?? "";
   document.getElementById("placed").value = item.placed || "";
@@ -238,6 +245,7 @@ function loadFormForEdit(id) {
 function resetForm() {
   solargrafieForm.reset();
   document.getElementById("edit-id").value = "";
+  document.getElementById("zeitstempel").value = "";
 
   // UI anpassen
   formTitle.textContent = "Neuer Eintrag erstellen";
@@ -246,6 +254,8 @@ function resetForm() {
 }
 
 btnNew.addEventListener("click", resetForm);
+btnRefresh.addEventListener("click", loadSolargrafien);
+
 btnCancel.addEventListener("click", resetForm);
 
 // 3. CREATE / UPDATE: Formular absenden
@@ -274,6 +284,10 @@ solargrafieForm.addEventListener("submit", async (e) => {
     kamera: getValue("kamera"),
     fotopapier: getValue("fotopapier"),
     bild_url: getValue("bild_url"),
+    google_fotos_url: getValue("google_fotos_url"),
+    externe_id: getValue("externe_id"),
+    email: getValue("email"),
+    owner: getValue("owner"),
     comment_status: document.getElementById("comment_status").value,
   };
 

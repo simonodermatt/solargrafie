@@ -32,11 +32,12 @@
         color: var(--color-text-main);
         display: flex;
         flex-direction: column;
+        overflow-y: auto;
         align-items: center;
-        justify-content: center;
+        justify-content: flex-start;
         min-height: 100vh;
         margin: 0;
-        padding: 20px;
+        padding: 60px 20px 20px 20px;
         box-sizing: border-box;
       }
 
@@ -81,7 +82,7 @@
         transition: all 0.3s ease;
         display: inline-flex;
         align-items: center;
-        justify-content: center;
+        justify-content: flex-start;
         gap: 8px;
         text-decoration: none;
       }
@@ -122,7 +123,7 @@
       .dashboard-content {
         background: rgba(0, 0, 0, 0.2);
         border-radius: 8px;
-        padding: 20px;
+        padding: 60px 20px 20px 20px;
         margin-bottom: 24px;
         border: 1px dashed rgba(255, 255, 255, 0.1);
       }
@@ -149,6 +150,7 @@
       .admin-layout {
         display: flex;
         flex-direction: column;
+        overflow-y: auto;
         gap: 30px;
         width: 100%;
         max-width: 800px; /* Breite etwas erhöht für das Layout */
@@ -270,6 +272,7 @@
       .form-group {
         display: flex;
         flex-direction: column;
+        overflow-y: auto;
         gap: 6px;
       }
 
@@ -398,6 +401,14 @@
               <button type="button" id="btn-new" class="btn btn-small">
                 Neuer Eintrag
               </button>
+              <button
+                type="button"
+                id="btn-refresh"
+                class="btn btn-small"
+                style="margin-left: 5px"
+              >
+                Aktualisieren
+              </button>
             </h2>
             <div id="solargrafien-list" class="list-container">
               <p>Lade Daten...</p>
@@ -411,6 +422,17 @@
               <input type="hidden" id="edit-id" name="id" value="" />
 
               <div class="form-grid">
+                <div class="form-group full-width">
+                  <label for="zeitstempel">Zeitstempel</label>
+                  <input
+                    type="text"
+                    id="zeitstempel"
+                    name="zeitstempel"
+                    class="form-control"
+                    readonly
+                  />
+                </div>
+
                 <div class="form-group full-width">
                   <label for="titel">Titel</label>
                   <input
@@ -496,6 +518,47 @@
                     name="bild_url"
                     class="form-control"
                     placeholder="https://..."
+                  />
+                </div>
+
+                <div class="form-group full-width">
+                  <label for="google_fotos_url">Google Fotos URL</label>
+                  <input
+                    type="text"
+                    id="google_fotos_url"
+                    name="google_fotos_url"
+                    class="form-control"
+                    placeholder="https://..."
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="externe_id">Externe ID</label>
+                  <input
+                    type="text"
+                    id="externe_id"
+                    name="externe_id"
+                    class="form-control"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="email">E-Mail</label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    class="form-control"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="owner">Owner</label>
+                  <input
+                    type="text"
+                    id="owner"
+                    name="owner"
+                    class="form-control"
                   />
                 </div>
 
