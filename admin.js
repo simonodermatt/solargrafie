@@ -486,16 +486,12 @@ btnOpenMap.addEventListener("click", () => {
     // Initialisiere die Karte
     adminMap = L.map("admin-map").setView(startLatLng, startZoom);
 
-    // Wir nutzen denselben CartoDB Dark layer, der gut zum Design passt
-    L.tileLayer(
-      "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-      {
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-        subdomains: "abcd",
-        maxZoom: 20,
-      },
-    ).addTo(adminMap);
+    // Wir nutzen den Standard OpenStreetMap layer wie im Haupt-Frontend
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19,
+    }).addTo(adminMap);
 
     adminMap.on("click", function (e) {
       if (!adminMarker) {
