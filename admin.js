@@ -13,18 +13,50 @@ const btnLogin = document.getElementById("btn-login");
 const btnLogout = document.getElementById("btn-logout");
 
 // UI Update Logik
-function updateUI(session) {
-  loadingContainer.classList.add("hidden");
+let currentUserEmail = null;
+let currentUserRole = null;
+
+async function updateUI(session) {
+  loadingContainer.classList.remove("hidden");
+  loginContainer.classList.add("hidden");
+  dashboardContainer.classList.add("hidden");
 
   if (session) {
-    // User ist eingeloggt
-    loginContainer.classList.add("hidden");
-    dashboardContainer.classList.remove("hidden");
-    userEmailSpan.textContent = session.user.email;
-    loadSolargrafien();
+    currentUserEmail = session.user.email;
+
+    try {
+      const { data, error } = await supabaseClient
+        .from("admins")
+        .select("rolle")
+        .eq("email", currentUserEmail)
+        .single();
+
+      if (error || !data) {
+        throw new Error("Kein Zugriff: Benutzer nicht berechtigt.");
+      }
+
+      currentUserRole = data.rolle; // 'superadmin' oder 'erfasser'
+
+      loadingContainer.classList.add("hidden");
+      dashboardContainer.classList.remove("hidden");
+      userEmailSpan.textContent = `${currentUserEmail} (${currentUserRole})`;
+      loadSolargrafien();
+    } catch (err) {
+      console.error("Rollen-Check fehlgeschlagen:", err.message);
+      alert(err.message);
+      await supabaseClient.auth.signOut();
+
+      currentUserEmail = null;
+      currentUserRole = null;
+      loadingContainer.classList.add("hidden");
+      loginContainer.classList.remove("hidden");
+      userEmailSpan.textContent = "";
+    }
   } else {
     // User ist NICHT eingeloggt
-    dashboardContainer.classList.add("hidden");
+    currentUserEmail = null;
+    currentUserRole = null;
+    loadingContainer.classList.add("hidden");
     loginContainer.classList.remove("hidden");
     userEmailSpan.textContent = "";
   }
@@ -166,6 +198,14 @@ function renderList(data) {
       ? escapeHtml(resolveImageUrl(item.bild_url))
       : 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="%23bec8d2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>';
 
+    // Berechtigungen prüfen: Superadmin darf alles, Erfasser nur eigene
+    let disableActions = false;
+    if (currentUserRole === "erfasser" && item.email !== currentUserEmail) {
+      disableActions = true;
+    }
+
+    const disabledAttr = disableActions ? 'disabled="disabled"' : "";
+
     div.innerHTML = `
       <div class="list-item-content">
         <img src="${imgUrl}" alt="Thumbnail" class="list-item-thumbnail" loading="lazy">
@@ -175,8 +215,8 @@ function renderList(data) {
         </div>
       </div>
       <div class="list-item-actions">
-        <button class="btn btn-small btn-edit" data-id="${item.id}">Edit</button>
-        <button class="btn btn-small btn-danger btn-delete" data-id="${item.id}">Delete</button>
+        <button class="btn btn-small btn-edit" data-id="${item.id}" ${disabledAttr}>Edit</button>
+        <button class="btn btn-small btn-danger btn-delete" data-id="${item.id}" ${disabledAttr}>Delete</button>
       </div>
     `;
     solargrafienList.appendChild(div);
@@ -310,6 +350,9 @@ solargrafieForm.addEventListener("submit", async (e) => {
       showMessage("Eintrag erfolgreich aktualisiert!");
     } else {
       // CREATE
+      // Beim Erstellen die E-Mail des aktuellen Users erzwingen
+      record.email = currentUserEmail;
+
       const { error } = await supabaseClient
         .from("solargrafien")
         .insert([record]);
