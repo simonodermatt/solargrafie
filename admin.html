@@ -19,6 +19,13 @@
       rel="stylesheet"
     />
 
+    <!-- Leaflet CDN -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -332,6 +339,27 @@
         border: 1px solid #ef4444;
         color: #ef4444;
       }
+
+      button[disabled] {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      /* Admin Map specific styling */
+      #admin-map .leaflet-control-zoom a {
+        background: var(--color-surface);
+        color: var(--color-text-main);
+        border-color: rgba(255, 255, 255, 0.1);
+      }
+      #admin-map .leaflet-control-zoom a:hover {
+        background: var(--color-surface-hover);
+        color: var(--color-primary);
+      }
+      #admin-map .leaflet-popup-content-wrapper,
+      #admin-map .leaflet-popup-tip {
+        background: var(--color-surface);
+        color: var(--color-text-main);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      }
     </style>
   </head>
   <body>
@@ -397,9 +425,9 @@
           <!-- Listenansicht -->
           <div class="admin-section">
             <h2>
-              Einträge
+              List
               <button type="button" id="btn-new" class="btn btn-small">
-                Neuer Eintrag
+                New
               </button>
               <button
                 type="button"
@@ -407,17 +435,17 @@
                 class="btn btn-small"
                 style="margin-left: 5px"
               >
-                Aktualisieren
+                Refresh
               </button>
             </h2>
             <div id="solargrafien-list" class="list-container">
-              <p>Lade Daten...</p>
+              <p>Load..</p>
             </div>
           </div>
 
           <!-- Formular -->
           <div class="admin-section">
-            <h2 id="form-title">Neuer Eintrag erstellen</h2>
+            <h2 id="form-title">Entry</h2>
             <form id="solargrafie-form">
               <input type="hidden" id="edit-id" name="id" value="" />
 
@@ -444,28 +472,42 @@
                   />
                 </div>
 
-                <div class="form-group">
-                  <label for="lat">Breitengrad (lat)</label>
-                  <input
-                    type="number"
-                    step="any"
-                    id="lat"
-                    name="lat"
-                    class="form-control"
-                    required
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label for="lng">Längengrad (lng)</label>
-                  <input
-                    type="number"
-                    step="any"
-                    id="lng"
-                    name="lng"
-                    class="form-control"
-                    required
-                  />
+                <div
+                  class="form-group full-width"
+                  style="display: flex; gap: 10px; align-items: flex-end"
+                >
+                  <button
+                    type="button"
+                    id="btn-open-map"
+                    class="btn btn-secondary"
+                    style="margin-bottom: 2px"
+                  >
+                    🗺️ Auf Karte wählen
+                  </button>
+                  <div style="flex: 1">
+                    <label for="lat">Breitengrad (lat)</label>
+                    <input
+                      type="number"
+                      step="any"
+                      id="lat"
+                      name="lat"
+                      class="form-control"
+                      readonly
+                      required
+                    />
+                  </div>
+                  <div style="flex: 1">
+                    <label for="lng">Längengrad (lng)</label>
+                    <input
+                      type="number"
+                      step="any"
+                      id="lng"
+                      name="lng"
+                      class="form-control"
+                      readonly
+                      required
+                    />
+                  </div>
                 </div>
 
                 <div class="form-group">
@@ -632,7 +674,78 @@
       </div>
     </div>
 
+    <!-- Admin Map Modal -->
+    <div
+      id="admin-map-modal"
+      class="hidden"
+      style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(11, 15, 23, 0.9);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 3000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      "
+    >
+      <div
+        style="
+          background: var(--color-surface);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 16px;
+          padding: 20px;
+          width: 90%;
+          max-width: 800px;
+          display: flex;
+          flex-direction: column;
+          gap: 15px;
+        "
+      >
+        <h2 style="margin: 0">Position auf Karte wählen</h2>
+        <div style="display: flex; gap: 10px">
+          <input
+            type="text"
+            id="admin-map-search"
+            class="form-control"
+            placeholder="Adresse suchen..."
+            style="flex: 1"
+          />
+          <button type="button" id="btn-admin-map-search" class="btn">
+            Suchen
+          </button>
+        </div>
+        <div
+          id="admin-map"
+          style="
+            height: 400px;
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+          "
+        ></div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px">
+          <button
+            type="button"
+            id="btn-admin-map-cancel"
+            class="btn btn-secondary"
+          >
+            Abbrechen
+          </button>
+          <button type="button" id="btn-admin-map-accept" class="btn">
+            Position übernehmen
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Admin Logik -->
+
     <script src="admin.js"></script>
   </body>
 </html>
