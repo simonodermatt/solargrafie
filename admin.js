@@ -404,3 +404,150 @@ async function deleteSolargrafie(id) {
     showMessage("Fehler beim Löschen: " + error.message, true);
   }
 }
+
+// --- Admin Map Logic ---
+const btnOpenMap = document.getElementById("btn-open-map");
+const adminMapModal = document.getElementById("admin-map-modal");
+const btnAdminMapCancel = document.getElementById("btn-admin-map-cancel");
+const btnAdminMapAccept = document.getElementById("btn-admin-map-accept");
+const btnAdminMapSearch = document.getElementById("btn-admin-map-search");
+const adminMapSearchInput = document.getElementById("admin-map-search");
+
+let adminMap = null;
+let adminMarker = null;
+let selectedLatLng = null;
+
+// Nominatim Geocoding function
+async function searchAddress() {
+  const query = adminMapSearchInput.value.trim();
+  if (!query) return;
+
+  btnAdminMapSearch.disabled = true;
+  btnAdminMapSearch.textContent = "Sucht...";
+
+  try {
+    const response = await fetch(
+      "https://nominatim.openstreetmap.org/search?format=json&q=" +
+        encodeURIComponent(query),
+      {
+        headers: { "User-Agent": "Solargrafie-Map-Admin" },
+      },
+    );
+    const data = await response.json();
+
+    if (data && data.length > 0) {
+      const lat = parseFloat(data[0].lat);
+      const lon = parseFloat(data[0].lon);
+      const newLatLng = [lat, lon];
+
+      adminMap.setView(newLatLng, 13);
+      if (adminMarker) {
+        adminMarker.setLatLng(newLatLng);
+      } else {
+        adminMarker = L.marker(newLatLng, { draggable: true }).addTo(adminMap);
+        adminMarker.on("dragend", function (event) {
+          selectedLatLng = event.target.getLatLng();
+        });
+      }
+      selectedLatLng = L.latLng(lat, lon);
+    } else {
+      alert("Keine Resultate gefunden.");
+    }
+  } catch (error) {
+    console.error("Geocoding Error:", error);
+    alert("Fehler bei der Adresssuche.");
+  } finally {
+    btnAdminMapSearch.disabled = false;
+    btnAdminMapSearch.textContent = "Suchen";
+  }
+}
+
+// Open modal and init map
+btnOpenMap.addEventListener("click", () => {
+  adminMapModal.classList.remove("hidden");
+
+  const currentLat = parseFloat(document.getElementById("lat").value);
+  const currentLng = parseFloat(document.getElementById("lng").value);
+
+  let startLatLng = [46.8, 8.2]; // Schweiz Default
+  let startZoom = 7;
+  let placeMarker = false;
+
+  if (!isNaN(currentLat) && !isNaN(currentLng)) {
+    startLatLng = [currentLat, currentLng];
+    startZoom = 13;
+    placeMarker = true;
+    selectedLatLng = L.latLng(currentLat, currentLng);
+  } else {
+    selectedLatLng = null;
+  }
+
+  if (!adminMap) {
+    // Initialisiere die Karte
+    adminMap = L.map("admin-map").setView(startLatLng, startZoom);
+
+    // Wir nutzen denselben CartoDB Dark layer, der gut zum Design passt
+    L.tileLayer(
+      "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+      {
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: "abcd",
+        maxZoom: 20,
+      },
+    ).addTo(adminMap);
+
+    adminMap.on("click", function (e) {
+      if (!adminMarker) {
+        adminMarker = L.marker(e.latlng, { draggable: true }).addTo(adminMap);
+        adminMarker.on("dragend", function (event) {
+          selectedLatLng = event.target.getLatLng();
+        });
+      } else {
+        adminMarker.setLatLng(e.latlng);
+      }
+      selectedLatLng = e.latlng;
+    });
+  } else {
+    adminMap.setView(startLatLng, startZoom);
+    adminMap.invalidateSize();
+  }
+
+  // Handle marker based on existing values
+  if (placeMarker) {
+    if (!adminMarker) {
+      adminMarker = L.marker(startLatLng, { draggable: true }).addTo(adminMap);
+      adminMarker.on("dragend", function (event) {
+        selectedLatLng = event.target.getLatLng();
+      });
+    } else {
+      adminMarker.setLatLng(startLatLng);
+    }
+  } else {
+    if (adminMarker) {
+      adminMap.removeLayer(adminMarker);
+      adminMarker = null;
+    }
+  }
+});
+
+btnAdminMapCancel.addEventListener("click", () => {
+  adminMapModal.classList.add("hidden");
+});
+
+btnAdminMapAccept.addEventListener("click", () => {
+  if (selectedLatLng) {
+    document.getElementById("lat").value = selectedLatLng.lat.toFixed(6);
+    document.getElementById("lng").value = selectedLatLng.lng.toFixed(6);
+  }
+  adminMapModal.classList.add("hidden");
+});
+
+btnAdminMapSearch.addEventListener("click", searchAddress);
+adminMapSearchInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    searchAddress();
+  }
+});
+// --- End Admin Map Logic ---
