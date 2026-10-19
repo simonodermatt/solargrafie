@@ -213,8 +213,9 @@ function renderList(data) {
     const title = item.titel ? item.titel : "Ohne Titel";
 
     // Thumbnail Fallback (z.B. ein Platzhalter, falls keine URL vorhanden ist)
-    const imgUrl = item.bild_url
-      ? escapeHtml(resolveImageUrl(item.bild_url))
+    const primaryImg = item.bild_haupt ? item.bild_haupt : item.bild_url;
+    const imgUrl = primaryImg
+      ? escapeHtml(resolveImageUrl(primaryImg))
       : 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="%23bec8d2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>';
 
     // Berechtigungen prüfen: Superadmin darf alles, Erfasser nur eigene
@@ -285,7 +286,21 @@ function loadFormForEdit(id) {
   document.getElementById("opened").value = item.opened || "";
   document.getElementById("kamera").value = item.kamera || "";
   document.getElementById("fotopapier").value = item.fotopapier || "";
-  document.getElementById("bild_url").value = item.bild_url || "";
+  // Bilder und Vorschauen laden
+  const handlePreview = (imgUrl, previewId, containerId) => {
+    if (imgUrl) {
+      document.getElementById(previewId).src = escapeHtml(
+        resolveImageUrl(imgUrl),
+      );
+      document.getElementById(containerId).classList.remove("hidden");
+    } else {
+      document.getElementById(previewId).src = "";
+      document.getElementById(containerId).classList.add("hidden");
+    }
+  };
+  handlePreview(item.bild_haupt, "preview-haupt", "preview-container-haupt");
+  handlePreview(item.bild_doku, "preview-doku", "preview-container-doku");
+  handlePreview(item.bild_raw, "preview-raw", "preview-container-raw");
   document.getElementById("comment_status").value =
     item.comment_status || "open";
   // The database column is named 'status', mapping it to the 'notizen' form field
@@ -305,6 +320,12 @@ function resetForm() {
   solargrafieForm.reset();
   document.getElementById("edit-id").value = "";
   document.getElementById("zeitstempel").value = "";
+  document.getElementById("preview-container-haupt").classList.add("hidden");
+  document.getElementById("preview-container-doku").classList.add("hidden");
+  document.getElementById("preview-container-raw").classList.add("hidden");
+  document.getElementById("preview-haupt").src = "";
+  document.getElementById("preview-doku").src = "";
+  document.getElementById("preview-raw").src = "";
 
   // UI anpassen
   formTitle.textContent = "Neuer Eintrag erstellen";
@@ -334,26 +355,57 @@ solargrafieForm.addEventListener("submit", async (e) => {
   const lngVal = document.getElementById("lng").value;
 
   // Datensatz zusammenbauen
-  const record = {
-    titel: getValue("titel"),
-    lat: latVal === "" ? null : parseFloat(latVal),
-    lng: lngVal === "" ? null : parseFloat(lngVal),
-    placed: getValue("placed"),
-    opened: getValue("opened"),
-    kamera: getValue("kamera"),
-    fotopapier: getValue("fotopapier"),
-    bild_url: getValue("bild_url"),
-    google_fotos_url: getValue("google_fotos_url"),
-    externe_id: getValue("externe_id"),
-    email: getValue("email"),
-    owner: getValue("owner"),
-    comment_status: document.getElementById("comment_status").value,
+  // Bild-Upload Logik
+  btnSubmit.disabled = true;
+  btnSubmit.textContent = "Lädt hoch...";
+
+  const uploadImage = async (fileInputId) => {
+    const fileInput = document.getElementById(fileInputId);
+    if (fileInput.files.length === 0) return null;
+    const file = fileInput.files[0];
+    const cleanFileName = file.name.replace(/[^a-zA-Z0-9.]/g, "");
+    const fileName = `${Date.now()}_${cleanFileName}`;
+    const { data, error } = await supabaseClient.storage
+      .from("solargrafien-bilder")
+      .upload(fileName, file);
+    if (error) throw error;
+    const {
+      data: { publicUrl },
+    } = supabaseClient.storage
+      .from("solargrafien-bilder")
+      .getPublicUrl(fileName);
+    return publicUrl;
   };
 
-  const notizenVal = getValue("notizen");
-  record.status = notizenVal;
-
   try {
+    const urlHaupt = await uploadImage("bild_haupt");
+    const urlDoku = await uploadImage("bild_doku");
+    const urlRaw = await uploadImage("bild_raw");
+
+    const record = {
+      titel: getValue("titel"),
+      lat: latVal === "" ? null : parseFloat(latVal),
+      lng: lngVal === "" ? null : parseFloat(lngVal),
+      placed: getValue("placed"),
+      opened: getValue("opened"),
+      kamera: getValue("kamera"),
+      ...(urlHaupt ? { bild_haupt: urlHaupt } : {}),
+      ...(urlDoku ? { bild_doku: urlDoku } : {}),
+      ...(urlRaw ? { bild_raw: urlRaw } : {}),
+      fotopapier: getValue("fotopapier"),
+
+      google_fotos_url: getValue("google_fotos_url"),
+      externe_id: getValue("externe_id"),
+      email: getValue("email"),
+      owner: getValue("owner"),
+      comment_status: document.getElementById("comment_status").value,
+    };
+
+    const notizenVal = getValue("notizen");
+    record.status = notizenVal;
+
+    // Database save logic was here but moved inside the upload try block
+
     // Disable Button während des Speicherns
     btnSubmit.disabled = true;
     btnSubmit.textContent = "Speichert...";
