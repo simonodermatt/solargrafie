@@ -278,8 +278,43 @@ function loadFormForEdit(id) {
   document.getElementById("google_fotos_url").value =
     item.google_fotos_url || "";
   document.getElementById("externe_id").value = item.externe_id || "";
+  document.getElementById("tage_belichtung").value =
+    item.tage_belichtung !== null && item.tage_belichtung !== undefined
+      ? item.tage_belichtung
+      : "";
+  document.getElementById("tage_verdeckt").value =
+    item.tage_verdeckt !== null && item.tage_verdeckt !== undefined
+      ? item.tage_verdeckt
+      : "";
+  document.getElementById("sichtbare_boegen").value =
+    item.sichtbare_boegen !== null && item.sichtbare_boegen !== undefined
+      ? item.sichtbare_boegen
+      : "";
+  document.getElementById("sonnenhoehe_max").value =
+    item.sonnenhoehe_max !== null && item.sonnenhoehe_max !== undefined
+      ? item.sonnenhoehe_max
+      : "";
+  document.getElementById("sonnenhoehe_min").value =
+    item.sonnenhoehe_min !== null && item.sonnenhoehe_min !== undefined
+      ? item.sonnenhoehe_min
+      : "";
+
   document.getElementById("email").value = item.email || "";
+  // E-Mail Logik Superadmin
+  if (currentUserRole === "superadmin") {
+    document.getElementById("email").removeAttribute("readonly");
+  } else {
+    document.getElementById("email").setAttribute("readonly", true);
+  }
   document.getElementById("owner").value = item.owner || "";
+  try {
+    ownerTags = item.owner ? JSON.parse(item.owner) : [];
+    if (!Array.isArray(ownerTags)) ownerTags = [item.owner];
+  } catch (e) {
+    ownerTags = item.owner ? [item.owner] : [];
+  }
+  updateOwnerHidden();
+  renderTags();
   document.getElementById("lat").value = item.lat ?? "";
   document.getElementById("lng").value = item.lng ?? "";
   document.getElementById("placed").value = item.placed || "";
@@ -319,13 +354,30 @@ function loadFormForEdit(id) {
 function resetForm() {
   solargrafieForm.reset();
   document.getElementById("edit-id").value = "";
+  // E-Mail Logik Superadmin
+  if (currentUserRole === "superadmin") {
+    document.getElementById("email").removeAttribute("readonly");
+    document.getElementById("email").value = currentUserEmail;
+  } else {
+    document.getElementById("email").setAttribute("readonly", true);
+    document.getElementById("email").value = currentUserEmail;
+  }
   document.getElementById("zeitstempel").value = "";
+  ownerTags = [];
+  updateOwnerHidden();
+  renderTags();
+  ownerInput.value = "";
   document.getElementById("preview-container-haupt").classList.add("hidden");
   document.getElementById("preview-container-doku").classList.add("hidden");
   document.getElementById("preview-container-raw").classList.add("hidden");
   document.getElementById("preview-haupt").src = "";
   document.getElementById("preview-doku").src = "";
   document.getElementById("preview-raw").src = "";
+  document.getElementById("tage_belichtung").value = "";
+  document.getElementById("tage_verdeckt").value = "";
+  document.getElementById("sichtbare_boegen").value = "";
+  document.getElementById("sonnenhoehe_max").value = "";
+  document.getElementById("sonnenhoehe_min").value = "";
 
   // UI anpassen
   formTitle.textContent = "Neuer Eintrag erstellen";
@@ -337,6 +389,253 @@ btnNew.addEventListener("click", resetForm);
 btnRefresh.addEventListener("click", loadSolargrafien);
 
 btnCancel.addEventListener("click", resetForm);
+
+// 3. Client-seitige Bildverkleinerung
+const resizeImage = (file) => {
+  return new Promise((resolve, reject) => {
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      alert(
+        "Für die Web-Bilder (Haupt, Doku) bitte JPG, PNG oder WebP verwenden. TIFF-Scans bitte nur in das Raw-Feld laden.",
+      );
+      reject(new Error("Ungültiges Dateiformat."));
+      return;
+    }
+
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const canvas = document.createElement("canvas");
+      let width = img.width;
+      let height = img.height;
+
+      const MAX_SIZE = 1600;
+      if (width > height) {
+        if (width > MAX_SIZE) {
+          height *= MAX_SIZE / width;
+          width = MAX_SIZE;
+        }
+      } else {
+        if (height > MAX_SIZE) {
+          width *= MAX_SIZE / height;
+          height = MAX_SIZE;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, width, height);
+
+      canvas.toBlob(
+        (blob) => {
+          if (blob) {
+            resolve(blob);
+          } else {
+            reject(
+              new Error("Fehler beim Erstellen des komprimierten Bildes."),
+            );
+          }
+        },
+        "image/webp",
+        0.8,
+      );
+    };
+
+    img.onerror = () => {
+      reject(new Error("Fehler beim Laden des Bildes zur Komprimierung."));
+    };
+
+    img.src = url;
+  });
+};
+
+// --- Owner Tags Logic ---
+let ownerTags = [];
+const ownerInput = document.getElementById("owner-input");
+const ownerHidden = document.getElementById("owner");
+const tagsContainer = document.getElementById("tags-container");
+
+function renderTags() {
+  document.querySelectorAll(".tag").forEach((e) => e.remove());
+
+  ownerTags.forEach((tag, index) => {
+    const tagEl = document.createElement("span");
+    tagEl.className = "tag";
+    tagEl.innerText = tag;
+
+    const closeEl = document.createElement("span");
+    closeEl.className = "tag-close";
+    closeEl.innerText = "×";
+    closeEl.onclick = () => {
+      ownerTags.splice(index, 1);
+      updateOwnerHidden();
+      renderTags();
+    };
+
+    tagEl.appendChild(closeEl);
+    tagsContainer.insertBefore(tagEl, ownerInput);
+  });
+}
+
+function updateOwnerHidden() {
+  if (ownerTags.length === 0) {
+    ownerHidden.value = "";
+  } else {
+    ownerHidden.value = JSON.stringify(ownerTags);
+  }
+}
+
+ownerInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" || e.key === ",") {
+    e.preventDefault();
+    const val = ownerInput.value.trim();
+    if (val) {
+      if (val.includes("@")) {
+        if (!ownerTags.includes(val)) {
+          ownerTags.push(val);
+          updateOwnerHidden();
+          renderTags();
+        }
+        ownerInput.value = "";
+      } else {
+        alert("Owner muss ein @ enthalten (@name oder email@domain.ch).");
+      }
+    }
+  }
+});
+// --- End Owner Tags Logic ---
+
+// --- Berechnungs Logik ---
+function parseDateStr(dateStr) {
+  if (!dateStr) return null;
+  const parts = dateStr.split(".");
+  if (parts.length === 3) {
+    return new Date(parts[2], parts[1] - 1, parts[0]);
+  }
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return null;
+  return d;
+}
+
+function getSunAltitude(date, lat) {
+  if (!date || isNaN(date.getTime()) || lat == null) return null;
+  const PI = Math.PI,
+    sin = Math.sin,
+    asin = Math.asin;
+  const d = date.getTime() / 86400000 - 10957.5;
+  const g = (357.529 + 0.98560028 * d) % 360;
+  const gRad = (g * PI) / 180;
+  const q = 280.459 + 0.98564736 * d;
+  const l = (q + 1.915 * sin(gRad) + 0.02 * sin(2 * gRad)) % 360;
+  const lRad = (l * PI) / 180;
+  const e = 23.439 - 0.00000036 * d;
+  const eRad = (e * PI) / 180;
+  const decRad = asin(sin(eRad) * sin(lRad));
+  const dec = (decRad * 180) / PI;
+  return 90 - lat + dec;
+}
+
+async function getCloudyDays(lat, lng, startStr, endStr) {
+  if (!lat || !lng || !startStr || !endStr) return 0;
+  try {
+    const s = parseDateStr(startStr);
+    const e = parseDateStr(endStr);
+    if (!s || !e || isNaN(s) || isNaN(e)) return 0;
+    const start = s.toISOString().split("T")[0];
+    const end = e.toISOString().split("T")[0];
+    const url = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lng}&start_date=${start}&end_date=${end}&daily=sunshine_duration&timezone=auto`;
+    const res = await fetch(url);
+    const data = await res.json();
+    let cloudyDays = 0;
+    if (data.daily && data.daily.sunshine_duration) {
+      for (const dur of data.daily.sunshine_duration) {
+        if (dur === null || dur < 3 * 3600) cloudyDays++;
+      }
+    }
+    return cloudyDays;
+  } catch (e) {
+    console.error("Weather API error", e);
+    return 0;
+  }
+}
+
+document.getElementById("btn-calc").addEventListener("click", async () => {
+  const btn = document.getElementById("btn-calc");
+  btn.disabled = true;
+  btn.textContent = "Berechnet...";
+
+  try {
+    const latVal = document.getElementById("lat").value;
+    const lngVal = document.getElementById("lng").value;
+    const placedVal = document.getElementById("placed").value;
+    const openedVal = document.getElementById("opened").value;
+
+    const lat = latVal === "" ? null : parseFloat(latVal);
+    const lng = lngVal === "" ? null : parseFloat(lngVal);
+
+    let tage_belichtung = null;
+    let tage_verdeckt = null;
+    let sichtbare_boegen = null;
+    let sonnenhoehe_max = null;
+    let sonnenhoehe_min = null;
+
+    if (placedVal && openedVal) {
+      const startD = parseDateStr(placedVal);
+      const endD = parseDateStr(openedVal);
+      if (startD && endD) {
+        tage_belichtung = Math.round((endD - startD) / (1000 * 60 * 60 * 24));
+      }
+    }
+
+    if (lat !== null) {
+      if (placedVal) {
+        const maxD = parseDateStr(placedVal);
+        if (maxD) {
+          sonnenhoehe_max = getSunAltitude(maxD, lat);
+          if (sonnenhoehe_max !== null)
+            sonnenhoehe_max = parseFloat(sonnenhoehe_max.toFixed(2));
+        }
+      }
+      if (openedVal) {
+        const minD = parseDateStr(openedVal);
+        if (minD) {
+          sonnenhoehe_min = getSunAltitude(minD, lat);
+          if (sonnenhoehe_min !== null)
+            sonnenhoehe_min = parseFloat(sonnenhoehe_min.toFixed(2));
+        }
+      }
+
+      if (placedVal && openedVal && lng !== null) {
+        tage_verdeckt = await getCloudyDays(lat, lng, placedVal, openedVal);
+        if (tage_belichtung !== null) {
+          sichtbare_boegen = Math.max(0, tage_belichtung - tage_verdeckt);
+        }
+      }
+    }
+
+    document.getElementById("tage_belichtung").value =
+      tage_belichtung !== null ? tage_belichtung : "";
+    document.getElementById("tage_verdeckt").value =
+      tage_verdeckt !== null ? tage_verdeckt : "";
+    document.getElementById("sichtbare_boegen").value =
+      sichtbare_boegen !== null ? sichtbare_boegen : "";
+    document.getElementById("sonnenhoehe_max").value =
+      sonnenhoehe_max !== null ? sonnenhoehe_max : "";
+    document.getElementById("sonnenhoehe_min").value =
+      sonnenhoehe_min !== null ? sonnenhoehe_min : "";
+
+    showMessage("Berechnung abgeschlossen.");
+  } catch (e) {
+    console.error(e);
+    showMessage("Fehler bei der Berechnung.", true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Werte berechnen";
+  }
+});
+// --- End Berechnungs Logik ---
 
 // 3. CREATE / UPDATE: Formular absenden
 solargrafieForm.addEventListener("submit", async (e) => {
@@ -362,12 +661,30 @@ solargrafieForm.addEventListener("submit", async (e) => {
   const uploadImage = async (fileInputId) => {
     const fileInput = document.getElementById(fileInputId);
     if (fileInput.files.length === 0) return null;
-    const file = fileInput.files[0];
+    let file = fileInput.files[0];
     const cleanFileName = file.name.replace(/[^a-zA-Z0-9.]/g, "");
-    const fileName = `${Date.now()}_${cleanFileName}`;
+
+    if (fileInputId === "bild_haupt" || fileInputId === "bild_doku") {
+      try {
+        file = await resizeImage(file);
+      } catch (err) {
+        throw err;
+      }
+    }
+
+    let extension = file.name ? file.name.split(".").pop() : "webp";
+    if (
+      (fileInputId === "bild_haupt" || fileInputId === "bild_doku") &&
+      !file.name
+    ) {
+      extension = "webp";
+    }
+
+    const fileName = `${Date.now()}_${cleanFileName.split(".")[0]}.${extension}`;
     const { data, error } = await supabaseClient.storage
       .from("solargrafien-bilder")
-      .upload(fileName, file);
+      .upload(fileName, file, { contentType: file.type });
+
     if (error) throw error;
     const {
       data: { publicUrl },
@@ -387,7 +704,7 @@ solargrafieForm.addEventListener("submit", async (e) => {
       lat: latVal === "" ? null : parseFloat(latVal),
       lng: lngVal === "" ? null : parseFloat(lngVal),
       placed: getValue("placed"),
-      opened: getValue("opened"),
+      opened: getValue("opened") || null,
       kamera: getValue("kamera"),
       ...(urlHaupt ? { bild_haupt: urlHaupt } : {}),
       ...(urlDoku ? { bild_doku: urlDoku } : {}),
@@ -399,6 +716,26 @@ solargrafieForm.addEventListener("submit", async (e) => {
       email: getValue("email"),
       owner: getValue("owner"),
       comment_status: document.getElementById("comment_status").value,
+      tage_belichtung:
+        getValue("tage_belichtung") === null
+          ? null
+          : parseInt(getValue("tage_belichtung")),
+      tage_verdeckt:
+        getValue("tage_verdeckt") === null
+          ? null
+          : parseInt(getValue("tage_verdeckt")),
+      sichtbare_boegen:
+        getValue("sichtbare_boegen") === null
+          ? null
+          : parseInt(getValue("sichtbare_boegen")),
+      sonnenhoehe_max:
+        getValue("sonnenhoehe_max") === null
+          ? null
+          : parseFloat(getValue("sonnenhoehe_max")),
+      sonnenhoehe_min:
+        getValue("sonnenhoehe_min") === null
+          ? null
+          : parseFloat(getValue("sonnenhoehe_min")),
     };
 
     const notizenVal = getValue("notizen");

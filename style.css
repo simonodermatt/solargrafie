@@ -1825,3 +1825,25 @@ body.impressum-page {
 .hidden {
   display: none !important;
 }
+
+/* Tags styling for Owner field */
+.tags-container {
+  padding: 5px !important;
+}
+.tag {
+  background: var(--color-primary);
+  color: #000;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.tag-close {
+  cursor: pointer;
+  font-weight: bold;
+}
+.tag-close:hover {
+  color: rgba(0, 0, 0, 0.7);
+}
