@@ -1,13 +1,14 @@
 const CACHE_NAME = "solargrafie-cache-v1";
 const MAX_CACHE_ITEMS = 50;
 const ASSETS_TO_CACHE = [
-  "/",
-  "/index.html",
-  "/style.css",
-  "/config.js",
-  "/translations.js",
-  "/logo.jpg",
-  "/manifest.json",
+  "./",
+  "./index.html",
+  "./style.css",
+  "./config.js",
+  "./logo.jpg",
+  "./manifest.json",
+  "./icon-192x192.png",
+  "./icon-512x512.png",
 ];
 
 async function trimCache(cacheName, maxItems) {
@@ -21,9 +22,22 @@ async function trimCache(cacheName, maxItems) {
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
+    caches.open(CACHE_NAME).then(async (cache) => {
       console.log("Opened cache");
-      return cache.addAll(ASSETS_TO_CACHE);
+      for (const url of ASSETS_TO_CACHE) {
+        try {
+          const response = await fetch(url);
+          if (response.ok) {
+            await cache.put(url, response);
+          } else {
+            console.warn(
+              `Failed to fetch ${url} for cache: ${response.status}`,
+            );
+          }
+        } catch (error) {
+          console.error(`Failed to cache ${url}:`, error);
+        }
+      }
     }),
   );
   self.skipWaiting();
