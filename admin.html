@@ -506,29 +506,31 @@
                     >
                       🗺️ Auf Karte wählen
                     </button>
-                    <div style="flex: 1">
-                      <label for="lat">Breitengrad (lat)</label>
-                      <input
-                        type="number"
-                        step="any"
-                        id="lat"
-                        name="lat"
-                        class="form-control"
-                        readonly
-                        required
-                      />
-                    </div>
-                    <div style="flex: 1">
-                      <label for="lng">Längengrad (lng)</label>
-                      <input
-                        type="number"
-                        step="any"
-                        id="lng"
-                        name="lng"
-                        class="form-control"
-                        readonly
-                        required
-                      />
+                    <div style="display: flex; gap: 10px; width: 100%">
+                      <div style="flex: 1">
+                        <label for="lat">Breitengrad (lat)</label>
+                        <input
+                          type="number"
+                          step="any"
+                          id="lat"
+                          name="lat"
+                          class="form-control"
+                          readonly
+                          required
+                        />
+                      </div>
+                      <div style="flex: 1">
+                        <label for="lng">Längengrad (lng)</label>
+                        <input
+                          type="number"
+                          step="any"
+                          id="lng"
+                          name="lng"
+                          class="form-control"
+                          readonly
+                          required
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -550,7 +552,6 @@
                       id="opened"
                       name="opened"
                       class="form-control"
-                      required
                     />
                   </div>
 
@@ -581,7 +582,7 @@
                       id="bild_haupt"
                       name="bild_haupt"
                       class="form-control"
-                      accept="image/*"
+                      accept="image/jpeg, image/png, image/webp"
                     />
                     <div
                       id="preview-container-haupt"
@@ -610,7 +611,7 @@
                       id="bild_doku"
                       name="bild_doku"
                       class="form-control"
-                      accept="image/*"
+                      accept="image/jpeg, image/png, image/webp"
                     />
                     <div
                       id="preview-container-doku"
@@ -690,8 +691,34 @@
 
                   <div class="form-group">
                     <label for="owner">Owner</label>
+                    <div
+                      id="tags-container"
+                      class="tags-container form-control"
+                      style="
+                        height: auto;
+                        min-height: 42px;
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 5px;
+                        align-items: center;
+                      "
+                    >
+                      <input
+                        type="text"
+                        id="owner-input"
+                        placeholder="z.B. @name, name@domain.ch"
+                        style="
+                          border: none;
+                          background: transparent;
+                          outline: none;
+                          color: var(--color-text-main);
+                          flex: 1;
+                          min-width: 150px;
+                        "
+                      />
+                    </div>
                     <input
-                      type="text"
+                      type="hidden"
                       id="owner"
                       name="owner"
                       class="form-control"
@@ -700,14 +727,13 @@
 
                   <div class="form-group full-width">
                     <label for="comment_status">Kommentar Status</label>
-                    <select
+                    <input
+                      type="text"
                       id="comment_status"
                       name="comment_status"
                       class="form-control"
-                    >
-                      <option value="open">Offen</option>
-                      <option value="closed">Geschlossen</option>
-                    </select>
+                      placeholder="z.B. open oder closed"
+                    />
                   </div>
 
                   <div class="form-group full-width">
@@ -717,6 +743,97 @@
                       name="notizen"
                       class="form-control"
                     ></textarea>
+                  </div>
+                  <div
+                    class="form-group full-width"
+                    style="
+                      background: rgba(0, 0, 0, 0.2);
+                      padding: 15px;
+                      border-radius: 8px;
+                      margin-top: 20px;
+                    "
+                  >
+                    <div
+                      style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 15px;
+                      "
+                    >
+                      <h3
+                        style="
+                          margin: 0;
+                          color: var(--color-primary);
+                          font-family: var(--font-head);
+                          font-size: 1.1rem;
+                        "
+                      >
+                        Sonnen- & Wetter-Berechnungen
+                      </h3>
+                      <button
+                        type="button"
+                        id="btn-calc"
+                        class="btn btn-secondary btn-small"
+                      >
+                        Werte berechnen
+                      </button>
+                    </div>
+
+                    <div style="display: flex; flex-wrap: wrap; gap: 15px">
+                      <div style="flex: 1; min-width: 120px">
+                        <label>Tage Belichtung</label>
+                        <input
+                          type="number"
+                          id="tage_belichtung"
+                          name="tage_belichtung"
+                          class="form-control"
+                          readonly
+                        />
+                      </div>
+                      <div style="flex: 1; min-width: 120px">
+                        <label>Tage Verdeckt</label>
+                        <input
+                          type="number"
+                          id="tage_verdeckt"
+                          name="tage_verdeckt"
+                          class="form-control"
+                          readonly
+                        />
+                      </div>
+                      <div style="flex: 1; min-width: 120px">
+                        <label>Sichtbare Bögen</label>
+                        <input
+                          type="number"
+                          id="sichtbare_boegen"
+                          name="sichtbare_boegen"
+                          class="form-control"
+                          readonly
+                        />
+                      </div>
+                      <div style="flex: 1; min-width: 120px">
+                        <label>Sonnenhöhe Max</label>
+                        <input
+                          type="number"
+                          step="any"
+                          id="sonnenhoehe_max"
+                          name="sonnenhoehe_max"
+                          class="form-control"
+                          readonly
+                        />
+                      </div>
+                      <div style="flex: 1; min-width: 120px">
+                        <label>Sonnenhöhe Min</label>
+                        <input
+                          type="number"
+                          step="any"
+                          id="sonnenhoehe_min"
+                          name="sonnenhoehe_min"
+                          class="form-control"
+                          readonly
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
 
