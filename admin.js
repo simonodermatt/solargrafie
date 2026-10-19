@@ -4,6 +4,14 @@ const supabaseClient = supabase.createClient(
   APP_CONFIG.SUPABASE_ANON_KEY,
 );
 
+// DOM Elemente (Tabs)
+const tabBtnSolargrafien = document.getElementById("tab-btn-solargrafien");
+const tabBtnTranslations = document.getElementById("tab-btn-translations");
+const tabBtnUsers = document.getElementById("tab-btn-users");
+const tabSolargrafien = document.getElementById("tab-solargrafien");
+const tabTranslations = document.getElementById("tab-translations");
+const tabUsers = document.getElementById("tab-users");
+
 // DOM Elemente
 const loadingContainer = document.getElementById("loading-container");
 const loginContainer = document.getElementById("login-container");
@@ -36,6 +44,15 @@ async function updateUI(session) {
       }
 
       currentUserRole = data.rolle; // 'superadmin' oder 'erfasser'
+
+      // Permissions für Tabs
+      if (currentUserRole === "erfasser") {
+        tabBtnTranslations.classList.add("hidden");
+        tabBtnUsers.classList.add("hidden");
+      } else {
+        tabBtnTranslations.classList.remove("hidden");
+        tabBtnUsers.classList.remove("hidden");
+      }
 
       loadingContainer.classList.add("hidden");
       dashboardContainer.classList.remove("hidden");
@@ -109,6 +126,8 @@ async function initAuth() {
 
 // Start
 document.addEventListener("DOMContentLoaded", initAuth);
+
+// DOM Elemente (Tabs)
 
 // DOM Elemente CRUD
 const solargrafienList = document.getElementById("solargrafien-list");
@@ -547,3 +566,342 @@ adminMapSearchInput.addEventListener("keypress", (e) => {
   }
 });
 // --- End Admin Map Logic ---
+
+// Tab Navigation Logik
+function switchTab(tabId) {
+  // Hide alle Tabs
+  tabSolargrafien.classList.add("hidden");
+  tabTranslations.classList.add("hidden");
+  tabUsers.classList.add("hidden");
+
+  // Reset Buttons
+  tabBtnSolargrafien.classList.replace("btn", "btn-secondary");
+  tabBtnTranslations.classList.replace("btn", "btn-secondary");
+  tabBtnUsers.classList.replace("btn", "btn-secondary");
+
+  if (tabId === "solargrafien") {
+    tabSolargrafien.classList.remove("hidden");
+    tabBtnSolargrafien.classList.replace("btn-secondary", "btn");
+    loadData();
+  } else if (tabId === "translations") {
+    tabTranslations.classList.remove("hidden");
+    tabBtnTranslations.classList.replace("btn-secondary", "btn");
+    loadTranslations();
+  } else if (tabId === "users") {
+    tabUsers.classList.remove("hidden");
+    tabBtnUsers.classList.replace("btn-secondary", "btn");
+    loadAdmins();
+  }
+}
+
+tabBtnSolargrafien.addEventListener("click", () => switchTab("solargrafien"));
+tabBtnTranslations.addEventListener("click", () => switchTab("translations"));
+tabBtnUsers.addEventListener("click", () => switchTab("users"));
+
+// ----------------------------------------------------
+// TRANSLATIONS CRUD LOGIK
+// ----------------------------------------------------
+
+const translationsList = document.getElementById("translations-list");
+const translationForm = document.getElementById("translation-form");
+const btnNewTranslation = document.getElementById("btn-new-translation");
+const btnRefreshTranslations = document.getElementById(
+  "btn-refresh-translations",
+);
+const btnCancelTranslation = document.getElementById("btn-cancel-translation");
+const formTitleTranslation = document.getElementById("form-title-translation");
+
+async function loadTranslations() {
+  translationsList.innerHTML = "<p>Lade Übersetzungen...</p>";
+  try {
+    const { data, error } = await supabaseClient
+      .from("translations")
+      .select("*");
+
+    if (error) throw error;
+    renderTranslationsList(data);
+  } catch (error) {
+    console.error("Fehler beim Laden der Übersetzungen:", error);
+    translationsList.innerHTML = `<p style="color: red;">Fehler: ${error.message}</p>`;
+  }
+}
+
+function renderTranslationsList(data) {
+  translationsList.innerHTML = "";
+  if (data.length === 0) {
+    translationsList.innerHTML = "<p>Keine Übersetzungen gefunden.</p>";
+    return;
+  }
+
+  data.forEach((item) => {
+    const div = document.createElement("div");
+    div.className = "list-item";
+
+    const infoDiv = document.createElement("div");
+    infoDiv.innerHTML = `<strong>${item.key}</strong> - DE: ${item.de ? item.de.substring(0, 30) + "..." : ""}`;
+
+    const actionDiv = document.createElement("div");
+    actionDiv.className = "list-actions";
+
+    const btnEdit = document.createElement("button");
+    btnEdit.className = "btn btn-small";
+    btnEdit.textContent = "Bearbeiten";
+    btnEdit.onclick = () => editTranslation(item);
+
+    const btnDelete = document.createElement("button");
+    btnDelete.className = "btn btn-small btn-secondary";
+    btnDelete.textContent = "Löschen";
+    btnDelete.onclick = () => deleteTranslation(item.key);
+
+    actionDiv.appendChild(btnEdit);
+    actionDiv.appendChild(btnDelete);
+
+    div.appendChild(infoDiv);
+    div.appendChild(actionDiv);
+    translationsList.appendChild(div);
+  });
+}
+
+function editTranslation(item) {
+  formTitleTranslation.textContent = "Übersetzung bearbeiten";
+  btnCancelTranslation.classList.remove("hidden");
+
+  document.getElementById("edit-id-translation").value = item.key;
+  document.getElementById("trans-key").value = item.key || "";
+  document.getElementById("trans-de").value = item.de || "";
+  document.getElementById("trans-en").value = item.en || "";
+  document.getElementById("trans-fr").value = item.fr || "";
+  document.getElementById("trans-it").value = item.it || "";
+  document.getElementById("trans-uk").value = item.uk || "";
+  document.getElementById("trans-ru").value = item.ru || "";
+  document.getElementById("trans-es").value = item.es || "";
+
+  document.getElementById("trans-key").scrollIntoView({ behavior: "smooth" });
+}
+
+async function deleteTranslation(id) {
+  if (!confirm("Diese Übersetzung wirklich löschen?")) return;
+
+  showMessage("Lösche...");
+  try {
+    const { error } = await supabaseClient
+      .from("translations")
+      .delete()
+      .eq("key", id);
+
+    if (error) throw error;
+    showMessage("Übersetzung erfolgreich gelöscht.");
+    loadTranslations();
+  } catch (error) {
+    showMessage("Fehler beim Löschen: " + error.message, true);
+  }
+}
+
+translationForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const id = document.getElementById("edit-id-translation").value;
+  const payload = {
+    key: document.getElementById("trans-key").value,
+    de: document.getElementById("trans-de").value,
+    en: document.getElementById("trans-en").value,
+    fr: document.getElementById("trans-fr").value,
+    it: document.getElementById("trans-it").value,
+    uk: document.getElementById("trans-uk").value,
+    ru: document.getElementById("trans-ru").value,
+    es: document.getElementById("trans-es").value,
+  };
+
+  showMessage("Speichere...");
+
+  try {
+    if (id) {
+      // UPDATE
+      const { error } = await supabaseClient
+        .from("translations")
+        .update(payload)
+        .eq("key", id);
+      if (error) throw error;
+      showMessage("Übersetzung aktualisiert.");
+    } else {
+      // INSERT
+      const { error } = await supabaseClient
+        .from("translations")
+        .insert([payload]);
+      if (error) throw error;
+      showMessage("Übersetzung erstellt.");
+    }
+
+    translationForm.reset();
+    document.getElementById("edit-id-translation").value = "";
+    formTitleTranslation.textContent = "Neue Übersetzung";
+    btnCancelTranslation.classList.add("hidden");
+    loadTranslations();
+  } catch (error) {
+    showMessage("Fehler beim Speichern: " + error.message, true);
+  }
+});
+
+btnNewTranslation.addEventListener("click", () => {
+  translationForm.reset();
+  document.getElementById("edit-id-translation").value = "";
+  formTitleTranslation.textContent = "Neue Übersetzung";
+  btnCancelTranslation.classList.add("hidden");
+});
+
+btnRefreshTranslations.addEventListener("click", () => {
+  loadTranslations();
+});
+
+btnCancelTranslation.addEventListener("click", () => {
+  translationForm.reset();
+  document.getElementById("edit-id-translation").value = "";
+  formTitleTranslation.textContent = "Neue Übersetzung";
+  btnCancelTranslation.classList.add("hidden");
+});
+
+// ----------------------------------------------------
+// USERS (ADMINS) CRUD LOGIK
+// ----------------------------------------------------
+
+const usersList = document.getElementById("users-list");
+const userForm = document.getElementById("user-form");
+const btnNewUser = document.getElementById("btn-new-user");
+const btnRefreshUsers = document.getElementById("btn-refresh-users");
+const btnCancelUser = document.getElementById("btn-cancel-user");
+const formTitleUser = document.getElementById("form-title-user");
+
+async function loadAdmins() {
+  usersList.innerHTML = "<p>Lade Benutzer...</p>";
+  try {
+    const { data, error } = await supabaseClient.from("admins").select("*");
+
+    if (error) throw error;
+    renderAdminsList(data);
+  } catch (error) {
+    console.error("Fehler beim Laden der Benutzer:", error);
+    usersList.innerHTML = `<p style="color: red;">Fehler: ${error.message}</p>`;
+  }
+}
+
+function renderAdminsList(data) {
+  usersList.innerHTML = "";
+  if (data.length === 0) {
+    usersList.innerHTML = "<p>Keine Benutzer gefunden.</p>";
+    return;
+  }
+
+  data.forEach((item) => {
+    const div = document.createElement("div");
+    div.className = "list-item";
+
+    const infoDiv = document.createElement("div");
+    infoDiv.innerHTML = `<strong>${item.email}</strong> - Rolle: ${item.rolle}`;
+
+    const actionDiv = document.createElement("div");
+    actionDiv.className = "list-actions";
+
+    const btnEdit = document.createElement("button");
+    btnEdit.className = "btn btn-small";
+    btnEdit.textContent = "Bearbeiten";
+    btnEdit.onclick = () => editAdmin(item);
+
+    const btnDelete = document.createElement("button");
+    btnDelete.className = "btn btn-small btn-secondary";
+    btnDelete.textContent = "Löschen";
+    btnDelete.onclick = () => deleteAdmin(item.email);
+
+    actionDiv.appendChild(btnEdit);
+    actionDiv.appendChild(btnDelete);
+
+    div.appendChild(infoDiv);
+    div.appendChild(actionDiv);
+    usersList.appendChild(div);
+  });
+}
+
+function editAdmin(item) {
+  formTitleUser.textContent = "Benutzer bearbeiten";
+  btnCancelUser.classList.remove("hidden");
+
+  document.getElementById("edit-id-user").value = item.email;
+  document.getElementById("user-email-input").value = item.email || "";
+  document.getElementById("user-rolle").value = item.rolle || "erfasser";
+
+  document
+    .getElementById("user-email-input")
+    .scrollIntoView({ behavior: "smooth" });
+}
+
+async function deleteAdmin(id) {
+  if (!confirm("Diesen Benutzer wirklich löschen?")) return;
+
+  showMessage("Lösche...");
+  try {
+    const { error } = await supabaseClient
+      .from("admins")
+      .delete()
+      .eq("email", id);
+
+    if (error) throw error;
+    showMessage("Benutzer erfolgreich gelöscht.");
+    loadAdmins();
+  } catch (error) {
+    showMessage("Fehler beim Löschen: " + error.message, true);
+  }
+}
+
+userForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const id = document.getElementById("edit-id-user").value;
+  const payload = {
+    email: document.getElementById("user-email-input").value,
+    rolle: document.getElementById("user-rolle").value,
+  };
+
+  showMessage("Speichere...");
+
+  try {
+    if (id) {
+      // UPDATE
+      const { error } = await supabaseClient
+        .from("admins")
+        .update(payload)
+        .eq("email", id);
+      if (error) throw error;
+      showMessage("Benutzer aktualisiert.");
+    } else {
+      // INSERT
+      const { error } = await supabaseClient.from("admins").insert([payload]);
+      if (error) throw error;
+      showMessage("Benutzer erstellt.");
+    }
+
+    userForm.reset();
+    document.getElementById("edit-id-user").value = "";
+    formTitleUser.textContent = "Neuer Benutzer";
+    btnCancelUser.classList.add("hidden");
+    loadAdmins();
+  } catch (error) {
+    showMessage("Fehler beim Speichern: " + error.message, true);
+  }
+});
+
+btnNewUser.addEventListener("click", () => {
+  userForm.reset();
+  document.getElementById("edit-id-user").value = "";
+  formTitleUser.textContent = "Neuer Benutzer";
+  btnCancelUser.classList.add("hidden");
+});
+
+btnRefreshUsers.addEventListener("click", () => {
+  loadAdmins();
+});
+
+btnCancelUser.addEventListener("click", () => {
+  userForm.reset();
+  document.getElementById("edit-id-user").value = "";
+  formTitleUser.textContent = "Neuer Benutzer";
+  btnCancelUser.classList.add("hidden");
+});
