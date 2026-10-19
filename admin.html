@@ -422,230 +422,453 @@
           <!-- Messages -->
           <div id="status-message" class="message-box"></div>
 
-          <!-- Listenansicht -->
-          <div class="admin-section">
-            <h2>
-              List
-              <button type="button" id="btn-new" class="btn btn-small">
-                New
-              </button>
-              <button
-                type="button"
-                id="btn-refresh"
-                class="btn btn-small"
-                style="margin-left: 5px"
-              >
-                Refresh
-              </button>
-            </h2>
-            <div id="solargrafien-list" class="list-container">
-              <p>Load..</p>
-            </div>
+          <!-- Navigation Tabs -->
+          <div
+            id="admin-tabs"
+            style="display: flex; gap: 10px; margin-bottom: 20px"
+          >
+            <button type="button" id="tab-btn-solargrafien" class="btn">
+              Solargrafien
+            </button>
+            <button
+              type="button"
+              id="tab-btn-translations"
+              class="btn btn-secondary"
+            >
+              Übersetzungen
+            </button>
+            <button type="button" id="tab-btn-users" class="btn btn-secondary">
+              Benutzer
+            </button>
           </div>
 
-          <!-- Formular -->
-          <div class="admin-section">
-            <h2 id="form-title">Entry</h2>
-            <form id="solargrafie-form">
-              <input type="hidden" id="edit-id" name="id" value="" />
+          <!-- Solargrafien Tab -->
+          <div id="tab-solargrafien">
+            <!-- Listenansicht -->
+            <div class="admin-section">
+              <h2>
+                List
+                <button type="button" id="btn-new" class="btn btn-small">
+                  New
+                </button>
+                <button
+                  type="button"
+                  id="btn-refresh"
+                  class="btn btn-small"
+                  style="margin-left: 5px"
+                >
+                  Refresh
+                </button>
+              </h2>
+              <div id="solargrafien-list" class="list-container">
+                <p>Load..</p>
+              </div>
+            </div>
 
-              <div class="form-grid">
-                <div class="form-group full-width">
-                  <label for="zeitstempel">Zeitstempel</label>
-                  <input
-                    type="text"
-                    id="zeitstempel"
-                    name="zeitstempel"
-                    class="form-control"
-                    readonly
-                  />
-                </div>
+            <!-- Formular -->
+            <div class="admin-section">
+              <h2 id="form-title">Entry</h2>
+              <form id="solargrafie-form">
+                <input type="hidden" id="edit-id" name="id" value="" />
 
-                <div class="form-group full-width">
-                  <label for="titel">Titel</label>
-                  <input
-                    type="text"
-                    id="titel"
-                    name="titel"
-                    class="form-control"
-                    required
-                  />
+                <div class="form-grid">
+                  <div class="form-group full-width">
+                    <label for="zeitstempel">Zeitstempel</label>
+                    <input
+                      type="text"
+                      id="zeitstempel"
+                      name="zeitstempel"
+                      class="form-control"
+                      readonly
+                    />
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label for="titel">Titel</label>
+                    <input
+                      type="text"
+                      id="titel"
+                      name="titel"
+                      class="form-control"
+                      required
+                    />
+                  </div>
+
+                  <div
+                    class="form-group full-width"
+                    style="display: flex; gap: 10px; align-items: flex-end"
+                  >
+                    <button
+                      type="button"
+                      id="btn-open-map"
+                      class="btn btn-secondary"
+                      style="margin-bottom: 2px"
+                    >
+                      🗺️ Auf Karte wählen
+                    </button>
+                    <div style="flex: 1">
+                      <label for="lat">Breitengrad (lat)</label>
+                      <input
+                        type="number"
+                        step="any"
+                        id="lat"
+                        name="lat"
+                        class="form-control"
+                        readonly
+                        required
+                      />
+                    </div>
+                    <div style="flex: 1">
+                      <label for="lng">Längengrad (lng)</label>
+                      <input
+                        type="number"
+                        step="any"
+                        id="lng"
+                        name="lng"
+                        class="form-control"
+                        readonly
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="placed">Datum Placed</label>
+                    <input
+                      type="date"
+                      id="placed"
+                      name="placed"
+                      class="form-control"
+                      required
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="opened">Datum Opened</label>
+                    <input
+                      type="date"
+                      id="opened"
+                      name="opened"
+                      class="form-control"
+                      required
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="kamera">Kamera</label>
+                    <input
+                      type="text"
+                      id="kamera"
+                      name="kamera"
+                      class="form-control"
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="fotopapier">Fotopapier</label>
+                    <input
+                      type="text"
+                      id="fotopapier"
+                      name="fotopapier"
+                      class="form-control"
+                    />
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label for="bild_url">Bild URL</label>
+                    <input
+                      type="text"
+                      id="bild_url"
+                      name="bild_url"
+                      class="form-control"
+                      placeholder="https://..."
+                    />
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label for="google_fotos_url">Google Fotos URL</label>
+                    <input
+                      type="text"
+                      id="google_fotos_url"
+                      name="google_fotos_url"
+                      class="form-control"
+                      placeholder="https://..."
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="externe_id">Externe ID</label>
+                    <input
+                      type="text"
+                      id="externe_id"
+                      name="externe_id"
+                      class="form-control"
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="email">E-Mail</label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      class="form-control"
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="owner">Owner</label>
+                    <input
+                      type="text"
+                      id="owner"
+                      name="owner"
+                      class="form-control"
+                    />
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label for="comment_status">Kommentar Status</label>
+                    <select
+                      id="comment_status"
+                      name="comment_status"
+                      class="form-control"
+                    >
+                      <option value="open">Offen</option>
+                      <option value="closed">Geschlossen</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label for="notizen">Notizen</label>
+                    <textarea
+                      id="notizen"
+                      name="notizen"
+                      class="form-control"
+                    ></textarea>
+                  </div>
                 </div>
 
                 <div
-                  class="form-group full-width"
-                  style="display: flex; gap: 10px; align-items: flex-end"
+                  style="
+                    margin-top: 20px;
+                    display: flex;
+                    gap: 10px;
+                    justify-content: flex-end;
+                  "
                 >
                   <button
                     type="button"
-                    id="btn-open-map"
-                    class="btn btn-secondary"
-                    style="margin-bottom: 2px"
+                    id="btn-cancel"
+                    class="btn btn-secondary hidden"
                   >
-                    🗺️ Auf Karte wählen
+                    Abbrechen
                   </button>
-                  <div style="flex: 1">
-                    <label for="lat">Breitengrad (lat)</label>
-                    <input
-                      type="number"
-                      step="any"
-                      id="lat"
-                      name="lat"
-                      class="form-control"
-                      readonly
-                      required
-                    />
-                  </div>
-                  <div style="flex: 1">
-                    <label for="lng">Längengrad (lng)</label>
-                    <input
-                      type="number"
-                      step="any"
-                      id="lng"
-                      name="lng"
-                      class="form-control"
-                      readonly
-                      required
-                    />
-                  </div>
+                  <button type="submit" id="btn-submit" class="btn">
+                    Speichern
+                  </button>
                 </div>
+              </form>
+            </div>
+          </div>
 
-                <div class="form-group">
-                  <label for="placed">Datum Placed</label>
-                  <input
-                    type="date"
-                    id="placed"
-                    name="placed"
-                    class="form-control"
-                    required
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label for="opened">Datum Opened</label>
-                  <input
-                    type="date"
-                    id="opened"
-                    name="opened"
-                    class="form-control"
-                    required
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label for="kamera">Kamera</label>
-                  <input
-                    type="text"
-                    id="kamera"
-                    name="kamera"
-                    class="form-control"
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label for="fotopapier">Fotopapier</label>
-                  <input
-                    type="text"
-                    id="fotopapier"
-                    name="fotopapier"
-                    class="form-control"
-                  />
-                </div>
-
-                <div class="form-group full-width">
-                  <label for="bild_url">Bild URL</label>
-                  <input
-                    type="text"
-                    id="bild_url"
-                    name="bild_url"
-                    class="form-control"
-                    placeholder="https://..."
-                  />
-                </div>
-
-                <div class="form-group full-width">
-                  <label for="google_fotos_url">Google Fotos URL</label>
-                  <input
-                    type="text"
-                    id="google_fotos_url"
-                    name="google_fotos_url"
-                    class="form-control"
-                    placeholder="https://..."
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label for="externe_id">Externe ID</label>
-                  <input
-                    type="text"
-                    id="externe_id"
-                    name="externe_id"
-                    class="form-control"
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label for="email">E-Mail</label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    class="form-control"
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label for="owner">Owner</label>
-                  <input
-                    type="text"
-                    id="owner"
-                    name="owner"
-                    class="form-control"
-                  />
-                </div>
-
-                <div class="form-group full-width">
-                  <label for="comment_status">Kommentar Status</label>
-                  <select
-                    id="comment_status"
-                    name="comment_status"
-                    class="form-control"
-                  >
-                    <option value="open">Offen</option>
-                    <option value="closed">Geschlossen</option>
-                  </select>
-                </div>
-
-                <div class="form-group full-width">
-                  <label for="notizen">Notizen</label>
-                  <textarea
-                    id="notizen"
-                    name="notizen"
-                    class="form-control"
-                  ></textarea>
-                </div>
-              </div>
-
-              <div
-                style="
-                  margin-top: 20px;
-                  display: flex;
-                  gap: 10px;
-                  justify-content: flex-end;
-                "
-              >
+          <!-- Übersetzungen Tab -->
+          <div id="tab-translations" class="hidden">
+            <div class="admin-section">
+              <h2>
+                List
                 <button
                   type="button"
-                  id="btn-cancel"
-                  class="btn btn-secondary hidden"
+                  id="btn-new-translation"
+                  class="btn btn-small"
                 >
-                  Abbrechen
+                  New</button
+                ><button
+                  type="button"
+                  id="btn-refresh-translations"
+                  class="btn btn-small"
+                  style="margin-left: 5px"
+                >
+                  Refresh
                 </button>
-                <button type="submit" id="btn-submit" class="btn">
-                  Speichern
-                </button>
+              </h2>
+              <div id="translations-list" class="list-container">
+                <p>Load..</p>
               </div>
-            </form>
+            </div>
+            <div class="admin-section">
+              <h2 id="form-title-translation">Entry</h2>
+              <form id="translation-form">
+                <input
+                  type="hidden"
+                  id="edit-id-translation"
+                  name="id"
+                  value=""
+                />
+                <div class="form-grid">
+                  <div class="form-group full-width">
+                    <label for="trans-key">Key</label>
+                    <input
+                      type="text"
+                      id="trans-key"
+                      name="key"
+                      class="form-control"
+                      required
+                    />
+                  </div>
+                  <div class="form-group full-width">
+                    <label for="trans-de">DE</label>
+                    <textarea
+                      id="trans-de"
+                      name="de"
+                      class="form-control"
+                      rows="3"
+                    ></textarea>
+                  </div>
+                  <div class="form-group full-width">
+                    <label for="trans-en">EN</label>
+                    <textarea
+                      id="trans-en"
+                      name="en"
+                      class="form-control"
+                      rows="3"
+                    ></textarea>
+                  </div>
+                  <div class="form-group full-width">
+                    <label for="trans-fr">FR</label>
+                    <textarea
+                      id="trans-fr"
+                      name="fr"
+                      class="form-control"
+                      rows="3"
+                    ></textarea>
+                  </div>
+                  <div class="form-group full-width">
+                    <label for="trans-it">IT</label>
+                    <textarea
+                      id="trans-it"
+                      name="it"
+                      class="form-control"
+                      rows="3"
+                    ></textarea>
+                  </div>
+                  <div class="form-group full-width">
+                    <label for="trans-uk">UK</label>
+                    <textarea
+                      id="trans-uk"
+                      name="uk"
+                      class="form-control"
+                      rows="3"
+                    ></textarea>
+                  </div>
+                  <div class="form-group full-width">
+                    <label for="trans-ru">RU</label>
+                    <textarea
+                      id="trans-ru"
+                      name="ru"
+                      class="form-control"
+                      rows="3"
+                    ></textarea>
+                  </div>
+                  <div class="form-group full-width">
+                    <label for="trans-es">ES</label>
+                    <textarea
+                      id="trans-es"
+                      name="es"
+                      class="form-control"
+                      rows="3"
+                    ></textarea>
+                  </div>
+                </div>
+                <div
+                  style="
+                    margin-top: 20px;
+                    display: flex;
+                    gap: 10px;
+                    justify-content: flex-end;
+                  "
+                >
+                  <button
+                    type="button"
+                    id="btn-cancel-translation"
+                    class="btn btn-secondary hidden"
+                  >
+                    Abbrechen
+                  </button>
+                  <button type="submit" id="btn-submit-translation" class="btn">
+                    Speichern
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Benutzer Tab -->
+          <div id="tab-users" class="hidden">
+            <div class="admin-section">
+              <h2>
+                List
+                <button type="button" id="btn-new-user" class="btn btn-small">
+                  New</button
+                ><button
+                  type="button"
+                  id="btn-refresh-users"
+                  class="btn btn-small"
+                  style="margin-left: 5px"
+                >
+                  Refresh
+                </button>
+              </h2>
+              <div id="users-list" class="list-container"><p>Load..</p></div>
+            </div>
+            <div class="admin-section">
+              <h2 id="form-title-user">Entry</h2>
+              <form id="user-form">
+                <input type="hidden" id="edit-id-user" name="id" value="" />
+                <div class="form-grid">
+                  <div class="form-group full-width">
+                    <label for="user-email-input">E-Mail</label>
+                    <input
+                      type="email"
+                      id="user-email-input"
+                      name="email"
+                      class="form-control"
+                      required
+                    />
+                  </div>
+                  <div class="form-group full-width">
+                    <label for="user-rolle">Rolle</label>
+                    <select
+                      id="user-rolle"
+                      name="rolle"
+                      class="form-control"
+                      required
+                    >
+                      <option value="erfasser">erfasser</option>
+                      <option value="superadmin">superadmin</option>
+                    </select>
+                  </div>
+                </div>
+                <div
+                  style="
+                    margin-top: 20px;
+                    display: flex;
+                    gap: 10px;
+                    justify-content: flex-end;
+                  "
+                >
+                  <button
+                    type="button"
+                    id="btn-cancel-user"
+                    class="btn btn-secondary hidden"
+                  >
+                    Abbrechen
+                  </button>
+                  <button type="submit" id="btn-submit-user" class="btn">
+                    Speichern
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
 
