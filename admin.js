@@ -616,8 +616,7 @@ async function loadTranslations() {
   try {
     const { data, error } = await supabaseClient
       .from("translations")
-      .select("*")
-      .order("id", { ascending: false });
+      .select("*");
 
     if (error) throw error;
     renderTranslationsList(data);
@@ -652,7 +651,7 @@ function renderTranslationsList(data) {
     const btnDelete = document.createElement("button");
     btnDelete.className = "btn btn-small btn-secondary";
     btnDelete.textContent = "Löschen";
-    btnDelete.onclick = () => deleteTranslation(item.id);
+    btnDelete.onclick = () => deleteTranslation(item.key);
 
     actionDiv.appendChild(btnEdit);
     actionDiv.appendChild(btnDelete);
@@ -667,7 +666,7 @@ function editTranslation(item) {
   formTitleTranslation.textContent = "Übersetzung bearbeiten";
   btnCancelTranslation.classList.remove("hidden");
 
-  document.getElementById("edit-id-translation").value = item.id;
+  document.getElementById("edit-id-translation").value = item.key;
   document.getElementById("trans-key").value = item.key || "";
   document.getElementById("trans-de").value = item.de || "";
   document.getElementById("trans-en").value = item.en || "";
@@ -688,7 +687,7 @@ async function deleteTranslation(id) {
     const { error } = await supabaseClient
       .from("translations")
       .delete()
-      .eq("id", id);
+      .eq("key", id);
 
     if (error) throw error;
     showStatusMessage("Übersetzung erfolgreich gelöscht.", "success");
@@ -721,7 +720,7 @@ translationForm.addEventListener("submit", async (e) => {
       const { error } = await supabaseClient
         .from("translations")
         .update(payload)
-        .eq("id", id);
+        .eq("key", id);
       if (error) throw error;
       showStatusMessage("Übersetzung aktualisiert.", "success");
     } else {
@@ -775,10 +774,7 @@ const formTitleUser = document.getElementById("form-title-user");
 async function loadAdmins() {
   usersList.innerHTML = "<p>Lade Benutzer...</p>";
   try {
-    const { data, error } = await supabaseClient
-      .from("admins")
-      .select("*")
-      .order("id", { ascending: false });
+    const { data, error } = await supabaseClient.from("admins").select("*");
 
     if (error) throw error;
     renderAdminsList(data);
@@ -813,7 +809,7 @@ function renderAdminsList(data) {
     const btnDelete = document.createElement("button");
     btnDelete.className = "btn btn-small btn-secondary";
     btnDelete.textContent = "Löschen";
-    btnDelete.onclick = () => deleteAdmin(item.id);
+    btnDelete.onclick = () => deleteAdmin(item.email);
 
     actionDiv.appendChild(btnEdit);
     actionDiv.appendChild(btnDelete);
@@ -828,7 +824,7 @@ function editAdmin(item) {
   formTitleUser.textContent = "Benutzer bearbeiten";
   btnCancelUser.classList.remove("hidden");
 
-  document.getElementById("edit-id-user").value = item.id;
+  document.getElementById("edit-id-user").value = item.email;
   document.getElementById("user-email-input").value = item.email || "";
   document.getElementById("user-rolle").value = item.rolle || "erfasser";
 
@@ -842,7 +838,10 @@ async function deleteAdmin(id) {
 
   showStatusMessage("Lösche...", "info");
   try {
-    const { error } = await supabaseClient.from("admins").delete().eq("id", id);
+    const { error } = await supabaseClient
+      .from("admins")
+      .delete()
+      .eq("email", id);
 
     if (error) throw error;
     showStatusMessage("Benutzer erfolgreich gelöscht.", "success");
@@ -869,7 +868,7 @@ userForm.addEventListener("submit", async (e) => {
       const { error } = await supabaseClient
         .from("admins")
         .update(payload)
-        .eq("id", id);
+        .eq("email", id);
       if (error) throw error;
       showStatusMessage("Benutzer aktualisiert.", "success");
     } else {
