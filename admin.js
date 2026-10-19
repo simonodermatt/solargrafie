@@ -128,12 +128,6 @@ async function initAuth() {
 document.addEventListener("DOMContentLoaded", initAuth);
 
 // DOM Elemente (Tabs)
-const tabBtnSolargrafien = document.getElementById("tab-btn-solargrafien");
-const tabBtnTranslations = document.getElementById("tab-btn-translations");
-const tabBtnUsers = document.getElementById("tab-btn-users");
-const tabSolargrafien = document.getElementById("tab-solargrafien");
-const tabTranslations = document.getElementById("tab-translations");
-const tabUsers = document.getElementById("tab-users");
 
 // DOM Elemente CRUD
 const solargrafienList = document.getElementById("solargrafien-list");
