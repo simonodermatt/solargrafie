@@ -575,14 +575,86 @@
                   </div>
 
                   <div class="form-group full-width">
-                    <label for="bild_url">Bild URL</label>
+                    <label for="bild_haupt">Hauptbild (Finaler Scan)</label>
                     <input
-                      type="text"
-                      id="bild_url"
-                      name="bild_url"
+                      type="file"
+                      id="bild_haupt"
+                      name="bild_haupt"
                       class="form-control"
-                      placeholder="https://..."
+                      accept="image/*"
                     />
+                    <div
+                      id="preview-container-haupt"
+                      class="preview-container hidden"
+                      style="margin-top: 5px"
+                    >
+                      <img
+                        id="preview-haupt"
+                        src=""
+                        alt="Vorschau Hauptbild"
+                        style="
+                          max-width: 100px;
+                          max-height: 100px;
+                          border-radius: 4px;
+                        "
+                      />
+                    </div>
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label for="bild_doku"
+                      >Dokumentations-Foto (Dose vor Ort)</label
+                    >
+                    <input
+                      type="file"
+                      id="bild_doku"
+                      name="bild_doku"
+                      class="form-control"
+                      accept="image/*"
+                    />
+                    <div
+                      id="preview-container-doku"
+                      class="preview-container hidden"
+                      style="margin-top: 5px"
+                    >
+                      <img
+                        id="preview-doku"
+                        src=""
+                        alt="Vorschau Dokubild"
+                        style="
+                          max-width: 100px;
+                          max-height: 100px;
+                          border-radius: 4px;
+                        "
+                      />
+                    </div>
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label for="bild_raw">Roh-Scan (Raw)</label>
+                    <input
+                      type="file"
+                      id="bild_raw"
+                      name="bild_raw"
+                      class="form-control"
+                      accept="image/*"
+                    />
+                    <div
+                      id="preview-container-raw"
+                      class="preview-container hidden"
+                      style="margin-top: 5px"
+                    >
+                      <img
+                        id="preview-raw"
+                        src=""
+                        alt="Vorschau Raw-Bild"
+                        style="
+                          max-width: 100px;
+                          max-height: 100px;
+                          border-radius: 4px;
+                        "
+                      />
+                    </div>
                   </div>
 
                   <div class="form-group full-width">
