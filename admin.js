@@ -682,7 +682,7 @@ function editTranslation(item) {
 async function deleteTranslation(id) {
   if (!confirm("Diese Übersetzung wirklich löschen?")) return;
 
-  showStatusMessage("Lösche...", "info");
+  showMessage("Lösche...");
   try {
     const { error } = await supabaseClient
       .from("translations")
@@ -690,10 +690,10 @@ async function deleteTranslation(id) {
       .eq("key", id);
 
     if (error) throw error;
-    showStatusMessage("Übersetzung erfolgreich gelöscht.", "success");
+    showMessage("Übersetzung erfolgreich gelöscht.");
     loadTranslations();
   } catch (error) {
-    showStatusMessage("Fehler beim Löschen: " + error.message, "error");
+    showMessage("Fehler beim Löschen: " + error.message, true);
   }
 }
 
@@ -712,7 +712,7 @@ translationForm.addEventListener("submit", async (e) => {
     es: document.getElementById("trans-es").value,
   };
 
-  showStatusMessage("Speichere...", "info");
+  showMessage("Speichere...");
 
   try {
     if (id) {
@@ -722,14 +722,14 @@ translationForm.addEventListener("submit", async (e) => {
         .update(payload)
         .eq("key", id);
       if (error) throw error;
-      showStatusMessage("Übersetzung aktualisiert.", "success");
+      showMessage("Übersetzung aktualisiert.");
     } else {
       // INSERT
       const { error } = await supabaseClient
         .from("translations")
         .insert([payload]);
       if (error) throw error;
-      showStatusMessage("Übersetzung erstellt.", "success");
+      showMessage("Übersetzung erstellt.");
     }
 
     translationForm.reset();
@@ -738,7 +738,7 @@ translationForm.addEventListener("submit", async (e) => {
     btnCancelTranslation.classList.add("hidden");
     loadTranslations();
   } catch (error) {
-    showStatusMessage("Fehler beim Speichern: " + error.message, "error");
+    showMessage("Fehler beim Speichern: " + error.message, true);
   }
 });
 
@@ -836,7 +836,7 @@ function editAdmin(item) {
 async function deleteAdmin(id) {
   if (!confirm("Diesen Benutzer wirklich löschen?")) return;
 
-  showStatusMessage("Lösche...", "info");
+  showMessage("Lösche...");
   try {
     const { error } = await supabaseClient
       .from("admins")
@@ -844,10 +844,10 @@ async function deleteAdmin(id) {
       .eq("email", id);
 
     if (error) throw error;
-    showStatusMessage("Benutzer erfolgreich gelöscht.", "success");
+    showMessage("Benutzer erfolgreich gelöscht.");
     loadAdmins();
   } catch (error) {
-    showStatusMessage("Fehler beim Löschen: " + error.message, "error");
+    showMessage("Fehler beim Löschen: " + error.message, true);
   }
 }
 
@@ -860,7 +860,7 @@ userForm.addEventListener("submit", async (e) => {
     rolle: document.getElementById("user-rolle").value,
   };
 
-  showStatusMessage("Speichere...", "info");
+  showMessage("Speichere...");
 
   try {
     if (id) {
@@ -870,12 +870,12 @@ userForm.addEventListener("submit", async (e) => {
         .update(payload)
         .eq("email", id);
       if (error) throw error;
-      showStatusMessage("Benutzer aktualisiert.", "success");
+      showMessage("Benutzer aktualisiert.");
     } else {
       // INSERT
       const { error } = await supabaseClient.from("admins").insert([payload]);
       if (error) throw error;
-      showStatusMessage("Benutzer erstellt.", "success");
+      showMessage("Benutzer erstellt.");
     }
 
     userForm.reset();
@@ -884,7 +884,7 @@ userForm.addEventListener("submit", async (e) => {
     btnCancelUser.classList.add("hidden");
     loadAdmins();
   } catch (error) {
-    showStatusMessage("Fehler beim Speichern: " + error.message, "error");
+    showMessage("Fehler beim Speichern: " + error.message, true);
   }
 });
 
