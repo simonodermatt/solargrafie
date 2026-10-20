@@ -224,6 +224,10 @@ document.addEventListener("DOMContentLoaded", initAuth);
 
 // DOM Elemente CRUD
 const searchInput = document.getElementById("searchInput");
+const searchTranslationsInput = document.getElementById(
+  "searchTranslationsInput",
+);
+const searchUsersInput = document.getElementById("searchUsersInput");
 const solargrafienList = document.getElementById("solargrafien-list");
 
 const solargrafieForm = document.getElementById("solargrafie-form");
@@ -1126,6 +1130,7 @@ function renderTranslationsList(data) {
   data.forEach((item) => {
     const div = document.createElement("div");
     div.className = "list-item";
+    div.dataset.key = item.key || "";
 
     const infoDiv = document.createElement("div");
     infoDiv.innerHTML = `<strong>${item.key}</strong> - DE: ${item.de ? item.de.substring(0, 30) + "..." : ""}`;
@@ -1288,6 +1293,7 @@ function renderAdminsList(data) {
   data.forEach((item) => {
     const div = document.createElement("div");
     div.className = "list-item";
+    div.dataset.email = item.email || "";
 
     const infoDiv = document.createElement("div");
     infoDiv.innerHTML = `<strong>${item.email}</strong> - Rolle: ${item.rolle}`;
@@ -1421,6 +1427,52 @@ if (searchInput) {
       const owner = item.dataset.owner || "";
 
       if (titel.includes(searchTerm) || owner.includes(searchTerm)) {
+        item.style.display = "flex";
+      } else {
+        item.style.display = "none";
+      }
+    });
+  });
+}
+
+if (searchTranslationsInput) {
+  searchTranslationsInput.addEventListener("input", (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    const items = translationsList.querySelectorAll(".list-item");
+
+    items.forEach((item) => {
+      const key = (item.dataset.key || "").toLowerCase();
+      // To search through translation values, we can read the dataset attributes we add during rendering,
+      // or we can read the text content if they are displayed.
+      // Since translation items usually display some of their content or we have all languages in dataset:
+      let found = key.includes(searchTerm);
+
+      if (!found) {
+        // Let's check the languages stored in dataset or just check the text content of the item
+        const itemText = item.textContent.toLowerCase();
+        if (itemText.includes(searchTerm)) {
+          found = true;
+        }
+      }
+
+      if (found) {
+        item.style.display = "flex";
+      } else {
+        item.style.display = "none";
+      }
+    });
+  });
+}
+
+if (searchUsersInput) {
+  searchUsersInput.addEventListener("input", (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    const items = usersList.querySelectorAll(".list-item");
+
+    items.forEach((item) => {
+      const email = (item.dataset.email || "").toLowerCase();
+
+      if (email.includes(searchTerm)) {
         item.style.display = "flex";
       } else {
         item.style.display = "none";
