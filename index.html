@@ -638,12 +638,15 @@
       const browserLang = (navigator.language || navigator.userLanguage || "en")
         .substring(0, 2)
         .toLowerCase();
-      // Browser language takes priority. Fallback to default config or "de".
-      let currentLang = supportedLangs.includes(browserLang)
-        ? browserLang
-        : typeof APP_CONFIG !== "undefined" && APP_CONFIG.defaultLanguage
-          ? APP_CONFIG.defaultLanguage
-          : "de";
+      const savedLang = localStorage.getItem("app_lang");
+      // Saved language takes priority. Fallback to browser or default config or "de".
+      let currentLang = supportedLangs.includes(savedLang)
+        ? savedLang
+        : supportedLangs.includes(browserLang)
+          ? browserLang
+          : typeof APP_CONFIG !== "undefined" && APP_CONFIG.defaultLanguage
+            ? APP_CONFIG.defaultLanguage
+            : "de";
       let currentModalIndex = null;
       window.solargrafieDaten = [];
 
@@ -1310,6 +1313,7 @@
       };
 
       window.setLanguage = function (lang) {
+        localStorage.setItem("app_lang", lang);
         const activeDict =
           typeof window.translations !== "undefined" &&
           window.translations !== null &&
