@@ -446,19 +446,6 @@
           <div id="tab-solargrafien">
             <!-- Listenansicht -->
             <div class="admin-section">
-              <h2>
-                <span data-i18n="admin_list_title">List</span>
-                <button type="button" id="btn-new" class="btn btn-small">
-                  <span data-i18n="admin_btn_new">Neu</span>
-                </button>
-                <button
-                  type="button"
-                  id="btn-refresh"
-                  class="btn btn-small"
-                  style="margin-left: 5px"
-                >
-                  <span data-i18n="admin_btn_refresh">Aktualisieren</span>
-                </button>
               <h2
                 style="
                   display: flex;
@@ -467,12 +454,13 @@
                   gap: 10px;
                 "
               >
-                <span>List</span>
+                <span data-i18n="admin_list_title">List</span>
                 <input
                   type="text"
                   id="searchInput"
                   class="form-control"
                   placeholder="Einträge durchsuchen (Titel, Owner)..."
+                  data-i18n-placeholder="admin_search_placeholder_solargrafien"
                   style="
                     flex: 1;
                     margin: 0 10px;
@@ -482,10 +470,10 @@
                 />
                 <div style="display: flex; gap: 5px">
                   <button type="button" id="btn-new" class="btn btn-small">
-                    New
+                    <span data-i18n="admin_btn_new">Neu</span>
                   </button>
                   <button type="button" id="btn-refresh" class="btn btn-small">
-                    Refresh
+                    <span data-i18n="admin_btn_refresh">Aktualisieren</span>
                   </button>
                 </div>
               </h2>
@@ -943,22 +931,44 @@
           <!-- Übersetzungen Tab -->
           <div id="tab-translations" class="hidden">
             <div class="admin-section">
-              <h2>
+              <h2
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  gap: 10px;
+                "
+              >
                 <span data-i18n="admin_list_title">List</span>
-                <button
-                  type="button"
-                  id="btn-new-translation"
-                  class="btn btn-small"
-                >
-                  <span data-i18n="admin_btn_new">Neu</span></button
-                ><button
-                  type="button"
-                  id="btn-refresh-translations"
-                  class="btn btn-small"
-                  style="margin-left: 5px"
-                >
-                  <span data-i18n="admin_btn_refresh">Aktualisieren</span>
-                </button>
+                <input
+                  type="text"
+                  id="searchTranslationsInput"
+                  class="form-control"
+                  placeholder="Einträge durchsuchen (Key, Texte)..."
+                  data-i18n-placeholder="admin_search_placeholder_translations"
+                  style="
+                    flex: 1;
+                    margin: 0 10px;
+                    padding: 6px 12px;
+                    font-size: 0.9rem;
+                  "
+                />
+                <div style="display: flex; gap: 5px">
+                  <button
+                    type="button"
+                    id="btn-new-translation"
+                    class="btn btn-small"
+                  >
+                    <span data-i18n="admin_btn_new">Neu</span>
+                  </button>
+                  <button
+                    type="button"
+                    id="btn-refresh-translations"
+                    class="btn btn-small"
+                  >
+                    <span data-i18n="admin_btn_refresh">Aktualisieren</span>
+                  </button>
+                </div>
               </h2>
               <div id="translations-list" class="list-container">
                 <p>Load..</p>
@@ -1081,18 +1091,40 @@
           <!-- Benutzer Tab -->
           <div id="tab-users" class="hidden">
             <div class="admin-section">
-              <h2>
+              <h2
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  gap: 10px;
+                "
+              >
                 <span data-i18n="admin_list_title">List</span>
-                <button type="button" id="btn-new-user" class="btn btn-small">
-                  <span data-i18n="admin_btn_new">Neu</span></button
-                ><button
-                  type="button"
-                  id="btn-refresh-users"
-                  class="btn btn-small"
-                  style="margin-left: 5px"
-                >
-                  <span data-i18n="admin_btn_refresh">Aktualisieren</span>
-                </button>
+                <input
+                  type="text"
+                  id="searchUsersInput"
+                  class="form-control"
+                  placeholder="Benutzer durchsuchen (E-Mail)..."
+                  data-i18n-placeholder="admin_search_placeholder_users"
+                  style="
+                    flex: 1;
+                    margin: 0 10px;
+                    padding: 6px 12px;
+                    font-size: 0.9rem;
+                  "
+                />
+                <div style="display: flex; gap: 5px">
+                  <button type="button" id="btn-new-user" class="btn btn-small">
+                    <span data-i18n="admin_btn_new">Neu</span>
+                  </button>
+                  <button
+                    type="button"
+                    id="btn-refresh-users"
+                    class="btn btn-small"
+                  >
+                    <span data-i18n="admin_btn_refresh">Aktualisieren</span>
+                  </button>
+                </div>
               </h2>
               <div id="users-list" class="list-container"><p>Load..</p></div>
             </div>
