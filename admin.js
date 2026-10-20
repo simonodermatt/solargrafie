@@ -498,61 +498,149 @@ btnCancel.addEventListener("click", resetForm);
 // 3. Client-seitige Bildverkleinerung
 const resizeImage = (file) => {
   return new Promise((resolve, reject) => {
-    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
-      alert(
-        "Für die Web-Bilder (Haupt, Doku) bitte JPG, PNG oder WebP verwenden. TIFF-Scans bitte nur in das Raw-Feld laden.",
-      );
+    if (
+      !["image/jpeg", "image/png", "image/webp", "image/tiff"].includes(
+        file.type,
+      ) &&
+      !file.name.toLowerCase().endsWith(".tif") &&
+      !file.name.toLowerCase().endsWith(".tiff")
+    ) {
+      alert("Bitte nur JPG, PNG, WebP oder TIFF verwenden.");
       reject(new Error("Ungültiges Dateiformat."));
       return;
     }
 
-    const img = new Image();
-    const url = URL.createObjectURL(file);
+    const isTiff =
+      file.type === "image/tiff" ||
+      file.name.toLowerCase().endsWith(".tif") ||
+      file.name.toLowerCase().endsWith(".tiff");
 
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      const canvas = document.createElement("canvas");
-      let width = img.width;
-      let height = img.height;
-
-      const MAX_SIZE = 1600;
-      if (width > height) {
-        if (width > MAX_SIZE) {
-          height *= MAX_SIZE / width;
-          width = MAX_SIZE;
-        }
-      } else {
-        if (height > MAX_SIZE) {
-          width *= MAX_SIZE / height;
-          height = MAX_SIZE;
-        }
+    if (isTiff) {
+      if (typeof UTIF === "undefined") {
+        reject(new Error("UTIF.js ist nicht geladen."));
+        return;
       }
 
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0, width, height);
-
-      canvas.toBlob(
-        (blob) => {
-          if (blob) {
-            resolve(blob);
-          } else {
-            reject(
-              new Error("Fehler beim Erstellen des komprimierten Bildes."),
-            );
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const buffer = e.target.result;
+          const ifds = UTIF.decode(buffer);
+          if (!ifds || ifds.length === 0) {
+            throw new Error("Konnte TIFF nicht dekodieren.");
           }
-        },
-        "image/webp",
-        0.8,
-      );
-    };
+          const ifd = ifds[0];
+          UTIF.decodeImage(buffer, ifd);
+          const rgba = UTIF.toRGBA8(ifd);
 
-    img.onerror = () => {
-      reject(new Error("Fehler beim Laden des Bildes zur Komprimierung."));
-    };
+          let width = ifd.width;
+          let height = ifd.height;
 
-    img.src = url;
+          const MAX_SIZE = 1600;
+          let newWidth = width;
+          let newHeight = height;
+          if (width > height) {
+            if (width > MAX_SIZE) {
+              newHeight *= MAX_SIZE / width;
+              newWidth = MAX_SIZE;
+            }
+          } else {
+            if (height > MAX_SIZE) {
+              newWidth *= MAX_SIZE / height;
+              newHeight = MAX_SIZE;
+            }
+          }
+
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          const imageData = new ImageData(
+            new Uint8ClampedArray(rgba.buffer),
+            width,
+            height,
+          );
+          ctx.putImageData(imageData, 0, 0);
+
+          const resizedCanvas = document.createElement("canvas");
+          resizedCanvas.width = newWidth;
+          resizedCanvas.height = newHeight;
+          const resizedCtx = resizedCanvas.getContext("2d");
+          resizedCtx.drawImage(canvas, 0, 0, newWidth, newHeight);
+
+          resizedCanvas.toBlob(
+            (blob) => {
+              if (blob) {
+                const newFile = new File(
+                  [blob],
+                  file.name.replace(/\.tiff?$/i, ".webp"),
+                  {
+                    type: "image/webp",
+                  },
+                );
+                resolve(newFile);
+              } else {
+                reject(new Error("Fehler bei der Bildkonvertierung."));
+              }
+            },
+            "image/webp",
+            0.8,
+          );
+        } catch (err) {
+          console.error("Fehler beim Dekodieren des TIFFs:", err);
+          reject(err);
+        }
+      };
+      reader.onerror = (err) => reject(err);
+      reader.readAsArrayBuffer(file);
+    } else {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+
+        const MAX_SIZE = 1600;
+        if (width > height) {
+          if (width > MAX_SIZE) {
+            height *= MAX_SIZE / width;
+            width = MAX_SIZE;
+          }
+        } else {
+          if (height > MAX_SIZE) {
+            width *= MAX_SIZE / height;
+            height = MAX_SIZE;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              const newFile = new File([blob], file.name, {
+                type: "image/webp",
+              });
+              resolve(newFile);
+            } else {
+              reject(new Error("Canvas toBlob failed."));
+            }
+          },
+          "image/webp",
+          0.8,
+        );
+      };
+      img.onerror = (err) => {
+        URL.revokeObjectURL(url);
+        reject(err);
+      };
+      img.src = url;
+    }
   });
 };
 
@@ -769,7 +857,11 @@ solargrafieForm.addEventListener("submit", async (e) => {
     let file = fileInput.files[0];
     const cleanFileName = file.name.replace(/[^a-zA-Z0-9.]/g, "");
 
-    if (fileInputId === "bild_haupt" || fileInputId === "bild_doku") {
+    if (
+      fileInputId === "bild_haupt" ||
+      fileInputId === "bild_doku" ||
+      fileInputId === "bild_raw"
+    ) {
       try {
         file = await resizeImage(file);
       } catch (err) {
@@ -779,7 +871,9 @@ solargrafieForm.addEventListener("submit", async (e) => {
 
     let extension = file.name ? file.name.split(".").pop() : "webp";
     if (
-      (fileInputId === "bild_haupt" || fileInputId === "bild_doku") &&
+      (fileInputId === "bild_haupt" ||
+        fileInputId === "bild_doku" ||
+        fileInputId === "bild_raw") &&
       !file.name
     ) {
       extension = "webp";
