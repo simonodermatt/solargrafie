@@ -221,7 +221,11 @@ document.addEventListener("DOMContentLoaded", initAuth);
 // DOM Elemente (Tabs)
 
 // DOM Elemente CRUD
+
+// DOM Elemente CRUD
+const searchInput = document.getElementById("searchInput");
 const solargrafienList = document.getElementById("solargrafien-list");
+
 const solargrafieForm = document.getElementById("solargrafie-form");
 const statusMessage = document.getElementById("status-message");
 const btnNew = document.getElementById("btn-new");
@@ -298,6 +302,10 @@ function renderList(data) {
   data.forEach((item) => {
     const div = document.createElement("div");
     div.className = "list-item";
+
+    // Add data attributes for searching
+    div.dataset.titel = (item.titel || "").toLowerCase();
+    div.dataset.owner = (item.email || "").toLowerCase();
 
     // Fallback für undefinierte Werte
     const placedDate = item.placed ? item.placed : "Unbekannt";
@@ -1401,3 +1409,22 @@ window.addEventListener("storage", function (e) {
     applyAdminTranslations();
   }
 });
+// Search functionality
+
+if (searchInput) {
+  searchInput.addEventListener("input", (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    const items = solargrafienList.querySelectorAll(".list-item");
+
+    items.forEach((item) => {
+      const titel = item.dataset.titel || "";
+      const owner = item.dataset.owner || "";
+
+      if (titel.includes(searchTerm) || owner.includes(searchTerm)) {
+        item.style.display = "flex";
+      } else {
+        item.style.display = "none";
+      }
+    });
+  });
+}

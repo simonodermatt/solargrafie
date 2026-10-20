@@ -459,6 +459,35 @@
                 >
                   <span data-i18n="admin_btn_refresh">Aktualisieren</span>
                 </button>
+              <h2
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  gap: 10px;
+                "
+              >
+                <span>List</span>
+                <input
+                  type="text"
+                  id="searchInput"
+                  class="form-control"
+                  placeholder="Einträge durchsuchen (Titel, Owner)..."
+                  style="
+                    flex: 1;
+                    margin: 0 10px;
+                    padding: 6px 12px;
+                    font-size: 0.9rem;
+                  "
+                />
+                <div style="display: flex; gap: 5px">
+                  <button type="button" id="btn-new" class="btn btn-small">
+                    New
+                  </button>
+                  <button type="button" id="btn-refresh" class="btn btn-small">
+                    Refresh
+                  </button>
+                </div>
               </h2>
               <div id="solargrafien-list" class="list-container">
                 <p>Load..</p>
