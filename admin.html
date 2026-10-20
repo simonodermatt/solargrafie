@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin - Solargrafie</title>
+    <title data-i18n="admin_title_page">Admin - Solargrafie</title>
 
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#0b0f17" />
@@ -382,7 +382,7 @@
     </a>
 
     <div class="admin-card">
-      <h1>Admin Bereich</h1>
+      <h1 data-i18n="admin_title_main">Admin Bereich</h1>
 
       <!-- Lade-Indikator -->
       <div id="loading-container">
@@ -408,7 +408,7 @@
             <polyline points="10 17 15 12 10 7"></polyline>
             <line x1="15" y1="12" x2="3" y2="12"></line>
           </svg>
-          Mit Google anmelden
+          <span data-i18n="admin_btn_login">Mit Google anmelden</span>
         </button>
       </div>
 
@@ -428,17 +428,17 @@
             style="display: flex; gap: 10px; margin-bottom: 20px"
           >
             <button type="button" id="tab-btn-solargrafien" class="btn">
-              Solargrafien
+              <span data-i18n="admin_tab_solargrafien">Solargrafien</span>
             </button>
             <button
               type="button"
               id="tab-btn-translations"
               class="btn btn-secondary"
             >
-              Übersetzungen
+              <span data-i18n="admin_tab_translations">Übersetzungen</span>
             </button>
             <button type="button" id="tab-btn-users" class="btn btn-secondary">
-              Benutzer
+              <span data-i18n="admin_tab_users">Benutzer</span>
             </button>
           </div>
 
@@ -446,6 +446,19 @@
           <div id="tab-solargrafien">
             <!-- Listenansicht -->
             <div class="admin-section">
+              <h2>
+                <span data-i18n="admin_list_title">List</span>
+                <button type="button" id="btn-new" class="btn btn-small">
+                  <span data-i18n="admin_btn_new">Neu</span>
+                </button>
+                <button
+                  type="button"
+                  id="btn-refresh"
+                  class="btn btn-small"
+                  style="margin-left: 5px"
+                >
+                  <span data-i18n="admin_btn_refresh">Aktualisieren</span>
+                </button>
               <h2
                 style="
                   display: flex;
@@ -483,13 +496,17 @@
 
             <!-- Formular -->
             <div class="admin-section">
-              <h2 id="form-title">Entry</h2>
+              <h2 id="form-title" data-i18n="admin_form_title_entry">
+                Eintrag
+              </h2>
               <form id="solargrafie-form">
                 <input type="hidden" id="edit-id" name="id" value="" />
 
                 <div class="form-grid">
                   <div class="form-group full-width">
-                    <label for="zeitstempel">Zeitstempel</label>
+                    <label for="zeitstempel" data-i18n="admin_label_zeitstempel"
+                      >Zeitstempel</label
+                    >
                     <input
                       type="text"
                       id="zeitstempel"
@@ -500,7 +517,9 @@
                   </div>
 
                   <div class="form-group full-width">
-                    <label for="titel">Titel</label>
+                    <label for="titel" data-i18n="admin_label_titel"
+                      >Titel</label
+                    >
                     <input
                       type="text"
                       id="titel"
@@ -524,7 +543,9 @@
                     </button>
                     <div style="display: flex; gap: 10px; width: 100%">
                       <div style="flex: 1">
-                        <label for="lat">Breitengrad (lat)</label>
+                        <label for="lat" data-i18n="admin_label_lat"
+                          >Breitengrad (lat)</label
+                        >
                         <input
                           type="number"
                           step="any"
@@ -536,7 +557,9 @@
                         />
                       </div>
                       <div style="flex: 1">
-                        <label for="lng">Längengrad (lng)</label>
+                        <label for="lng" data-i18n="admin_label_lng"
+                          >Längengrad (lng)</label
+                        >
                         <input
                           type="number"
                           step="any"
@@ -551,7 +574,9 @@
                   </div>
 
                   <div class="form-group">
-                    <label for="placed">Datum Placed</label>
+                    <label for="placed" data-i18n="admin_label_placed"
+                      >Datum Placed</label
+                    >
                     <input
                       type="date"
                       id="placed"
@@ -562,7 +587,9 @@
                   </div>
 
                   <div class="form-group">
-                    <label for="opened">Datum Opened</label>
+                    <label for="opened" data-i18n="admin_label_opened"
+                      >Datum Opened</label
+                    >
                     <input
                       type="date"
                       id="opened"
@@ -572,7 +599,9 @@
                   </div>
 
                   <div class="form-group">
-                    <label for="kamera">Kamera</label>
+                    <label for="kamera" data-i18n="admin_label_kamera"
+                      >Kamera</label
+                    >
                     <input
                       type="text"
                       id="kamera"
@@ -582,7 +611,9 @@
                   </div>
 
                   <div class="form-group">
-                    <label for="fotopapier">Fotopapier</label>
+                    <label for="fotopapier" data-i18n="admin_label_fotopapier"
+                      >Fotopapier</label
+                    >
                     <input
                       type="text"
                       id="fotopapier"
@@ -592,7 +623,9 @@
                   </div>
 
                   <div class="form-group full-width">
-                    <label for="bild_haupt">Hauptbild (Finaler Scan)</label>
+                    <label for="bild_haupt" data-i18n="admin_label_bild_haupt"
+                      >Hauptbild (Finaler Scan)</label
+                    >
                     <input
                       type="file"
                       id="bild_haupt"
@@ -619,7 +652,7 @@
                   </div>
 
                   <div class="form-group full-width">
-                    <label for="bild_doku"
+                    <label for="bild_doku" data-i18n="admin_label_bild_doku"
                       >Dokumentations-Foto (Dose vor Ort)</label
                     >
                     <input
@@ -648,7 +681,9 @@
                   </div>
 
                   <div class="form-group full-width">
-                    <label for="bild_raw">Roh-Scan (Raw)</label>
+                    <label for="bild_raw" data-i18n="admin_label_bild_raw"
+                      >Roh-Scan (Raw)</label
+                    >
                     <input
                       type="file"
                       id="bild_raw"
@@ -675,18 +710,25 @@
                   </div>
 
                   <div class="form-group full-width">
-                    <label for="google_fotos_url">Google Fotos URL</label>
+                    <label
+                      for="google_fotos_url"
+                      data-i18n="admin_label_google_fotos_url"
+                      >Google Fotos URL</label
+                    >
                     <input
                       type="text"
                       id="google_fotos_url"
                       name="google_fotos_url"
                       class="form-control"
                       placeholder="https://..."
+                      data-i18n-placeholder="admin_placeholder_url"
                     />
                   </div>
 
                   <div class="form-group">
-                    <label for="externe_id">Externe ID</label>
+                    <label for="externe_id" data-i18n="admin_label_externe_id"
+                      >Externe ID</label
+                    >
                     <input
                       type="text"
                       id="externe_id"
@@ -696,7 +738,9 @@
                   </div>
 
                   <div class="form-group">
-                    <label for="email">E-Mail</label>
+                    <label for="email" data-i18n="admin_label_email"
+                      >E-Mail</label
+                    >
                     <input
                       type="email"
                       id="email"
@@ -706,7 +750,9 @@
                   </div>
 
                   <div class="form-group">
-                    <label for="owner">Owner</label>
+                    <label for="owner" data-i18n="admin_label_owner"
+                      >Owner</label
+                    >
                     <div
                       id="tags-container"
                       class="tags-container form-control"
@@ -723,6 +769,7 @@
                         type="text"
                         id="owner-input"
                         placeholder="z.B. @name, name@domain.ch"
+                        data-i18n-placeholder="admin_placeholder_owner"
                         style="
                           border: none;
                           background: transparent;
@@ -742,18 +789,25 @@
                   </div>
 
                   <div class="form-group full-width">
-                    <label for="comment_status">Kommentar Status</label>
+                    <label
+                      for="comment_status"
+                      data-i18n="admin_label_comment_status"
+                      >Kommentar Status</label
+                    >
                     <input
                       type="text"
                       id="comment_status"
                       name="comment_status"
                       class="form-control"
                       placeholder="z.B. open oder closed"
+                      data-i18n-placeholder="admin_placeholder_comment"
                     />
                   </div>
 
                   <div class="form-group full-width">
-                    <label for="notizen">Notizen</label>
+                    <label for="notizen" data-i18n="admin_label_notizen"
+                      >Notizen</label
+                    >
                     <textarea
                       id="notizen"
                       name="notizen"
@@ -798,7 +852,9 @@
 
                     <div style="display: flex; flex-wrap: wrap; gap: 15px">
                       <div style="flex: 1; min-width: 120px">
-                        <label>Tage Belichtung</label>
+                        <label data-i18n="admin_label_tage_belichtung"
+                          >Tage Belichtung</label
+                        >
                         <input
                           type="number"
                           id="tage_belichtung"
@@ -808,7 +864,9 @@
                         />
                       </div>
                       <div style="flex: 1; min-width: 120px">
-                        <label>Tage Verdeckt</label>
+                        <label data-i18n="admin_label_tage_verdeckt"
+                          >Tage Verdeckt</label
+                        >
                         <input
                           type="number"
                           id="tage_verdeckt"
@@ -818,7 +876,9 @@
                         />
                       </div>
                       <div style="flex: 1; min-width: 120px">
-                        <label>Sichtbare Bögen</label>
+                        <label data-i18n="admin_label_sichtbare_boegen"
+                          >Sichtbare Bögen</label
+                        >
                         <input
                           type="number"
                           id="sichtbare_boegen"
@@ -828,7 +888,9 @@
                         />
                       </div>
                       <div style="flex: 1; min-width: 120px">
-                        <label>Sonnenhöhe Max</label>
+                        <label data-i18n="admin_label_sonnenhoehe_max"
+                          >Sonnenhöhe Max</label
+                        >
                         <input
                           type="number"
                           step="any"
@@ -839,7 +901,9 @@
                         />
                       </div>
                       <div style="flex: 1; min-width: 120px">
-                        <label>Sonnenhöhe Min</label>
+                        <label data-i18n="admin_label_sonnenhoehe_min"
+                          >Sonnenhöhe Min</label
+                        >
                         <input
                           type="number"
                           step="any"
@@ -866,10 +930,10 @@
                     id="btn-cancel"
                     class="btn btn-secondary hidden"
                   >
-                    Abbrechen
+                    <span data-i18n="admin_btn_cancel">Abbrechen</span>
                   </button>
                   <button type="submit" id="btn-submit" class="btn">
-                    Speichern
+                    <span data-i18n="admin_btn_save">Speichern</span>
                   </button>
                 </div>
               </form>
@@ -880,20 +944,20 @@
           <div id="tab-translations" class="hidden">
             <div class="admin-section">
               <h2>
-                List
+                <span data-i18n="admin_list_title">List</span>
                 <button
                   type="button"
                   id="btn-new-translation"
                   class="btn btn-small"
                 >
-                  New</button
+                  <span data-i18n="admin_btn_new">Neu</span></button
                 ><button
                   type="button"
                   id="btn-refresh-translations"
                   class="btn btn-small"
                   style="margin-left: 5px"
                 >
-                  Refresh
+                  <span data-i18n="admin_btn_refresh">Aktualisieren</span>
                 </button>
               </h2>
               <div id="translations-list" class="list-container">
@@ -901,7 +965,12 @@
               </div>
             </div>
             <div class="admin-section">
-              <h2 id="form-title-translation">Entry</h2>
+              <h2
+                id="form-title-translation"
+                data-i18n="admin_form_title_entry"
+              >
+                Eintrag
+              </h2>
               <form id="translation-form">
                 <input
                   type="hidden"
@@ -911,7 +980,9 @@
                 />
                 <div class="form-grid">
                   <div class="form-group full-width">
-                    <label for="trans-key">Key</label>
+                    <label for="trans-key" data-i18n="admin_label_key"
+                      >Key</label
+                    >
                     <input
                       type="text"
                       id="trans-key"
@@ -997,10 +1068,10 @@
                     id="btn-cancel-translation"
                     class="btn btn-secondary hidden"
                   >
-                    Abbrechen
+                    <span data-i18n="admin_btn_cancel">Abbrechen</span>
                   </button>
                   <button type="submit" id="btn-submit-translation" class="btn">
-                    Speichern
+                    <span data-i18n="admin_btn_save">Speichern</span>
                   </button>
                 </div>
               </form>
@@ -1011,27 +1082,31 @@
           <div id="tab-users" class="hidden">
             <div class="admin-section">
               <h2>
-                List
+                <span data-i18n="admin_list_title">List</span>
                 <button type="button" id="btn-new-user" class="btn btn-small">
-                  New</button
+                  <span data-i18n="admin_btn_new">Neu</span></button
                 ><button
                   type="button"
                   id="btn-refresh-users"
                   class="btn btn-small"
                   style="margin-left: 5px"
                 >
-                  Refresh
+                  <span data-i18n="admin_btn_refresh">Aktualisieren</span>
                 </button>
               </h2>
               <div id="users-list" class="list-container"><p>Load..</p></div>
             </div>
             <div class="admin-section">
-              <h2 id="form-title-user">Entry</h2>
+              <h2 id="form-title-user" data-i18n="admin_form_title_entry">
+                Eintrag
+              </h2>
               <form id="user-form">
                 <input type="hidden" id="edit-id-user" name="id" value="" />
                 <div class="form-grid">
                   <div class="form-group full-width">
-                    <label for="user-email-input">E-Mail</label>
+                    <label for="user-email-input" data-i18n="admin_label_email"
+                      >E-Mail</label
+                    >
                     <input
                       type="email"
                       id="user-email-input"
@@ -1041,7 +1116,9 @@
                     />
                   </div>
                   <div class="form-group full-width">
-                    <label for="user-rolle">Rolle</label>
+                    <label for="user-rolle" data-i18n="admin_label_role"
+                      >Rolle</label
+                    >
                     <select
                       id="user-rolle"
                       name="rolle"
@@ -1066,10 +1143,10 @@
                     id="btn-cancel-user"
                     class="btn btn-secondary hidden"
                   >
-                    Abbrechen
+                    <span data-i18n="admin_btn_cancel">Abbrechen</span>
                   </button>
                   <button type="submit" id="btn-submit-user" class="btn">
-                    Speichern
+                    <span data-i18n="admin_btn_save">Speichern</span>
                   </button>
                 </div>
               </form>
@@ -1097,7 +1174,7 @@
             <polyline points="16 17 21 12 16 7"></polyline>
             <line x1="21" y1="12" x2="9" y2="12"></line>
           </svg>
-          Abmelden
+          <span data-i18n="admin_btn_logout">Abmelden</span>
         </button>
       </div>
     </div>
@@ -1135,17 +1212,20 @@
           gap: 15px;
         "
       >
-        <h2 style="margin: 0">Position auf Karte wählen</h2>
+        <h2 style="margin: 0" data-i18n="admin_map_title">
+          Position auf Karte wählen
+        </h2>
         <div style="display: flex; gap: 10px">
           <input
             type="text"
             id="admin-map-search"
             class="form-control"
             placeholder="Adresse suchen..."
+            data-i18n-placeholder="admin_map_placeholder"
             style="flex: 1"
           />
           <button type="button" id="btn-admin-map-search" class="btn">
-            Suchen
+            <span data-i18n="admin_btn_map_search">Suchen</span>
           </button>
         </div>
         <div
@@ -1163,10 +1243,10 @@
             id="btn-admin-map-cancel"
             class="btn btn-secondary"
           >
-            Abbrechen
+            <span data-i18n="admin_btn_cancel">Abbrechen</span>
           </button>
           <button type="button" id="btn-admin-map-accept" class="btn">
-            Position übernehmen
+            <span data-i18n="admin_btn_map_accept">Position übernehmen</span>
           </button>
         </div>
       </div>

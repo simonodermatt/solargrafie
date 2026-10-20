@@ -20,6 +20,95 @@ const userEmailSpan = document.getElementById("user-email");
 const btnLogin = document.getElementById("btn-login");
 const btnLogout = document.getElementById("btn-logout");
 
+// ----------------------------------------------------
+// Translations & Localization
+// ----------------------------------------------------
+window.adminTranslations = {};
+const supportedLangs = ["de", "en", "fr", "it", "uk", "ru", "es"];
+
+async function fetchAdminTranslationsData() {
+  if (!APP_CONFIG.SUPABASE_URL || !APP_CONFIG.SUPABASE_ANON_KEY) return;
+  try {
+    const apiUrl = `${APP_CONFIG.SUPABASE_URL}/rest/v1/translations?select=*`;
+    const headers = {
+      apikey: APP_CONFIG.SUPABASE_ANON_KEY,
+      Authorization: "Bearer " + APP_CONFIG.SUPABASE_ANON_KEY,
+      "Content-Type": "application/json",
+    };
+    const res = await fetch(apiUrl, { headers, cache: "no-store" });
+    if (!res.ok) throw new Error("HTTP error " + res.status);
+    const data = await res.json();
+    if (data && data.length > 0) {
+      const transObj = {};
+      supportedLangs.forEach((l) => (transObj[l] = {}));
+      data.forEach((row) => {
+        if (row.key) {
+          supportedLangs.forEach((l) => {
+            if (row[l]) transObj[l][row.key] = row[l];
+          });
+        }
+      });
+      window.adminTranslations = transObj;
+    }
+  } catch (err) {
+    console.error("Translations API fehlgeschlagen:", err);
+  }
+}
+
+function applyAdminTranslations() {
+  const browserLang = (navigator.language || navigator.userLanguage || "en")
+    .substring(0, 2)
+    .toLowerCase();
+  const savedLang = localStorage.getItem("app_lang");
+  let currentLang = supportedLangs.includes(savedLang)
+    ? savedLang
+    : supportedLangs.includes(browserLang)
+      ? browserLang
+      : "de";
+
+  const dict =
+    window.adminTranslations[currentLang] || window.adminTranslations["de"];
+  if (!dict) return;
+
+  // Apply to text content
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
+    const key = el.getAttribute("data-i18n");
+    if (dict[key]) {
+      el.innerText = dict[key];
+    }
+  });
+
+  // Apply to placeholders
+  document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
+    const key = el.getAttribute("data-i18n-placeholder");
+    if (dict[key]) {
+      el.placeholder = dict[key];
+    }
+  });
+
+  // Apply to map input placeholder manually due to how it might be structured
+  const mapSearchInput = document.getElementById("admin-map-search");
+  if (mapSearchInput && dict["admin_map_placeholder"]) {
+    mapSearchInput.placeholder = dict["admin_map_placeholder"];
+  }
+}
+
+function getTranslation(key) {
+  const browserLang = (navigator.language || navigator.userLanguage || "en")
+    .substring(0, 2)
+    .toLowerCase();
+  const savedLang = localStorage.getItem("app_lang");
+  let currentLang = supportedLangs.includes(savedLang)
+    ? savedLang
+    : supportedLangs.includes(browserLang)
+      ? browserLang
+      : "de";
+  const dict =
+    window.adminTranslations[currentLang] || window.adminTranslations["de"];
+  return dict && dict[key] ? dict[key] : key;
+}
+
+// ----------------------------------------------------
 // UI Update Logik
 let currentUserEmail = null;
 let currentUserRole = null;
@@ -30,6 +119,8 @@ async function updateUI(session) {
   dashboardContainer.classList.add("hidden");
 
   if (session) {
+    await fetchAdminTranslationsData();
+    applyAdminTranslations();
     currentUserEmail = session.user.email;
 
     try {
@@ -350,7 +441,8 @@ function loadFormForEdit(id) {
   document.getElementById("notizen").value = item.status || "";
 
   // UI anpassen
-  formTitle.textContent = "Eintrag bearbeiten";
+  formTitle.setAttribute("data-i18n", "admin_form_title_edit");
+  formTitle.textContent = getTranslation("admin_form_title_edit");
   btnSubmit.textContent = "Aktualisieren";
   btnCancel.classList.remove("hidden");
 
@@ -388,7 +480,8 @@ function resetForm() {
   document.getElementById("sonnenhoehe_min").value = "";
 
   // UI anpassen
-  formTitle.textContent = "Neuer Eintrag erstellen";
+  formTitle.setAttribute("data-i18n", "admin_form_title_new");
+  formTitle.textContent = getTranslation("admin_form_title_new");
   btnSubmit.textContent = "Speichern";
   btnCancel.classList.add("hidden");
 }
@@ -1060,7 +1153,8 @@ function renderTranslationsList(data) {
 }
 
 function editTranslation(item) {
-  formTitleTranslation.textContent = "Übersetzung bearbeiten";
+  formTitleTranslation.setAttribute("data-i18n", "admin_form_title_edit");
+  formTitleTranslation.textContent = getTranslation("admin_form_title_edit");
   btnCancelTranslation.classList.remove("hidden");
 
   document.getElementById("edit-id-translation").value = item.key;
@@ -1131,7 +1225,8 @@ translationForm.addEventListener("submit", async (e) => {
 
     translationForm.reset();
     document.getElementById("edit-id-translation").value = "";
-    formTitleTranslation.textContent = "Neue Übersetzung";
+    formTitleTranslation.setAttribute("data-i18n", "admin_form_title_new");
+    formTitleTranslation.textContent = getTranslation("admin_form_title_new");
     btnCancelTranslation.classList.add("hidden");
     loadTranslations();
   } catch (error) {
@@ -1142,7 +1237,8 @@ translationForm.addEventListener("submit", async (e) => {
 btnNewTranslation.addEventListener("click", () => {
   translationForm.reset();
   document.getElementById("edit-id-translation").value = "";
-  formTitleTranslation.textContent = "Neue Übersetzung";
+  formTitleTranslation.setAttribute("data-i18n", "admin_form_title_new");
+  formTitleTranslation.textContent = getTranslation("admin_form_title_new");
   btnCancelTranslation.classList.add("hidden");
 });
 
@@ -1153,7 +1249,8 @@ btnRefreshTranslations.addEventListener("click", () => {
 btnCancelTranslation.addEventListener("click", () => {
   translationForm.reset();
   document.getElementById("edit-id-translation").value = "";
-  formTitleTranslation.textContent = "Neue Übersetzung";
+  formTitleTranslation.setAttribute("data-i18n", "admin_form_title_new");
+  formTitleTranslation.textContent = getTranslation("admin_form_title_new");
   btnCancelTranslation.classList.add("hidden");
 });
 
@@ -1218,7 +1315,8 @@ function renderAdminsList(data) {
 }
 
 function editAdmin(item) {
-  formTitleUser.textContent = "Benutzer bearbeiten";
+  formTitleUser.setAttribute("data-i18n", "admin_form_title_edit");
+  formTitleUser.textContent = getTranslation("admin_form_title_edit");
   btnCancelUser.classList.remove("hidden");
 
   document.getElementById("edit-id-user").value = item.email;
@@ -1277,7 +1375,8 @@ userForm.addEventListener("submit", async (e) => {
 
     userForm.reset();
     document.getElementById("edit-id-user").value = "";
-    formTitleUser.textContent = "Neuer Benutzer";
+    formTitleUser.setAttribute("data-i18n", "admin_form_title_new");
+    formTitleUser.textContent = getTranslation("admin_form_title_new");
     btnCancelUser.classList.add("hidden");
     loadAdmins();
   } catch (error) {
@@ -1288,7 +1387,8 @@ userForm.addEventListener("submit", async (e) => {
 btnNewUser.addEventListener("click", () => {
   userForm.reset();
   document.getElementById("edit-id-user").value = "";
-  formTitleUser.textContent = "Neuer Benutzer";
+  formTitleUser.setAttribute("data-i18n", "admin_form_title_new");
+  formTitleUser.textContent = getTranslation("admin_form_title_new");
   btnCancelUser.classList.add("hidden");
 });
 
@@ -1299,10 +1399,16 @@ btnRefreshUsers.addEventListener("click", () => {
 btnCancelUser.addEventListener("click", () => {
   userForm.reset();
   document.getElementById("edit-id-user").value = "";
-  formTitleUser.textContent = "Neuer Benutzer";
+  formTitleUser.setAttribute("data-i18n", "admin_form_title_new");
+  formTitleUser.textContent = getTranslation("admin_form_title_new");
   btnCancelUser.classList.add("hidden");
 });
 
+window.addEventListener("storage", function (e) {
+  if (e.key === "app_lang") {
+    applyAdminTranslations();
+  }
+});
 // Search functionality
 
 if (searchInput) {
