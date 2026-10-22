@@ -496,7 +496,7 @@ btnRefresh.addEventListener("click", loadSolargrafien);
 btnCancel.addEventListener("click", resetForm);
 
 // 3. Client-seitige Bildverkleinerung
-const resizeImage = (file) => {
+const resizeImage = (file, targetMaxSize = 1600) => {
   return new Promise((resolve, reject) => {
     if (
       !["image/jpeg", "image/png", "image/webp", "image/tiff"].includes(
@@ -536,7 +536,7 @@ const resizeImage = (file) => {
           let width = ifd.width;
           let height = ifd.height;
 
-          const MAX_SIZE = 1600;
+          const MAX_SIZE = targetMaxSize;
           let newWidth = width;
           let newHeight = height;
           if (width > height) {
@@ -603,7 +603,7 @@ const resizeImage = (file) => {
         let width = img.width;
         let height = img.height;
 
-        const MAX_SIZE = 1600;
+        const MAX_SIZE = targetMaxSize;
         if (width > height) {
           if (width > MAX_SIZE) {
             height *= MAX_SIZE / width;
@@ -851,7 +851,47 @@ solargrafieForm.addEventListener("submit", async (e) => {
   btnSubmit.disabled = true;
   btnSubmit.textContent = "Lädt hoch...";
 
-  const uploadImage = async (fileInputId) => {
+  const generateAndUploadThumbnail = async (fileOrUrl) => {
+    if (!fileOrUrl) return null;
+    let file = null;
+    let originalName = "thumbnail";
+    if (typeof fileOrUrl === "string") {
+      try {
+        const response = await fetch(fileOrUrl);
+        const blob = await response.blob();
+        originalName = fileOrUrl.split("/").pop().split("?")[0] || "thumbnail";
+        file = new File([blob], originalName, { type: blob.type });
+      } catch (e) {
+        console.warn("Could not fetch image for thumbnail:", e);
+        return null;
+      }
+    } else {
+      file = fileOrUrl;
+      originalName = file.name;
+    }
+
+    try {
+      const resizedFile = await resizeImage(file, 200);
+      const cleanFileName = originalName.replace(/[^a-zA-Z0-9.]/g, "");
+      const fileName = `thumbnails/${Date.now()}_${cleanFileName.split(".")[0]}.webp`;
+      const { data, error } = await supabaseClient.storage
+        .from("solargrafien-bilder")
+        .upload(fileName, resizedFile, { contentType: "image/webp" });
+
+      if (error) throw error;
+      const {
+        data: { publicUrl },
+      } = supabaseClient.storage
+        .from("solargrafien-bilder")
+        .getPublicUrl(fileName);
+      return publicUrl;
+    } catch (err) {
+      console.error("Thumbnail generation error:", err);
+      return null;
+    }
+  };
+
+  const uploadImage = async (fileInputId, folder) => {
     const fileInput = document.getElementById(fileInputId);
     if (fileInput.files.length === 0) return null;
     let file = fileInput.files[0];
@@ -879,7 +919,7 @@ solargrafieForm.addEventListener("submit", async (e) => {
       extension = "webp";
     }
 
-    const fileName = `${Date.now()}_${cleanFileName.split(".")[0]}.${extension}`;
+    const fileName = `${folder}/${Date.now()}_${cleanFileName.split(".")[0]}.${extension}`;
     const { data, error } = await supabaseClient.storage
       .from("solargrafien-bilder")
       .upload(fileName, file, { contentType: file.type });
@@ -894,9 +934,30 @@ solargrafieForm.addEventListener("submit", async (e) => {
   };
 
   try {
-    const urlHaupt = await uploadImage("bild_haupt");
-    const urlDoku = await uploadImage("bild_doku");
-    const urlRaw = await uploadImage("bild_raw");
+    const urlHaupt = await uploadImage("bild_haupt", "haupt");
+    const urlDoku = await uploadImage("bild_doku", "doku");
+    const urlRaw = await uploadImage("bild_raw", "raw");
+
+    let thumbnailSource = null;
+    if (document.getElementById("bild_haupt").files.length > 0) {
+      thumbnailSource = document.getElementById("bild_haupt").files[0];
+    } else if (document.getElementById("bild_doku").files.length > 0) {
+      thumbnailSource = document.getElementById("bild_doku").files[0];
+    } else {
+      // If updating and no new file, try to get existing from the record
+      const currentItem = alleSolargrafien.find((s) => s.id == id);
+      if (currentItem) {
+        if (!currentItem.bild_thumbnail) {
+          thumbnailSource =
+            currentItem.bild_haupt || currentItem.bild_doku || null;
+        }
+      }
+    }
+
+    let urlThumbnail = null;
+    if (thumbnailSource) {
+      urlThumbnail = await generateAndUploadThumbnail(thumbnailSource);
+    }
 
     const record = {
       titel: getValue("titel"),
@@ -908,6 +969,7 @@ solargrafieForm.addEventListener("submit", async (e) => {
       ...(urlHaupt ? { bild_haupt: urlHaupt } : {}),
       ...(urlDoku ? { bild_doku: urlDoku } : {}),
       ...(urlRaw ? { bild_raw: urlRaw } : {}),
+      ...(urlThumbnail ? { bild_thumbnail: urlThumbnail } : {}),
       fotopapier: getValue("fotopapier"),
 
       google_fotos_url: getValue("google_fotos_url"),
