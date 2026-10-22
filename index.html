@@ -1222,20 +1222,9 @@
           const extId = getVal(row, ["externe_id", "ext", "externe"]) || "";
 
           // Split-Hosting Auswertung: Prioritize bild_haupt -> bild_url -> bild_doku
-          const bildHauptStr = getVal(row, ["bild_haupt"]) || "";
-          const bildUrlStr =
-            getVal(row, [
-              "bild_url",
-              "bild",
-              "foto",
-              "image",
-              "datei",
-              "upload",
-            ]) || "";
-          const bildDokuStr = getVal(row, ["bild_doku"]) || "";
-
-          const rawBild = bildHauptStr || bildUrlStr || bildDokuStr || "";
-          const bildUrl = resolveImageUrl(rawBild);
+          // Nur noch bild_thumbnail verwenden (ohne Fallback für verbesserte Performance)
+          const bildThumbnailStr = getVal(row, ["bild_thumbnail"]) || "";
+          const bildUrl = resolveImageUrl(bildThumbnailStr);
 
           const statusAnzeige = status ? `(${status})` : "";
           const titelZusatz = `#${id} ${titel} ${statusAnzeige}`.trim();
