@@ -1,0 +1,41 @@
+name: Supabase Code Backup
+
+on:
+  schedule:
+    - cron: "0 4 * * 0" # Jeden Sonntag um 04:00 Uhr UTC
+  workflow_dispatch: # Erlaubt manuelles Ausloesen des Workflows
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create ZIP archive
+        run: |
+          DATE=$(date +"%Y-%m-%d-%H%M%S")
+          FILENAME="backup-$DATE.zip"
+          echo "FILENAME=$FILENAME" >> $GITHUB_ENV
+
+          # Zippt das gesamte Verzeichnis in den /tmp Ordner, schliesst das .git Verzeichnis aus
+          zip -r "/tmp/$FILENAME" . -x "*.git*"
+
+      - name: Upload to Supabase Storage
+        run: |
+          HTTP_STATUS=$(curl -sS -o /tmp/curl_response.txt -w "%{http_code}" -X POST "${{ secrets.SUPABASE_URL }}/storage/v1/object/code-backups/${{ env.FILENAME }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "apikey: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "Content-Type: application/zip" \
+            --data-binary "@/tmp/${{ env.FILENAME }}")
+
+          echo "HTTP Status: $HTTP_STATUS"
+          cat /tmp/curl_response.txt
+
+          if [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 300 ]; then
+            echo -e "\nBackup erfolgreich hochgeladen!"
+          else
+            echo -e "\nFehler beim Hochladen des Backups!"
+            exit 1
+          fi
