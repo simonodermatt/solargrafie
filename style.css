@@ -1982,6 +1982,13 @@ body.impressum-page {
 
 /* Top Bar */
 .admin-top-bar {
+  position: relative !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -2474,6 +2481,13 @@ body.impressum-page {
   }
 
   .admin-top-bar {
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+
     display: none; /* optional: hide top bar on mobile */
   }
 

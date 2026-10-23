@@ -436,12 +436,42 @@ function escapeHtml(unsafe) {
 }
 
 // 2. LOAD: Formular für Edit füllen
+// Mobile Back Button Logic
+document.querySelectorAll(".btn-back-to-list").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    document
+      .querySelectorAll(".detail-pane")
+      .forEach((pane) => pane.classList.add("hidden-mobile"));
+    document
+      .querySelectorAll(".list-pane")
+      .forEach((pane) => pane.classList.remove("hidden-mobile"));
+  });
+});
+
 window.editItem = function (id) {
+  loadFormForEdit(id);
+};
+
+function loadFormForEdit(id) {
   const item = alleSolargrafien.find((s) => s.id == id);
   if (!item) return;
 
   // Felder füllen
   document.getElementById("edit-id").value = item.id;
+
+  document.getElementById("hero-badge-id").textContent = item.id || "Neu";
+  document.getElementById("hero-badge-days").textContent =
+    item.tage_belichtung || "0";
+  document.getElementById("hero-badge-arcs").textContent =
+    item.sichtbare_boegen || "0";
+  const bgImgUrl = item.bild_haupt || item.bild_url || item.bild_doku;
+  const bgEl = document.getElementById("hero-bg");
+  if (bgImgUrl) {
+    bgEl.style.backgroundImage = `url(${resolveImageUrl(bgImgUrl)})`;
+  } else {
+    bgEl.style.backgroundImage = "none";
+  }
+
   document.getElementById("titel").value = item.titel || "";
   document.getElementById("zeitstempel").value = item.zeitstempel || "";
   document.getElementById("google_fotos_url").value =
@@ -518,7 +548,19 @@ window.editItem = function (id) {
 
   // Zum Formular scrollen
   formTitle.scrollIntoView({ behavior: "smooth" });
-};
+
+  // Show detail pane on mobile
+  const activeDetailPane = document.querySelector(
+    ".tab-content:not(.hidden) .detail-pane",
+  );
+  const activeListPane = document.querySelector(
+    ".tab-content:not(.hidden) .list-pane",
+  );
+  if (activeDetailPane && activeListPane) {
+    activeDetailPane.classList.remove("hidden-mobile");
+    activeListPane.classList.add("hidden-mobile");
+  }
+}
 
 // Formular leeren (Neuer Eintrag)
 function resetForm() {
