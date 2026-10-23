@@ -5,9 +5,12 @@ const supabaseClient = supabase.createClient(
 );
 
 // DOM Elemente (Tabs)
-const tabBtnSolargrafien = document.getElementById("tab-btn-solargrafien");
-const tabBtnTranslations = document.getElementById("tab-btn-translations");
-const tabBtnUsers = document.getElementById("tab-btn-users");
+const tabBtnSolargrafien = document.getElementById("nav-solargrafien");
+const mobileTabBtnSolargrafien = document.getElementById("mobile-nav-solargrafien");
+const tabBtnTranslations = document.getElementById("nav-translations");
+const mobileTabBtnTranslations = document.getElementById("mobile-nav-translations");
+const tabBtnUsers = document.getElementById("nav-users");
+const mobileTabBtnUsers = document.getElementById("mobile-nav-users");
 const tabSolargrafien = document.getElementById("tab-solargrafien");
 const tabTranslations = document.getElementById("tab-translations");
 const tabUsers = document.getElementById("tab-users");
@@ -1401,6 +1404,13 @@ btnNewTranslation.addEventListener("click", () => {
   formTitleTranslation.setAttribute("data-i18n", "admin_form_title_new");
   formTitleTranslation.textContent = getTranslation("admin_form_title_new");
   btnCancelTranslation.classList.add("hidden");
+
+  const detailPane = document.getElementById("translations-detail-pane");
+  if(detailPane) {
+      detailPane.classList.remove("hidden-mobile");
+      // parentElement.firstElementChild is list-pane
+      detailPane.parentElement.querySelector('.list-pane').classList.add("hidden-mobile");
+  }
 });
 
 btnRefreshTranslations.addEventListener("click", () => {
@@ -1552,6 +1562,12 @@ btnNewUser.addEventListener("click", () => {
   formTitleUser.setAttribute("data-i18n", "admin_form_title_new");
   formTitleUser.textContent = getTranslation("admin_form_title_new");
   btnCancelUser.classList.add("hidden");
+
+  const detailPane = document.getElementById("users-detail-pane");
+  if(detailPane) {
+      detailPane.classList.remove("hidden-mobile");
+      detailPane.parentElement.querySelector('.list-pane').classList.add("hidden-mobile");
+  }
 });
 
 btnRefreshUsers.addEventListener("click", () => {

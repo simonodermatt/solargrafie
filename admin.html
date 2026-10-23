@@ -413,804 +413,1675 @@
       </div>
 
       <!-- Dashboard Ansicht -->
-      <div id="dashboard-container" class="hidden">
-        <div class="user-info">
-          Eingeloggt als: <span id="user-email" class="user-email"></span>
-        </div>
-
-        <div class="admin-layout">
-          <!-- Messages -->
-          <div id="status-message" class="message-box"></div>
-
-          <!-- Navigation Tabs -->
-          <div
-            id="admin-tabs"
-            style="display: flex; gap: 10px; margin-bottom: 20px"
-          >
-            <button type="button" id="tab-btn-solargrafien" class="btn">
-              <span data-i18n="admin_tab_solargrafien">Solargrafien</span>
-            </button>
-            <button
-              type="button"
-              id="tab-btn-translations"
-              class="btn btn-secondary"
+    </div>
+    <div id="dashboard-container" class="hidden">
+      <div class="admin-wrapper">
+        <!-- Sidebar Navigation (Desktop) -->
+        <aside class="admin-sidebar">
+          <div class="sidebar-logo">
+            <img src="logo.png" alt="Solargrafie Logo" />
+            <span class="logo-text">SOLARGRAFIE<br /><small>ADMIN</small></span>
+          </div>
+          <nav class="sidebar-nav">
+            <a
+              href="#"
+              class="nav-item active"
+              id="nav-solargrafien"
+              data-target="tab-solargrafien"
             >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"
+                ></path>
+              </svg>
+              <span data-i18n="admin_tab_solargrafien">Solargrafien</span>
+            </a>
+            <a
+              href="#"
+              class="nav-item"
+              id="nav-translations"
+              data-target="tab-translations"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m5 8 6 6"></path>
+                <path d="m4 14 6-6 2-3"></path>
+                <path d="M2 5h12"></path>
+                <path d="M7 2h1"></path>
+                <path d="m22 22-5-10-5 10"></path>
+                <path d="M14 18h6"></path>
+              </svg>
               <span data-i18n="admin_tab_translations">Übersetzungen</span>
-            </button>
-            <button type="button" id="tab-btn-users" class="btn btn-secondary">
+            </a>
+            <a href="#" class="nav-item" id="nav-users" data-target="tab-users">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
               <span data-i18n="admin_tab_users">Benutzer</span>
+            </a>
+          </nav>
+
+          <div class="sidebar-footer">
+            <button id="btn-logout" class="btn btn-secondary btn-full">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+              </svg>
+              <span data-i18n="admin_btn_logout">Abmelden</span>
             </button>
           </div>
+        </aside>
 
-          <!-- Solargrafien Tab -->
-          <div id="tab-solargrafien">
-            <!-- Listenansicht -->
-            <div class="admin-section">
-              <h2
-                style="
-                  display: flex;
-                  justify-content: space-between;
-                  align-items: center;
-                  gap: 10px;
-                "
-              >
-                <span data-i18n="admin_list_title">List</span>
-                <input
-                  type="text"
-                  id="searchInput"
-                  class="form-control"
-                  placeholder="Einträge durchsuchen (Titel, Owner)..."
-                  data-i18n-placeholder="admin_search_placeholder_solargrafien"
-                  style="
-                    flex: 1;
-                    margin: 0 10px;
-                    padding: 6px 12px;
-                    font-size: 0.9rem;
-                  "
-                />
-                <div style="display: flex; gap: 5px">
-                  <button type="button" id="btn-new" class="btn btn-small">
-                    <span data-i18n="admin_btn_new">Neu</span>
-                  </button>
-                  <button type="button" id="btn-refresh" class="btn btn-small">
-                    <span data-i18n="admin_btn_refresh">Aktualisieren</span>
-                  </button>
-                </div>
-              </h2>
-              <div id="solargrafien-list" class="list-container">
-                <p>Load..</p>
+        <!-- Main Content Area -->
+        <main class="admin-main">
+          <!-- Top Bar -->
+          <header class="admin-top-bar">
+            <div class="breadcrumbs" id="admin-breadcrumbs">
+              Verwaltung / <span id="breadcrumb-current">Solargrafien</span>
+            </div>
+            <div class="top-bar-right">
+              <div class="user-info">
+                Eingeloggt als: <span id="user-email" class="user-email"></span>
               </div>
             </div>
+          </header>
 
-            <!-- Formular -->
-            <div class="admin-section">
-              <h2 id="form-title" data-i18n="admin_form_title_entry">
-                Eintrag
-              </h2>
-              <form id="solargrafie-form">
-                <input type="hidden" id="edit-id" name="id" value="" />
+          <div id="status-message" class="message-box"></div>
 
-                <div class="form-grid">
-                  <div class="form-group full-width">
-                    <label for="zeitstempel" data-i18n="admin_label_zeitstempel"
-                      >Zeitstempel</label
-                    >
-                    <input
-                      type="text"
-                      id="zeitstempel"
-                      name="zeitstempel"
-                      class="form-control"
-                      readonly
-                    />
-                  </div>
-
-                  <div class="form-group full-width">
-                    <label for="titel" data-i18n="admin_label_titel"
-                      >Titel</label
-                    >
-                    <input
-                      type="text"
-                      id="titel"
-                      name="titel"
-                      class="form-control"
-                      required
-                    />
-                  </div>
-
-                  <div
-                    class="form-group full-width"
-                    style="display: flex; gap: 10px; align-items: flex-end"
-                  >
-                    <button
-                      type="button"
-                      id="btn-open-map"
-                      class="btn btn-secondary"
-                      style="margin-bottom: 2px"
-                    >
-                      🗺️ Auf Karte wählen
-                    </button>
-                    <div style="display: flex; gap: 10px; width: 100%">
-                      <div style="flex: 1">
-                        <label for="lat" data-i18n="admin_label_lat"
-                          >Breitengrad (lat)</label
-                        >
-                        <input
-                          type="number"
-                          step="any"
-                          id="lat"
-                          name="lat"
-                          class="form-control"
-                          readonly
-                          required
-                        />
-                      </div>
-                      <div style="flex: 1">
-                        <label for="lng" data-i18n="admin_label_lng"
-                          >Längengrad (lng)</label
-                        >
-                        <input
-                          type="number"
-                          step="any"
-                          id="lng"
-                          name="lng"
-                          class="form-control"
-                          readonly
-                          required
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label for="placed" data-i18n="admin_label_placed"
-                      >Datum Placed</label
-                    >
-                    <input
-                      type="date"
-                      id="placed"
-                      name="placed"
-                      class="form-control"
-                      required
-                    />
-                  </div>
-
-                  <div class="form-group">
-                    <label for="opened" data-i18n="admin_label_opened"
-                      >Datum Opened</label
-                    >
-                    <input
-                      type="date"
-                      id="opened"
-                      name="opened"
-                      class="form-control"
-                    />
-                  </div>
-
-                  <div class="form-group">
-                    <label for="kamera" data-i18n="admin_label_kamera"
-                      >Kamera</label
-                    >
-                    <input
-                      type="text"
-                      id="kamera"
-                      name="kamera"
-                      class="form-control"
-                    />
-                  </div>
-
-                  <div class="form-group">
-                    <label for="fotopapier" data-i18n="admin_label_fotopapier"
-                      >Fotopapier</label
-                    >
-                    <input
-                      type="text"
-                      id="fotopapier"
-                      name="fotopapier"
-                      class="form-control"
-                    />
-                  </div>
-
-                  <div class="form-group full-width">
-                    <label for="bild_haupt" data-i18n="admin_label_bild_haupt"
-                      >Hauptbild (Finaler Scan)</label
-                    >
-                    <input
-                      type="file"
-                      id="bild_haupt"
-                      name="bild_haupt"
-                      class="form-control"
-                      accept="image/jpeg, image/png, image/webp"
-                    />
-                    <div
-                      id="preview-container-haupt"
-                      class="preview-container hidden"
-                      style="margin-top: 5px"
-                    >
-                      <img
-                        id="preview-haupt"
-                        src=""
-                        alt="Vorschau Hauptbild"
-                        style="
-                          max-width: 100px;
-                          max-height: 100px;
-                          border-radius: 4px;
-                        "
-                      />
-                    </div>
-                  </div>
-
-                  <div class="form-group full-width">
-                    <label for="bild_doku" data-i18n="admin_label_bild_doku"
-                      >Dokumentations-Foto (Dose vor Ort)</label
-                    >
-                    <input
-                      type="file"
-                      id="bild_doku"
-                      name="bild_doku"
-                      class="form-control"
-                      accept="image/jpeg, image/png, image/webp"
-                    />
-                    <div
-                      id="preview-container-doku"
-                      class="preview-container hidden"
-                      style="margin-top: 5px"
-                    >
-                      <img
-                        id="preview-doku"
-                        src=""
-                        alt="Vorschau Dokubild"
-                        style="
-                          max-width: 100px;
-                          max-height: 100px;
-                          border-radius: 4px;
-                        "
-                      />
-                    </div>
-                  </div>
-
-                  <div class="form-group full-width">
-                    <label for="bild_raw" data-i18n="admin_label_bild_raw"
-                      >Roh-Scan (Raw)</label
-                    >
-                    <input
-                      type="file"
-                      id="bild_raw"
-                      name="bild_raw"
-                      class="form-control"
-                      accept="image/jpeg, image/png, image/webp, image/tiff"
-                    />
-                    <div
-                      id="preview-container-raw"
-                      class="preview-container hidden"
-                      style="margin-top: 5px"
-                    >
-                      <img
-                        id="preview-raw"
-                        src=""
-                        alt="Vorschau Raw-Bild"
-                        style="
-                          max-width: 100px;
-                          max-height: 100px;
-                          border-radius: 4px;
-                        "
-                      />
-                    </div>
-                  </div>
-
-                  <div class="form-group full-width">
-                    <label
-                      for="google_fotos_url"
-                      data-i18n="admin_label_google_fotos_url"
-                      >Google Fotos URL</label
-                    >
-                    <input
-                      type="text"
-                      id="google_fotos_url"
-                      name="google_fotos_url"
-                      class="form-control"
-                      placeholder="https://..."
-                      data-i18n-placeholder="admin_placeholder_url"
-                    />
-                  </div>
-
-                  <div class="form-group">
-                    <label for="externe_id" data-i18n="admin_label_externe_id"
-                      >Externe ID</label
-                    >
-                    <input
-                      type="text"
-                      id="externe_id"
-                      name="externe_id"
-                      class="form-control"
-                    />
-                  </div>
-
-                  <div class="form-group">
-                    <label for="email" data-i18n="admin_label_email"
-                      >E-Mail</label
-                    >
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      class="form-control"
-                    />
-                  </div>
-
-                  <div class="form-group full-width">
-                    <label for="owner" data-i18n="admin_label_owner"
-                      >Owner</label
-                    >
-                    <div
-                      id="tags-container"
-                      class="tags-container form-control"
-                      style="
-                        height: auto;
-                        min-height: 42px;
-                        display: flex;
-                        flex-wrap: wrap;
-                        gap: 5px;
-                        align-items: center;
-                      "
-                    >
+          <!-- Tab Contents -->
+          <div class="admin-content-area">
+            <!-- SOLARGRAFIEN TAB -->
+            <div id="tab-solargrafien" class="admin-tab-content active">
+              <div class="dual-pane-layout">
+                <!-- Left Pane: List & Search -->
+                <div class="list-pane" id="solargrafien-list-pane">
+                  <div class="list-header">
+                    <div class="search-bar-wrapper">
+                      <svg
+                        class="search-icon"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                      </svg>
                       <input
                         type="text"
-                        id="owner-input"
-                        placeholder="z.B. @name, name@domain.ch"
-                        data-i18n-placeholder="admin_placeholder_owner"
-                        style="
-                          border: none;
-                          background: transparent;
-                          outline: none;
-                          color: var(--color-text-main);
-                          flex: 1;
-                          min-width: 150px;
-                        "
+                        id="searchInput"
+                        class="search-input"
+                        placeholder="Solargrafie suchen..."
+                        data-i18n-placeholder="admin_search_placeholder"
                       />
                     </div>
-                    <input
-                      type="hidden"
-                      id="owner"
-                      name="owner"
-                      class="form-control"
-                    />
-                  </div>
 
-                  <div class="form-group full-width">
-                    <label
-                      for="comment_status"
-                      data-i18n="admin_label_comment_status"
-                      >Kommentar Status</label
-                    >
-                    <input
-                      type="text"
-                      id="comment_status"
-                      name="comment_status"
-                      class="form-control"
-                      placeholder="z.B. open oder closed"
-                      data-i18n-placeholder="admin_placeholder_comment"
-                    />
-                  </div>
-
-                  <div class="form-group full-width">
-                    <label for="notizen" data-i18n="admin_label_notizen"
-                      >Notizen</label
-                    >
-                    <textarea
-                      id="notizen"
-                      name="notizen"
-                      class="form-control"
-                    ></textarea>
-                  </div>
-                  <div
-                    class="form-group full-width"
-                    style="
-                      background: rgba(0, 0, 0, 0.2);
-                      padding: 15px;
-                      border-radius: 8px;
-                      margin-top: 20px;
-                    "
-                  >
-                    <div
-                      style="
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        margin-bottom: 15px;
-                      "
-                    >
-                      <h3
-                        style="
-                          margin: 0;
-                          color: var(--color-primary);
-                          font-family: var(--font-head);
-                          font-size: 1.1rem;
-                        "
-                      >
-                        Sonnen- & Wetter-Berechnungen
-                      </h3>
-                      <button
-                        type="button"
-                        id="btn-calc"
-                        class="btn btn-secondary btn-small"
-                      >
-                        Werte berechnen
+                    <div class="filter-chips">
+                      <button class="filter-chip active" data-filter="all">
+                        Alle <span class="chip-count" id="count-all">0</span>
+                      </button>
+                      <button class="filter-chip" data-filter="aktiv">
+                        Aktiv <span class="chip-count" id="count-aktiv">0</span>
+                      </button>
+                      <button class="filter-chip" data-filter="berechnet">
+                        Berechnet
+                        <span class="chip-count" id="count-berechnet">0</span>
+                      </button>
+                      <button class="filter-chip" data-filter="entwurf">
+                        Entwurf
+                        <span class="chip-count" id="count-entwurf">0</span>
                       </button>
                     </div>
 
-                    <div style="display: flex; flex-wrap: wrap; gap: 15px">
-                      <div style="flex: 1; min-width: 120px">
-                        <label data-i18n="admin_label_tage_belichtung"
-                          >Tage Belichtung</label
+                    <div class="list-controls">
+                      <button
+                        type="button"
+                        id="btn-new"
+                        class="btn btn-small btn-primary"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
                         >
-                        <input
-                          type="number"
-                          id="tage_belichtung"
-                          name="tage_belichtung"
-                          class="form-control"
-                          readonly
-                        />
-                      </div>
-                      <div style="flex: 1; min-width: 120px">
-                        <label data-i18n="admin_label_tage_verdeckt"
-                          >Tage Verdeckt</label
+                          <line x1="12" y1="5" x2="12" y2="19"></line>
+                          <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        <span data-i18n="admin_btn_new">Neu</span>
+                      </button>
+                      <button
+                        type="button"
+                        id="btn-refresh"
+                        class="btn btn-small btn-secondary"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
                         >
-                        <input
-                          type="number"
-                          id="tage_verdeckt"
-                          name="tage_verdeckt"
-                          class="form-control"
-                          readonly
-                        />
-                      </div>
-                      <div style="flex: 1; min-width: 120px">
-                        <label data-i18n="admin_label_sichtbare_boegen"
-                          >Sichtbare Bögen</label
-                        >
-                        <input
-                          type="number"
-                          id="sichtbare_boegen"
-                          name="sichtbare_boegen"
-                          class="form-control"
-                          readonly
-                        />
-                      </div>
-                      <div style="flex: 1; min-width: 120px">
-                        <label data-i18n="admin_label_sonnenhoehe_max"
-                          >Sonnenhöhe Max</label
-                        >
-                        <input
-                          type="number"
-                          step="any"
-                          id="sonnenhoehe_max"
-                          name="sonnenhoehe_max"
-                          class="form-control"
-                          readonly
-                        />
-                      </div>
-                      <div style="flex: 1; min-width: 120px">
-                        <label data-i18n="admin_label_sonnenhoehe_min"
-                          >Sonnenhöhe Min</label
-                        >
-                        <input
-                          type="number"
-                          step="any"
-                          id="sonnenhoehe_min"
-                          name="sonnenhoehe_min"
-                          class="form-control"
-                          readonly
-                        />
-                      </div>
+                          <polyline points="23 4 23 10 17 10"></polyline>
+                          <polyline points="1 20 1 14 7 14"></polyline>
+                          <path
+                            d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"
+                          ></path>
+                        </svg>
+                      </button>
                     </div>
                   </div>
+
+                  <div
+                    id="solargrafien-list"
+                    class="list-container custom-scrollbar"
+                  >
+                    <p>Lade Daten...</p>
+                  </div>
                 </div>
 
+                <!-- Right Pane: Details / Form -->
                 <div
-                  style="
-                    margin-top: 20px;
-                    display: flex;
-                    gap: 10px;
-                    justify-content: flex-end;
-                  "
+                  class="detail-pane hidden-mobile"
+                  id="solargrafien-detail-pane"
                 >
-                  <button
-                    type="button"
-                    id="btn-cancel"
-                    class="btn btn-secondary hidden"
-                  >
-                    <span data-i18n="admin_btn_cancel">Abbrechen</span>
-                  </button>
-                  <button type="submit" id="btn-submit" class="btn">
-                    <span data-i18n="admin_btn_save">Speichern</span>
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
+                  <div class="mobile-back-bar">
+                    <button
+                      type="button"
+                      id="btn-back-to-list"
+                      class="btn btn-icon btn-secondary"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                      </svg>
+                      Zurück
+                    </button>
+                  </div>
 
-          <!-- Übersetzungen Tab -->
-          <div id="tab-translations" class="hidden">
-            <div class="admin-section">
-              <h2
-                style="
-                  display: flex;
-                  justify-content: space-between;
-                  align-items: center;
-                  gap: 10px;
-                "
-              >
-                <span data-i18n="admin_list_title">List</span>
-                <input
-                  type="text"
-                  id="searchTranslationsInput"
-                  class="form-control"
-                  placeholder="Einträge durchsuchen (Key, Texte)..."
-                  data-i18n-placeholder="admin_search_placeholder_translations"
-                  style="
-                    flex: 1;
-                    margin: 0 10px;
-                    padding: 6px 12px;
-                    font-size: 0.9rem;
-                  "
-                />
-                <div style="display: flex; gap: 5px">
-                  <button
-                    type="button"
-                    id="btn-new-translation"
-                    class="btn btn-small"
-                  >
-                    <span data-i18n="admin_btn_new">Neu</span>
-                  </button>
-                  <button
-                    type="button"
-                    id="btn-refresh-translations"
-                    class="btn btn-small"
-                  >
-                    <span data-i18n="admin_btn_refresh">Aktualisieren</span>
-                  </button>
+                  <form id="solargrafie-form" class="detail-form">
+                    <input type="hidden" id="edit-id" name="id" value="" />
+
+                    <!-- Hero Header -->
+                    <div class="hero-header" id="hero-header">
+                      <div class="hero-bg" id="hero-bg"></div>
+                      <div class="hero-content">
+                        <div class="hero-badges">
+                          <span
+                            class="hero-badge badge-primary"
+                            id="hero-badge-id"
+                            >SG-CH-NEW</span
+                          >
+                          <span class="hero-badge badge-amber"
+                            ><svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            >
+                              <circle cx="12" cy="12" r="5"></circle>
+                              <line x1="12" y1="1" x2="12" y2="3"></line>
+                              <line x1="12" y1="21" x2="12" y2="23"></line>
+                              <line
+                                x1="4.22"
+                                y1="4.22"
+                                x2="5.64"
+                                y2="5.64"
+                              ></line>
+                              <line
+                                x1="18.36"
+                                y1="18.36"
+                                x2="19.78"
+                                y2="19.78"
+                              ></line>
+                              <line x1="1" y1="12" x2="3" y2="12"></line>
+                              <line x1="21" y1="12" x2="23" y2="12"></line>
+                              <line
+                                x1="4.22"
+                                y1="19.78"
+                                x2="5.64"
+                                y2="18.36"
+                              ></line>
+                              <line
+                                x1="18.36"
+                                y1="5.64"
+                                x2="19.78"
+                                y2="4.22"
+                              ></line>
+                            </svg>
+                            <span id="hero-badge-days">0</span> Tage
+                            Belichtung</span
+                          >
+                        </div>
+                        <h2 class="hero-title" id="form-title">
+                          Neuer Eintrag
+                        </h2>
+
+                        <div class="hero-footer">
+                          <span class="hero-stat"
+                            ><svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            >
+                              <circle cx="12" cy="12" r="10"></circle>
+                              <path
+                                d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"
+                              ></path>
+                              <path d="M2 12h20"></path>
+                            </svg>
+                            <span id="hero-badge-arcs">0</span>
+                            Sonnenbögen</span
+                          >
+                          <span class="hero-stat" id="hero-location-text"
+                            >Standort wird gewählt</span
+                          >
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="form-accordions">
+                      <!-- Section A -->
+                      <details class="accordion-section" open>
+                        <summary class="accordion-header">
+                          <div class="accordion-title-wrapper">
+                            <div class="accordion-icon">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="18"
+                                height="18"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              >
+                                <path
+                                  d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"
+                                ></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                              </svg>
+                            </div>
+                            <div>
+                              <h3>Section A · Stammdaten & Ort</h3>
+                              <p class="accordion-subtitle" id="subtitle-a">
+                                Titel und Koordinaten
+                              </p>
+                            </div>
+                          </div>
+                          <svg
+                            class="chevron"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          >
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                          </svg>
+                        </summary>
+                        <div class="accordion-content">
+                          <div class="form-grid">
+                            <div class="form-group full-width">
+                              <label for="titel" data-i18n="admin_label_titel"
+                                >Titel der Solargrafie</label
+                              >
+                              <input
+                                type="text"
+                                id="titel"
+                                name="titel"
+                                class="form-control"
+                                required
+                              />
+                            </div>
+
+                            <div class="form-group full-width">
+                              <div
+                                style="
+                                  display: flex;
+                                  justify-content: space-between;
+                                  align-items: center;
+                                  margin-bottom: 8px;
+                                "
+                              >
+                                <label data-i18n="admin_label_gps"
+                                  >GPS-Koordinaten (WGS84)</label
+                                >
+                                <button
+                                  type="button"
+                                  id="btn-open-map"
+                                  class="btn btn-small btn-secondary"
+                                >
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="14"
+                                    height="14"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                  >
+                                    <path
+                                      d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"
+                                    ></path>
+                                    <circle cx="12" cy="10" r="3"></circle>
+                                  </svg>
+                                  Auf Karte wählen
+                                </button>
+                              </div>
+                              <div style="display: flex; gap: 10px">
+                                <div class="input-group" style="flex: 1">
+                                  <span class="input-prefix">LAT</span>
+                                  <input
+                                    type="number"
+                                    id="lat"
+                                    name="lat"
+                                    step="any"
+                                    class="form-control"
+                                    required
+                                  />
+                                </div>
+                                <div class="input-group" style="flex: 1">
+                                  <span class="input-prefix">LON</span>
+                                  <input
+                                    type="number"
+                                    id="lng"
+                                    name="lng"
+                                    step="any"
+                                    class="form-control"
+                                    required
+                                  />
+                                </div>
+                              </div>
+                            </div>
+
+                            <div class="form-group">
+                              <label for="placed" data-i18n="admin_label_placed"
+                                >Montiert (Placed)</label
+                              >
+                              <input
+                                type="date"
+                                id="placed"
+                                name="placed"
+                                class="form-control"
+                                required
+                              />
+                            </div>
+
+                            <div class="form-group">
+                              <label for="opened" data-i18n="admin_label_opened"
+                                >Geborgen (Opened)</label
+                              >
+                              <input
+                                type="date"
+                                id="opened"
+                                name="opened"
+                                class="form-control"
+                                required
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </details>
+
+                      <!-- Section B -->
+                      <details class="accordion-section">
+                        <summary class="accordion-header">
+                          <div class="accordion-title-wrapper">
+                            <div class="accordion-icon">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="18"
+                                height="18"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              >
+                                <path
+                                  d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+                                ></path>
+                                <polyline
+                                  points="3.27 6.96 12 12.01 20.73 6.96"
+                                ></polyline>
+                                <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                              </svg>
+                            </div>
+                            <div>
+                              <h3>Section B · Hardware</h3>
+                              <p class="accordion-subtitle" id="subtitle-b">
+                                Kamera, Papier & Parameter
+                              </p>
+                            </div>
+                          </div>
+                          <svg
+                            class="chevron"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          >
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                          </svg>
+                        </summary>
+                        <div class="accordion-content">
+                          <div class="form-grid">
+                            <div class="form-group full-width">
+                              <label for="kamera" data-i18n="admin_label_kamera"
+                                >Kameragehäuse & Lochblende</label
+                              >
+                              <input
+                                type="text"
+                                id="kamera"
+                                name="kamera"
+                                class="form-control"
+                                required
+                              />
+                            </div>
+                            <div class="form-group full-width">
+                              <label
+                                for="fotopapier"
+                                data-i18n="admin_label_fotopapier"
+                                >Fotopapier Typ</label
+                              >
+                              <input
+                                type="text"
+                                id="fotopapier"
+                                name="fotopapier"
+                                class="form-control"
+                                required
+                              />
+                            </div>
+                            <div class="form-group">
+                              <label
+                                for="ausrichtung"
+                                data-i18n="admin_label_ausrichtung"
+                                >Himmelsrichtung (Azimut)</label
+                              >
+                              <input
+                                type="text"
+                                id="ausrichtung"
+                                name="ausrichtung"
+                                class="form-control"
+                                required
+                              />
+                            </div>
+                            <div class="form-group">
+                              <label
+                                for="neigungswinkel"
+                                data-i18n="admin_label_neigungswinkel"
+                                >Neigungswinkel (Elevation/Tilt)</label
+                              >
+                              <input
+                                type="text"
+                                id="neigungswinkel"
+                                name="neigungswinkel"
+                                class="form-control"
+                                required
+                              />
+                            </div>
+                            <div class="form-group full-width">
+                              <label
+                                for="befestigung"
+                                data-i18n="admin_label_befestigung"
+                                >Befestigung & Witterungsschutz</label
+                              >
+                              <textarea
+                                id="befestigung"
+                                name="befestigung"
+                                class="form-control"
+                                rows="2"
+                              ></textarea>
+                            </div>
+                          </div>
+                        </div>
+                      </details>
+
+                      <!-- Section C -->
+                      <details class="accordion-section">
+                        <summary class="accordion-header">
+                          <div class="accordion-title-wrapper">
+                            <div class="accordion-icon">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="18"
+                                height="18"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              >
+                                <rect
+                                  x="3"
+                                  y="3"
+                                  width="18"
+                                  height="18"
+                                  rx="2"
+                                  ry="2"
+                                ></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                              </svg>
+                            </div>
+                            <div>
+                              <h3>Section C · Medien & Scans</h3>
+                              <p class="accordion-subtitle" id="subtitle-c">
+                                Bilder & Uploads
+                              </p>
+                            </div>
+                          </div>
+                          <svg
+                            class="chevron"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          >
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                          </svg>
+                        </summary>
+                        <div class="accordion-content">
+                          <!-- Media Cards Grid -->
+                          <div class="media-cards-grid">
+                            <!-- Hauptbild -->
+                            <div class="media-card">
+                              <div class="media-card-header">
+                                <span class="media-card-title"
+                                  >Hauptbild (Scan final)</span
+                                >
+                              </div>
+                              <div
+                                class="media-preview-area hidden"
+                                id="preview-container-haupt"
+                              >
+                                <img
+                                  id="preview-haupt"
+                                  src="#"
+                                  alt="Preview Haupt"
+                                  class="media-preview-img"
+                                />
+                              </div>
+                              <div class="media-upload-area">
+                                <input
+                                  type="file"
+                                  id="bild_haupt"
+                                  name="bild_haupt"
+                                  accept="image/*"
+                                  class="form-control-file"
+                                />
+                                <label
+                                  for="bild_haupt"
+                                  class="file-upload-label"
+                                >
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                  >
+                                    <path
+                                      d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
+                                    ></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                  </svg>
+                                  Datei auswählen
+                                </label>
+                              </div>
+                            </div>
+
+                            <!-- Doku -->
+                            <div class="media-card">
+                              <div class="media-card-header">
+                                <span class="media-card-title"
+                                  >Dokumentation Vor Ort</span
+                                >
+                              </div>
+                              <div
+                                class="media-preview-area hidden"
+                                id="preview-container-doku"
+                              >
+                                <img
+                                  id="preview-doku"
+                                  src="#"
+                                  alt="Preview Doku"
+                                  class="media-preview-img"
+                                />
+                              </div>
+                              <div class="media-upload-area">
+                                <input
+                                  type="file"
+                                  id="bild_doku"
+                                  name="bild_doku"
+                                  accept="image/*"
+                                  class="form-control-file"
+                                />
+                                <label
+                                  for="bild_doku"
+                                  class="file-upload-label"
+                                >
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                  >
+                                    <path
+                                      d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
+                                    ></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                  </svg>
+                                  Datei auswählen
+                                </label>
+                              </div>
+                            </div>
+
+                            <!-- Raw -->
+                            <div class="media-card">
+                              <div class="media-card-header">
+                                <span class="media-card-title"
+                                  >Rohscan/Negativ</span
+                                >
+                              </div>
+                              <div
+                                class="media-preview-area hidden"
+                                id="preview-container-raw"
+                              >
+                                <img
+                                  id="preview-raw"
+                                  src="#"
+                                  alt="Preview Raw"
+                                  class="media-preview-img"
+                                />
+                              </div>
+                              <div class="media-upload-area">
+                                <input
+                                  type="file"
+                                  id="bild_raw"
+                                  name="bild_raw"
+                                  accept=".jpg,.jpeg,.png,.tif,.tiff"
+                                  class="form-control-file"
+                                />
+                                <label for="bild_raw" class="file-upload-label">
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                  >
+                                    <path
+                                      d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
+                                    ></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                  </svg>
+                                  Datei auswählen
+                                </label>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div
+                            class="form-group full-width"
+                            style="margin-top: 15px"
+                          >
+                            <label
+                              for="google_fotos_url"
+                              data-i18n="admin_label_google_fotos"
+                              >Cloud URL (Optional)</label
+                            >
+                            <input
+                              type="url"
+                              id="google_fotos_url"
+                              name="google_fotos_url"
+                              class="form-control"
+                            />
+                          </div>
+                        </div>
+                      </details>
+
+                      <!-- Section D -->
+                      <details class="accordion-section">
+                        <summary class="accordion-header">
+                          <div class="accordion-title-wrapper">
+                            <div class="accordion-icon">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="18"
+                                height="18"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              >
+                                <path d="M12 2v20"></path>
+                                <path
+                                  d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"
+                                ></path>
+                              </svg>
+                            </div>
+                            <div>
+                              <h3>Section D · Sonnen- & Wetter-Daten</h3>
+                              <p class="accordion-subtitle" id="subtitle-d">
+                                Ephemeriden, Sonnenhöhe, Bögen
+                              </p>
+                            </div>
+                          </div>
+                          <svg
+                            class="chevron"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          >
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                          </svg>
+                        </summary>
+                        <div class="accordion-content">
+                          <button
+                            type="button"
+                            id="btn-calc"
+                            class="btn btn-secondary btn-full"
+                            style="margin-bottom: 15px"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            >
+                              <path d="M3 3v18h18"></path>
+                              <path d="m19 9-5 5-4-4-3 3"></path>
+                            </svg>
+                            <span data-i18n="admin_btn_calc"
+                              >Berechne Wetter & Sonnen-Daten</span
+                            >
+                          </button>
+
+                          <div class="stats-grid">
+                            <div class="stat-box">
+                              <label data-i18n="admin_label_tage_belichtung"
+                                >Tage Belichtung</label
+                              >
+                              <input
+                                type="number"
+                                id="tage_belichtung"
+                                name="tage_belichtung"
+                                class="form-control"
+                                readonly
+                              />
+                            </div>
+                            <div class="stat-box">
+                              <label data-i18n="admin_label_tage_verdeckt"
+                                >Verdeckte Tage (Wolken)</label
+                              >
+                              <input
+                                type="number"
+                                id="tage_verdeckt"
+                                name="tage_verdeckt"
+                                class="form-control"
+                                readonly
+                              />
+                            </div>
+                            <div class="stat-box">
+                              <label data-i18n="admin_label_sichtbare_boegen"
+                                >Sichtbare Bögen</label
+                              >
+                              <input
+                                type="number"
+                                id="sichtbare_boegen"
+                                name="sichtbare_boegen"
+                                class="form-control"
+                                readonly
+                              />
+                            </div>
+                            <div class="stat-box">
+                              <label data-i18n="admin_label_sonnenhoehe_max"
+                                >Sonnenhöhe Max</label
+                              >
+                              <input
+                                type="text"
+                                id="sonnenhoehe_max"
+                                name="sonnenhoehe_max"
+                                class="form-control"
+                                readonly
+                              />
+                            </div>
+                            <div class="stat-box">
+                              <label data-i18n="admin_label_sonnenhoehe_min"
+                                >Sonnenhöhe Min</label
+                              >
+                              <input
+                                type="text"
+                                id="sonnenhoehe_min"
+                                name="sonnenhoehe_min"
+                                class="form-control"
+                                readonly
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </details>
+
+                      <!-- Section E -->
+                      <details class="accordion-section">
+                        <summary class="accordion-header">
+                          <div class="accordion-title-wrapper">
+                            <div class="accordion-icon">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="18"
+                                height="18"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              >
+                                <path
+                                  d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                                ></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 9 8 9"></polyline>
+                              </svg>
+                            </div>
+                            <div>
+                              <h3>Section E · Owner & Notizen</h3>
+                              <p class="accordion-subtitle" id="subtitle-e">
+                                Status, Tags, E-Mail
+                              </p>
+                            </div>
+                          </div>
+                          <svg
+                            class="chevron"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          >
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                          </svg>
+                        </summary>
+                        <div class="accordion-content">
+                          <div class="form-grid">
+                            <div class="form-group">
+                              <label
+                                for="externe_id"
+                                data-i18n="admin_label_externe_id"
+                                >Externe ID</label
+                              >
+                              <input
+                                type="text"
+                                id="externe_id"
+                                name="externe_id"
+                                class="form-control"
+                                required
+                              />
+                            </div>
+
+                            <div class="form-group">
+                              <label
+                                for="zeitstempel"
+                                data-i18n="admin_label_zeitstempel"
+                                >Zeitstempel</label
+                              >
+                              <input
+                                type="text"
+                                id="zeitstempel"
+                                name="zeitstempel"
+                                class="form-control"
+                                readonly
+                              />
+                            </div>
+
+                            <div class="form-group">
+                              <label for="email" data-i18n="admin_label_email"
+                                >Erfasser / Betreuer Email</label
+                              >
+                              <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                class="form-control"
+                                readonly
+                              />
+                            </div>
+
+                            <div class="form-group" style="position: relative">
+                              <label
+                                for="owner-input"
+                                data-i18n="admin_label_owner"
+                                >Tags / Kategorien</label
+                              >
+                              <input
+                                type="text"
+                                id="owner-input"
+                                class="form-control"
+                                placeholder="Tag eingeben und Enter drücken"
+                              />
+                              <input
+                                type="hidden"
+                                id="owner"
+                                name="owner"
+                                value=""
+                              />
+                              <div
+                                id="tags-container"
+                                class="tags-container mt-10"
+                              ></div>
+                            </div>
+
+                            <div class="form-group full-width">
+                              <label
+                                for="comment_status"
+                                data-i18n="admin_label_status"
+                                >Status (Freigabe)</label
+                              >
+                              <select
+                                id="comment_status"
+                                name="comment_status"
+                                class="form-control"
+                                required
+                              >
+                                <option value="draft">Entwurf (Draft)</option>
+                                <option value="published">
+                                  Veröffentlicht
+                                </option>
+                                <option value="archived">Archiviert</option>
+                              </select>
+                            </div>
+
+                            <div class="form-group full-width">
+                              <label
+                                for="notizen"
+                                data-i18n="admin_label_notizen"
+                                >Interne Notizen</label
+                              >
+                              <textarea
+                                id="notizen"
+                                name="notizen"
+                                class="form-control"
+                                rows="3"
+                              ></textarea>
+                            </div>
+                          </div>
+                        </div>
+                      </details>
+                    </div>
+
+                    <!-- Spacing for floating action bar -->
+                    <div style="height: 100px"></div>
+
+                    <!-- Sticky Action Bar -->
+                    <div class="sticky-action-bar">
+                      <button
+                        type="button"
+                        id="btn-cancel"
+                        class="btn btn-secondary"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                        <span data-i18n="admin_btn_cancel">Abbrechen</span>
+                      </button>
+                      <button
+                        type="button"
+                        id="btn-duplicate"
+                        class="btn btn-secondary"
+                        style="margin-left: auto; margin-right: 10px"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <rect
+                            x="9"
+                            y="9"
+                            width="13"
+                            height="13"
+                            rx="2"
+                            ry="2"
+                          ></rect>
+                          <path
+                            d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+                          ></path>
+                        </svg>
+                        Duplizieren
+                      </button>
+                      <button
+                        type="submit"
+                        id="btn-submit"
+                        class="btn btn-primary"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        <span data-i18n="admin_btn_save">Speichern</span>
+                      </button>
+                    </div>
+                  </form>
                 </div>
-              </h2>
-              <div id="translations-list" class="list-container">
-                <p>Load..</p>
               </div>
             </div>
-            <div class="admin-section">
-              <h2
-                id="form-title-translation"
-                data-i18n="admin_form_title_entry"
-              >
-                Eintrag
-              </h2>
-              <form id="translation-form">
-                <input
-                  type="hidden"
-                  id="edit-id-translation"
-                  name="id"
-                  value=""
-                />
-                <div class="form-grid">
-                  <div class="form-group full-width">
-                    <label for="trans-key" data-i18n="admin_label_key"
-                      >Key</label
+
+            <!-- TRANSLATIONS TAB -->
+            <div id="tab-translations" class="admin-tab-content hidden">
+              <div class="dual-pane-layout">
+                <!-- Left Pane: List -->
+                <div class="list-pane">
+                  <div class="list-header">
+                    <div class="search-bar-wrapper">
+                      <svg
+                        class="search-icon"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                      </svg>
+                      <input
+                        type="text"
+                        id="searchTranslationsInput"
+                        class="search-input"
+                        placeholder="Übersetzung suchen..."
+                        data-i18n-placeholder="admin_search_placeholder_trans"
+                      />
+                    </div>
+                    <div
+                      class="list-controls"
+                      style="justify-content: flex-end; margin-top: 10px"
                     >
-                    <input
-                      type="text"
-                      id="trans-key"
-                      name="key"
-                      class="form-control"
-                      required
-                    />
+                      <button
+                        type="button"
+                        id="btn-new-translation"
+                        class="btn btn-small btn-primary"
+                      >
+                        <span data-i18n="admin_btn_new">Neu</span>
+                      </button>
+                      <button
+                        type="button"
+                        id="btn-refresh-translations"
+                        class="btn btn-small btn-secondary"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <polyline points="23 4 23 10 17 10"></polyline>
+                          <polyline points="1 20 1 14 7 14"></polyline>
+                          <path
+                            d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"
+                          ></path>
+                        </svg>
+                      </button>
+                    </div>
                   </div>
-                  <div class="form-group full-width">
-                    <label for="trans-de">DE</label>
-                    <textarea
-                      id="trans-de"
-                      name="de"
-                      class="form-control"
-                      rows="3"
-                    ></textarea>
-                  </div>
-                  <div class="form-group full-width">
-                    <label for="trans-en">EN</label>
-                    <textarea
-                      id="trans-en"
-                      name="en"
-                      class="form-control"
-                      rows="3"
-                    ></textarea>
-                  </div>
-                  <div class="form-group full-width">
-                    <label for="trans-fr">FR</label>
-                    <textarea
-                      id="trans-fr"
-                      name="fr"
-                      class="form-control"
-                      rows="3"
-                    ></textarea>
-                  </div>
-                  <div class="form-group full-width">
-                    <label for="trans-it">IT</label>
-                    <textarea
-                      id="trans-it"
-                      name="it"
-                      class="form-control"
-                      rows="3"
-                    ></textarea>
-                  </div>
-                  <div class="form-group full-width">
-                    <label for="trans-uk">UK</label>
-                    <textarea
-                      id="trans-uk"
-                      name="uk"
-                      class="form-control"
-                      rows="3"
-                    ></textarea>
-                  </div>
-                  <div class="form-group full-width">
-                    <label for="trans-ru">RU</label>
-                    <textarea
-                      id="trans-ru"
-                      name="ru"
-                      class="form-control"
-                      rows="3"
-                    ></textarea>
-                  </div>
-                  <div class="form-group full-width">
-                    <label for="trans-es">ES</label>
-                    <textarea
-                      id="trans-es"
-                      name="es"
-                      class="form-control"
-                      rows="3"
-                    ></textarea>
-                  </div>
-                </div>
-                <div
-                  style="
-                    margin-top: 20px;
-                    display: flex;
-                    gap: 10px;
-                    justify-content: flex-end;
-                  "
-                >
-                  <button
-                    type="button"
-                    id="btn-cancel-translation"
-                    class="btn btn-secondary hidden"
+                  <div
+                    id="translations-list"
+                    class="list-container custom-scrollbar"
                   >
-                    <span data-i18n="admin_btn_cancel">Abbrechen</span>
-                  </button>
-                  <button type="submit" id="btn-submit-translation" class="btn">
-                    <span data-i18n="admin_btn_save">Speichern</span>
-                  </button>
+                    <p>Load..</p>
+                  </div>
                 </div>
-              </form>
+
+                <!-- Right Pane: Form -->
+                <div
+                  class="detail-pane hidden-mobile"
+                  id="translations-detail-pane"
+                >
+                  <div class="mobile-back-bar">
+                    <button
+                      type="button"
+                      id="btn-back-to-list-trans"
+                      class="btn btn-icon btn-secondary"
+                    >
+                      Zurück
+                    </button>
+                  </div>
+
+                  <form
+                    id="translation-form"
+                    class="detail-form"
+                    style="padding: 20px"
+                  >
+                    <h2
+                      id="form-title-translation"
+                      data-i18n="admin_form_title_entry"
+                      style="margin-bottom: 20px"
+                    >
+                      Eintrag
+                    </h2>
+                    <input
+                      type="hidden"
+                      id="edit-id-translation"
+                      name="id"
+                      value=""
+                    />
+                    <div class="form-grid">
+                      <div class="form-group full-width">
+                        <label for="trans-key" data-i18n="admin_label_key"
+                          >Key</label
+                        >
+                        <input
+                          type="text"
+                          id="trans-key"
+                          name="key"
+                          class="form-control"
+                          required
+                        />
+                      </div>
+                      <div class="form-group full-width">
+                        <label for="trans-de">DE</label
+                        ><textarea
+                          id="trans-de"
+                          name="de"
+                          class="form-control"
+                          rows="2"
+                        ></textarea>
+                      </div>
+                      <div class="form-group full-width">
+                        <label for="trans-en">EN</label
+                        ><textarea
+                          id="trans-en"
+                          name="en"
+                          class="form-control"
+                          rows="2"
+                        ></textarea>
+                      </div>
+                      <div class="form-group full-width">
+                        <label for="trans-fr">FR</label
+                        ><textarea
+                          id="trans-fr"
+                          name="fr"
+                          class="form-control"
+                          rows="2"
+                        ></textarea>
+                      </div>
+                      <div class="form-group full-width">
+                        <label for="trans-it">IT</label
+                        ><textarea
+                          id="trans-it"
+                          name="it"
+                          class="form-control"
+                          rows="2"
+                        ></textarea>
+                      </div>
+                      <div class="form-group full-width">
+                        <label for="trans-uk">UK</label
+                        ><textarea
+                          id="trans-uk"
+                          name="uk"
+                          class="form-control"
+                          rows="2"
+                        ></textarea>
+                      </div>
+                      <div class="form-group full-width">
+                        <label for="trans-ru">RU</label
+                        ><textarea
+                          id="trans-ru"
+                          name="ru"
+                          class="form-control"
+                          rows="2"
+                        ></textarea>
+                      </div>
+                      <div class="form-group full-width">
+                        <label for="trans-es">ES</label
+                        ><textarea
+                          id="trans-es"
+                          name="es"
+                          class="form-control"
+                          rows="2"
+                        ></textarea>
+                      </div>
+                    </div>
+
+                    <div style="height: 80px"></div>
+
+                    <div class="sticky-action-bar">
+                      <button
+                        type="button"
+                        id="btn-cancel-translation"
+                        class="btn btn-secondary"
+                      >
+                        <span data-i18n="admin_btn_cancel">Abbrechen</span>
+                      </button>
+                      <button
+                        type="submit"
+                        id="btn-submit-translation"
+                        class="btn btn-primary"
+                        style="margin-left: auto"
+                      >
+                        <span data-i18n="admin_btn_save">Speichern</span>
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <!-- USERS TAB -->
+            <div id="tab-users" class="admin-tab-content hidden">
+              <div class="dual-pane-layout">
+                <!-- Left Pane: List -->
+                <div class="list-pane">
+                  <div class="list-header">
+                    <div class="search-bar-wrapper">
+                      <svg
+                        class="search-icon"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                      </svg>
+                      <input
+                        type="text"
+                        id="searchUsersInput"
+                        class="search-input"
+                        placeholder="Benutzer suchen..."
+                        data-i18n-placeholder="admin_search_placeholder_users"
+                      />
+                    </div>
+                    <div
+                      class="list-controls"
+                      style="justify-content: flex-end; margin-top: 10px"
+                    >
+                      <button
+                        type="button"
+                        id="btn-new-user"
+                        class="btn btn-small btn-primary"
+                      >
+                        <span data-i18n="admin_btn_new">Neu</span>
+                      </button>
+                      <button
+                        type="button"
+                        id="btn-refresh-users"
+                        class="btn btn-small btn-secondary"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <polyline points="23 4 23 10 17 10"></polyline>
+                          <polyline points="1 20 1 14 7 14"></polyline>
+                          <path
+                            d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"
+                          ></path>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  <div id="users-list" class="list-container custom-scrollbar">
+                    <p>Load..</p>
+                  </div>
+                </div>
+
+                <!-- Right Pane: Form -->
+                <div class="detail-pane hidden-mobile" id="users-detail-pane">
+                  <div class="mobile-back-bar">
+                    <button
+                      type="button"
+                      id="btn-back-to-list-users"
+                      class="btn btn-icon btn-secondary"
+                    >
+                      Zurück
+                    </button>
+                  </div>
+
+                  <form
+                    id="user-form"
+                    class="detail-form"
+                    style="padding: 20px"
+                  >
+                    <h2
+                      id="form-title-user"
+                      data-i18n="admin_form_title_entry"
+                      style="margin-bottom: 20px"
+                    >
+                      Eintrag
+                    </h2>
+                    <input type="hidden" id="edit-id-user" name="id" value="" />
+                    <div class="form-grid">
+                      <div class="form-group full-width">
+                        <label
+                          for="user-email-input"
+                          data-i18n="admin_label_email"
+                          >E-Mail</label
+                        >
+                        <input
+                          type="email"
+                          id="user-email-input"
+                          name="email"
+                          class="form-control"
+                          required
+                        />
+                      </div>
+                      <div class="form-group full-width">
+                        <label for="user-rolle" data-i18n="admin_label_role"
+                          >Rolle</label
+                        >
+                        <select
+                          id="user-rolle"
+                          name="rolle"
+                          class="form-control"
+                          required
+                        >
+                          <option value="erfasser">erfasser</option>
+                          <option value="superadmin">superadmin</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div style="height: 80px"></div>
+
+                    <div class="sticky-action-bar">
+                      <button
+                        type="button"
+                        id="btn-cancel-user"
+                        class="btn btn-secondary"
+                      >
+                        <span data-i18n="admin_btn_cancel">Abbrechen</span>
+                      </button>
+                      <button
+                        type="submit"
+                        id="btn-submit-user"
+                        class="btn btn-primary"
+                        style="margin-left: auto"
+                      >
+                        <span data-i18n="admin_btn_save">Speichern</span>
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
             </div>
           </div>
+        </main>
 
-          <!-- Benutzer Tab -->
-          <div id="tab-users" class="hidden">
-            <div class="admin-section">
-              <h2
-                style="
-                  display: flex;
-                  justify-content: space-between;
-                  align-items: center;
-                  gap: 10px;
-                "
-              >
-                <span data-i18n="admin_list_title">List</span>
-                <input
-                  type="text"
-                  id="searchUsersInput"
-                  class="form-control"
-                  placeholder="Benutzer durchsuchen (E-Mail)..."
-                  data-i18n-placeholder="admin_search_placeholder_users"
-                  style="
-                    flex: 1;
-                    margin: 0 10px;
-                    padding: 6px 12px;
-                    font-size: 0.9rem;
-                  "
-                />
-                <div style="display: flex; gap: 5px">
-                  <button type="button" id="btn-new-user" class="btn btn-small">
-                    <span data-i18n="admin_btn_new">Neu</span>
-                  </button>
-                  <button
-                    type="button"
-                    id="btn-refresh-users"
-                    class="btn btn-small"
-                  >
-                    <span data-i18n="admin_btn_refresh">Aktualisieren</span>
-                  </button>
-                </div>
-              </h2>
-              <div id="users-list" class="list-container"><p>Load..</p></div>
-            </div>
-            <div class="admin-section">
-              <h2 id="form-title-user" data-i18n="admin_form_title_entry">
-                Eintrag
-              </h2>
-              <form id="user-form">
-                <input type="hidden" id="edit-id-user" name="id" value="" />
-                <div class="form-grid">
-                  <div class="form-group full-width">
-                    <label for="user-email-input" data-i18n="admin_label_email"
-                      >E-Mail</label
-                    >
-                    <input
-                      type="email"
-                      id="user-email-input"
-                      name="email"
-                      class="form-control"
-                      required
-                    />
-                  </div>
-                  <div class="form-group full-width">
-                    <label for="user-rolle" data-i18n="admin_label_role"
-                      >Rolle</label
-                    >
-                    <select
-                      id="user-rolle"
-                      name="rolle"
-                      class="form-control"
-                      required
-                    >
-                      <option value="erfasser">erfasser</option>
-                      <option value="superadmin">superadmin</option>
-                    </select>
-                  </div>
-                </div>
-                <div
-                  style="
-                    margin-top: 20px;
-                    display: flex;
-                    gap: 10px;
-                    justify-content: flex-end;
-                  "
-                >
-                  <button
-                    type="button"
-                    id="btn-cancel-user"
-                    class="btn btn-secondary hidden"
-                  >
-                    <span data-i18n="admin_btn_cancel">Abbrechen</span>
-                  </button>
-                  <button type="submit" id="btn-submit-user" class="btn">
-                    <span data-i18n="admin_btn_save">Speichern</span>
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-
-        <button
-          id="btn-logout"
-          class="btn btn-secondary"
-          style="margin-top: 20px"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+        <!-- Mobile Bottom Navigation -->
+        <nav class="admin-bottom-nav">
+          <a
+            href="#"
+            class="bottom-nav-item active"
+            id="mobile-nav-solargrafien"
+            data-target="tab-solargrafien"
           >
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-            <polyline points="16 17 21 12 16 7"></polyline>
-            <line x1="21" y1="12" x2="9" y2="12"></line>
-          </svg>
-          <span data-i18n="admin_btn_logout">Abmelden</span>
-        </button>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"
+              ></path>
+            </svg>
+            <span>Solargrafien</span>
+          </a>
+          <a href="#" class="bottom-nav-item nav-fab" id="mobile-nav-new">
+            <div class="fab-circle">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </div>
+            <span>Neu</span>
+          </a>
+          <a
+            href="#"
+            class="bottom-nav-item"
+            id="mobile-nav-translations"
+            data-target="tab-translations"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="m5 8 6 6"></path>
+              <path d="m4 14 6-6 2-3"></path>
+              <path d="M2 5h12"></path>
+              <path d="M7 2h1"></path>
+              <path d="m22 22-5-10-5 10"></path>
+              <path d="M14 18h6"></path>
+            </svg>
+            <span>Texte</span>
+          </a>
+          <a
+            href="#"
+            class="bottom-nav-item"
+            id="mobile-nav-users"
+            data-target="tab-users"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span>Benutzer</span>
+          </a>
+        </nav>
       </div>
     </div>
-
     <!-- Admin Map Modal -->
     <div
       id="admin-map-modal"
