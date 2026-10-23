@@ -6,9 +6,13 @@ const supabaseClient = supabase.createClient(
 
 // DOM Elemente (Tabs)
 const tabBtnSolargrafien = document.getElementById("nav-solargrafien");
-const mobileTabBtnSolargrafien = document.getElementById("mobile-nav-solargrafien");
+const mobileTabBtnSolargrafien = document.getElementById(
+  "mobile-nav-solargrafien",
+);
 const tabBtnTranslations = document.getElementById("nav-translations");
-const mobileTabBtnTranslations = document.getElementById("mobile-nav-translations");
+const mobileTabBtnTranslations = document.getElementById(
+  "mobile-nav-translations",
+);
 const tabBtnUsers = document.getElementById("nav-users");
 const mobileTabBtnUsers = document.getElementById("mobile-nav-users");
 const tabSolargrafien = document.getElementById("tab-solargrafien");
@@ -299,68 +303,127 @@ async function loadSolargrafien() {
 }
 
 // Hilfsfunktion: Liste rendern
-function renderList(data) {
-  if (!data || data.length === 0) {
+
+// ----------------------------------------------------
+// Filter Chips Logic
+// ----------------------------------------------------
+let currentFilter = "all";
+
+function updateFilterCounts() {
+  const allCount = alleSolargrafien.length;
+  const aktivCount = alleSolargrafien.filter(
+    (i) => i.comment_status === "published",
+  ).length;
+  const entwurfCount = alleSolargrafien.filter(
+    (i) => !i.comment_status || i.comment_status === "draft",
+  ).length;
+  const berechnetCount = alleSolargrafien.filter(
+    (i) => i.tage_belichtung > 0,
+  ).length;
+
+  const elAll = document.getElementById("count-all");
+  if (elAll) elAll.innerText = allCount;
+  const elAktiv = document.getElementById("count-aktiv");
+  if (elAktiv) elAktiv.innerText = aktivCount;
+  const elBerechnet = document.getElementById("count-berechnet");
+  if (elBerechnet) elBerechnet.innerText = berechnetCount;
+  const elEntwurf = document.getElementById("count-entwurf");
+  if (elEntwurf) elEntwurf.innerText = entwurfCount;
+}
+
+function applyFilter() {
+  const searchInput = document.getElementById("searchInput");
+  const query = searchInput ? searchInput.value.toLowerCase() : "";
+  const solargrafienList = document.getElementById("solargrafien-list");
+  if (!solargrafienList) return;
+  solargrafienList.innerHTML = "";
+
+  let filtered = alleSolargrafien;
+
+  // Chip filter
+  if (currentFilter === "aktiv") {
+    filtered = filtered.filter((i) => i.comment_status === "published");
+  } else if (currentFilter === "berechnet") {
+    filtered = filtered.filter((i) => i.tage_belichtung > 0);
+  } else if (currentFilter === "entwurf") {
+    filtered = filtered.filter(
+      (i) => !i.comment_status || i.comment_status === "draft",
+    );
+  }
+
+  // Search filter
+  if (query) {
+    filtered = filtered.filter((i) => {
+      const id = (i.id || "").toString().toLowerCase();
+      const t = (i.titel || "").toLowerCase();
+      const o = (i.owner || "").toLowerCase();
+      const e = (i.email || "").toLowerCase();
+      const ext = (i.externe_id || "").toLowerCase();
+      return (
+        id.includes(query) ||
+        t.includes(query) ||
+        o.includes(query) ||
+        e.includes(query) ||
+        ext.includes(query)
+      );
+    });
+  }
+
+  if (filtered.length === 0) {
     solargrafienList.innerHTML = "<p>Keine Einträge gefunden.</p>";
     return;
   }
 
-  solargrafienList.innerHTML = "";
-  data.forEach((item) => {
+  filtered.forEach((item) => {
     const div = document.createElement("div");
     div.className = "list-item";
 
-    // Add data attributes for searching
-    div.dataset.titel = (item.titel || "").toLowerCase();
-    div.dataset.owner = (item.email || "").toLowerCase();
-
-    // Fallback für undefinierte Werte
-    const placedDate = item.placed ? item.placed : "Unbekannt";
-    const title = item.titel ? item.titel : "Ohne Titel";
-
-    // Thumbnail Fallback (z.B. ein Platzhalter, falls keine URL vorhanden ist)
-    const primaryImg = item.bild_haupt ? item.bild_haupt : item.bild_url;
-    const imgUrl = primaryImg
-      ? escapeHtml(resolveImageUrl(primaryImg))
-      : 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="%23bec8d2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>';
-
-    // Berechtigungen prüfen: Superadmin darf alles, Erfasser nur eigene
-    let disableActions = false;
-    if (currentUserRole === "erfasser" && item.email !== currentUserEmail) {
-      disableActions = true;
+    // Check if it's currently being edited to highlight it
+    const currentId = document.getElementById("edit-id").value;
+    if (currentId === (item.id || "").toString()) {
+      div.classList.add("active");
     }
 
-    const disabledAttr = disableActions ? 'disabled="disabled"' : "";
+    // Thumbnail fallback
+    const thumbUrl =
+      item.bild_haupt || item.bild_url || item.bild_doku || "logo.png";
+    const statusText =
+      item.comment_status === "published"
+        ? "Aktiv"
+        : item.comment_status === "archived"
+          ? "Archiviert"
+          : "Entwurf";
 
     div.innerHTML = `
+      <img src="${escapeHtml(thumbUrl)}" alt="Thumb" class="list-item-thumb" onerror="this.src='logo.png'" />
       <div class="list-item-content">
-        <img src="${imgUrl}" alt="Thumbnail" class="list-item-thumbnail" loading="lazy">
-        <div class="list-item-info">
-          <strong>${escapeHtml(title)}</strong>
-          <span>Placed: ${escapeHtml(placedDate)}</span>
-        </div>
-      </div>
-      <div class="list-item-actions">
-        <button class="btn btn-small btn-edit" data-id="${item.id}" ${disabledAttr}>Edit</button>
-        <button class="btn btn-small btn-danger btn-delete" data-id="${item.id}" ${disabledAttr}>Delete</button>
+        <div class="list-item-title">${escapeHtml(item.titel || "Unbenannt")}</div>
+        <div class="list-item-sub">ID: ${item.id} | ${statusText}</div>
       </div>
     `;
+    div.addEventListener("click", () => editItem(item.id));
     solargrafienList.appendChild(div);
-  });
-
-  // Event Listener für Edit/Delete Buttons hinzufügen
-  document.querySelectorAll(".btn-edit").forEach((btn) => {
-    btn.addEventListener("click", (e) => loadFormForEdit(e.target.dataset.id));
-  });
-
-  document.querySelectorAll(".btn-delete").forEach((btn) => {
-    btn.addEventListener("click", (e) =>
-      deleteSolargrafie(e.target.dataset.id),
-    );
   });
 }
 
-// Hilfsfunktion XSS Schutz
+// Attach event listeners to chips once
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".filter-chip").forEach((chip) => {
+    chip.addEventListener("click", (e) => {
+      document
+        .querySelectorAll(".filter-chip")
+        .forEach((c) => c.classList.remove("active"));
+      e.currentTarget.classList.add("active");
+      currentFilter = e.currentTarget.dataset.filter;
+      applyFilter();
+    });
+  });
+});
+
+function renderList(data) {
+  updateFilterCounts();
+  applyFilter();
+}
 function escapeHtml(unsafe) {
   if (!unsafe) return "";
   return unsafe
@@ -373,7 +436,7 @@ function escapeHtml(unsafe) {
 }
 
 // 2. LOAD: Formular für Edit füllen
-function loadFormForEdit(id) {
+window.editItem = function (id) {
   const item = alleSolargrafien.find((s) => s.id == id);
   if (!item) return;
 
@@ -455,7 +518,7 @@ function loadFormForEdit(id) {
 
   // Zum Formular scrollen
   formTitle.scrollIntoView({ behavior: "smooth" });
-}
+};
 
 // Formular leeren (Neuer Eintrag)
 function resetForm() {
@@ -1406,10 +1469,12 @@ btnNewTranslation.addEventListener("click", () => {
   btnCancelTranslation.classList.add("hidden");
 
   const detailPane = document.getElementById("translations-detail-pane");
-  if(detailPane) {
-      detailPane.classList.remove("hidden-mobile");
-      // parentElement.firstElementChild is list-pane
-      detailPane.parentElement.querySelector('.list-pane').classList.add("hidden-mobile");
+  if (detailPane) {
+    detailPane.classList.remove("hidden-mobile");
+    // parentElement.firstElementChild is list-pane
+    detailPane.parentElement
+      .querySelector(".list-pane")
+      .classList.add("hidden-mobile");
   }
 });
 
@@ -1564,9 +1629,11 @@ btnNewUser.addEventListener("click", () => {
   btnCancelUser.classList.add("hidden");
 
   const detailPane = document.getElementById("users-detail-pane");
-  if(detailPane) {
-      detailPane.classList.remove("hidden-mobile");
-      detailPane.parentElement.querySelector('.list-pane').classList.add("hidden-mobile");
+  if (detailPane) {
+    detailPane.classList.remove("hidden-mobile");
+    detailPane.parentElement
+      .querySelector(".list-pane")
+      .classList.add("hidden-mobile");
   }
 });
 
