@@ -2491,11 +2491,12 @@ body.impressum-page {
   }
 
   .admin-wrapper {
-  display: flex;
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden;
-  background-color: var(--color-bg);
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    background-color: var(--color-bg);
+  }
 }
 
 /* List Item Styles */
@@ -2542,4 +2543,17 @@ body.impressum-page {
   font-family: var(--font-body);
   font-size: 0.75rem;
   color: var(--color-text-muted);
+}
+
+@media (max-width: 768px) {
+  #solargrafie-detail-pane {
+    display: none !important;
+  }
+  .dual-pane-layout {
+    flex-direction: column;
+  }
+  .list-pane {
+    width: 100%;
+    border-right: none;
+  }
 }
