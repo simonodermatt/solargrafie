@@ -117,6 +117,7 @@ async function updateUI(session) {
   loadingContainer.classList.remove("hidden");
   loginContainer.classList.add("hidden");
   dashboardContainer.classList.add("hidden");
+  document.getElementById("auth-card").classList.remove("hidden");
 
   if (session) {
     await fetchAdminTranslationsData();
@@ -146,6 +147,7 @@ async function updateUI(session) {
       }
 
       loadingContainer.classList.add("hidden");
+      document.getElementById("auth-card").classList.add("hidden");
       dashboardContainer.classList.remove("hidden");
       userEmailSpan.textContent = `${currentUserEmail} (${currentUserRole})`;
       loadSolargrafien();
@@ -157,6 +159,7 @@ async function updateUI(session) {
       currentUserEmail = null;
       currentUserRole = null;
       loadingContainer.classList.add("hidden");
+      document.getElementById("auth-card").classList.add("hidden");
       loginContainer.classList.remove("hidden");
       userEmailSpan.textContent = "";
     }
@@ -165,6 +168,7 @@ async function updateUI(session) {
     currentUserEmail = null;
     currentUserRole = null;
     loadingContainer.classList.add("hidden");
+    document.getElementById("auth-card").classList.add("hidden");
     loginContainer.classList.remove("hidden");
     userEmailSpan.textContent = "";
   }
@@ -315,8 +319,12 @@ function renderList(data) {
     const placedDate = item.placed ? item.placed : "Unbekannt";
     const title = item.titel ? item.titel : "Ohne Titel";
 
-    // Thumbnail Fallback (z.B. ein Platzhalter, falls keine URL vorhanden ist)
-    const primaryImg = item.bild_haupt ? item.bild_haupt : item.bild_url;
+    // Thumbnail Fallback
+    const primaryImg = item.bild_thumbnail
+      ? item.bild_thumbnail
+      : item.bild_haupt
+        ? item.bild_haupt
+        : item.bild_url;
     const imgUrl = primaryImg
       ? escapeHtml(resolveImageUrl(primaryImg))
       : 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="%23bec8d2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>';
@@ -329,17 +337,33 @@ function renderList(data) {
 
     const disabledAttr = disableActions ? 'disabled="disabled"' : "";
 
+    // Temporärer Status
+    const statusText = item.opened ? "Geborgen" : "Aktiv";
+    const statusColor = item.opened
+      ? "rgba(255, 255, 255, 0.15)"
+      : "rgba(14, 165, 233, 0.2)";
+    const statusTextColor = item.opened
+      ? "var(--color-text-main)"
+      : "var(--color-tertiary)";
+
+    // Visuelle ID
+    let visualId = item.externe_id
+      ? item.externe_id
+      : item.id
+        ? item.id.toString().substring(0, 8)
+        : "";
+
     div.innerHTML = `
+      <img src="${imgUrl}" alt="Thumbnail" class="list-item-thumb" loading="lazy">
       <div class="list-item-content">
-        <img src="${imgUrl}" alt="Thumbnail" class="list-item-thumbnail" loading="lazy">
-        <div class="list-item-info">
-          <strong>${escapeHtml(title)}</strong>
-          <span>Placed: ${escapeHtml(placedDate)}</span>
+        <div class="list-item-title">${escapeHtml(title)}</div>
+        <div class="list-item-sub">${escapeHtml(visualId)}</div>
+        <div style="margin-top: 4px;">
+            <span class="badge" style="background: ${statusColor}; color: ${statusTextColor}; border: 1px solid ${statusColor.replace("0.2", "0.3")};">${escapeHtml(statusText)}</span>
         </div>
       </div>
       <div class="list-item-actions">
-        <button class="btn btn-small btn-edit" data-id="${item.id}" ${disabledAttr}>Edit</button>
-        <button class="btn btn-small btn-danger btn-delete" data-id="${item.id}" ${disabledAttr}>Delete</button>
+        <button class="btn btn-small btn-edit" data-id="${item.id}" ${disabledAttr} style="padding: 4px 8px; font-size: 0.75rem;">Edit</button>
       </div>
     `;
     solargrafienList.appendChild(div);
