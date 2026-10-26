@@ -496,477 +496,571 @@
               Eingeloggt als: <span class="user-email" id="user-email"></span>
             </div>
           </div>
-          <div class="admin-layout" style="max-width: 100%; width: 100%">
+          <div
+            class="admin-layout"
+            style="max-width: 100%; width: 100%; height: 100%"
+          >
             <div class="message-box" id="status-message"></div>
-            <div id="tab-solargrafien">
-              <!-- Listenansicht -->
-              <div class="admin-section">
-                <h2
-                  style="
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    gap: 10px;
-                  "
-                >
-                  <span data-i18n="admin_list_title">List</span>
-                  <input
-                    class="form-control"
-                    data-i18n-placeholder="admin_search_placeholder_solargrafien"
-                    id="searchInput"
-                    placeholder="Einträge durchsuchen (Titel, Owner)..."
-                    style="
-                      flex: 1;
-                      margin: 0 10px;
-                      padding: 6px 12px;
-                      font-size: 0.9rem;
-                    "
-                    type="text"
-                  />
-                  <div style="display: flex; gap: 5px">
-                    <button class="btn btn-small" id="btn-new" type="button">
+            <div id="tab-solargrafien" class="dual-pane-layout">
+              <!-- Left Column: List -->
+              <div class="list-pane">
+                <div class="list-header">
+                  <div class="search-bar-wrapper">
+                    <svg
+                      class="search-icon"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input
+                      class="search-input"
+                      data-i18n-placeholder="admin_search_placeholder_solargrafien"
+                      id="searchInput"
+                      placeholder="Einträge durchsuchen..."
+                      type="text"
+                    />
+                  </div>
+                  <div class="filter-chips">
+                    <button
+                      class="filter-chip active"
+                      type="button"
+                      data-i18n="admin_filter_all"
+                    >
+                      Alle <span class="badge chip-count">0</span>
+                    </button>
+                    <button
+                      class="filter-chip"
+                      type="button"
+                      data-i18n="admin_filter_active"
+                    >
+                      Aktiv <span class="badge chip-count">0</span>
+                    </button>
+                    <button
+                      class="filter-chip"
+                      type="button"
+                      data-i18n="admin_filter_calculated"
+                    >
+                      Berechnet <span class="badge chip-count">0</span>
+                    </button>
+                    <button
+                      class="filter-chip"
+                      type="button"
+                      data-i18n="admin_filter_draft"
+                    >
+                      Entwurf <span class="badge chip-count">0</span>
+                    </button>
+                  </div>
+                  <div class="list-controls">
+                    <button
+                      class="btn btn-primary btn-small"
+                      id="btn-new"
+                      type="button"
+                    >
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                      </svg>
                       <span data-i18n="admin_btn_new">Neu</span>
                     </button>
                     <button
-                      class="btn btn-small"
+                      class="btn btn-secondary btn-small btn-icon"
                       id="btn-refresh"
                       type="button"
                     >
-                      <span data-i18n="admin_btn_refresh">Aktualisieren</span>
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <polyline points="1 20 1 14 7 14"></polyline>
+                        <path
+                          d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"
+                        ></path>
+                      </svg>
                     </button>
                   </div>
-                </h2>
-                <div class="list-container" id="solargrafien-list">
+                </div>
+                <div
+                  class="list-container custom-scrollbar"
+                  id="solargrafien-list"
+                >
                   <p>Load..</p>
                 </div>
               </div>
-              <!-- Formular -->
-              <div class="admin-section">
-                <h2 data-i18n="admin_form_title_entry" id="form-title">
-                  Eintrag
-                </h2>
-                <form id="solargrafie-form">
-                  <input id="edit-id" name="id" type="hidden" value="" />
-                  <div class="form-grid">
-                    <div class="form-group full-width">
-                      <label
-                        data-i18n="admin_label_zeitstempel"
-                        for="zeitstempel"
-                        >Zeitstempel</label
-                      >
-                      <input
-                        class="form-control"
-                        id="zeitstempel"
-                        name="zeitstempel"
-                        readonly=""
-                        type="text"
-                      />
-                    </div>
-                    <div class="form-group full-width">
-                      <label data-i18n="admin_label_titel" for="titel"
-                        >Titel</label
-                      >
-                      <input
-                        class="form-control"
-                        id="titel"
-                        name="titel"
-                        required=""
-                        type="text"
-                      />
-                    </div>
-                    <div
-                      class="form-group full-width"
-                      style="display: flex; gap: 10px; align-items: flex-end"
-                    >
-                      <button
-                        class="btn btn-secondary"
-                        id="btn-open-map"
-                        style="margin-bottom: 2px"
-                        type="button"
-                      >
-                        🗺️ Auf Karte wählen
-                      </button>
-                      <div style="display: flex; gap: 10px; width: 100%">
-                        <div style="flex: 1">
-                          <label data-i18n="admin_label_lat" for="lat"
-                            >Breitengrad (lat)</label
-                          >
-                          <input
-                            class="form-control"
-                            id="lat"
-                            name="lat"
-                            readonly=""
-                            required=""
-                            step="any"
-                            type="number"
-                          />
-                        </div>
-                        <div style="flex: 1">
-                          <label data-i18n="admin_label_lng" for="lng"
-                            >Längengrad (lng)</label
-                          >
-                          <input
-                            class="form-control"
-                            id="lng"
-                            name="lng"
-                            readonly=""
-                            required=""
-                            step="any"
-                            type="number"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    <div class="form-group">
-                      <label data-i18n="admin_label_placed" for="placed"
-                        >Datum Placed</label
-                      >
-                      <input
-                        class="form-control"
-                        id="placed"
-                        name="placed"
-                        required=""
-                        type="date"
-                      />
-                    </div>
-                    <div class="form-group">
-                      <label data-i18n="admin_label_opened" for="opened"
-                        >Datum Opened</label
-                      >
-                      <input
-                        class="form-control"
-                        id="opened"
-                        name="opened"
-                        type="date"
-                      />
-                    </div>
-                    <div class="form-group">
-                      <label data-i18n="admin_label_kamera" for="kamera"
-                        >Kamera</label
-                      >
-                      <input
-                        class="form-control"
-                        id="kamera"
-                        name="kamera"
-                        type="text"
-                      />
-                    </div>
-                    <div class="form-group">
-                      <label data-i18n="admin_label_fotopapier" for="fotopapier"
-                        >Fotopapier</label
-                      >
-                      <input
-                        class="form-control"
-                        id="fotopapier"
-                        name="fotopapier"
-                        type="text"
-                      />
-                    </div>
-                    <div class="form-group full-width">
-                      <label data-i18n="admin_label_bild_haupt" for="bild_haupt"
-                        >Hauptbild (Finaler Scan)</label
-                      >
-                      <input
-                        accept="image/jpeg, image/png, image/webp"
-                        class="form-control"
-                        id="bild_haupt"
-                        name="bild_haupt"
-                        type="file"
-                      />
-                      <div
-                        class="preview-container hidden"
-                        id="preview-container-haupt"
-                        style="margin-top: 5px"
-                      >
-                        <img
-                          alt="Vorschau Hauptbild"
-                          id="preview-haupt"
-                          src=""
-                          style="
-                            max-width: 100px;
-                            max-height: 100px;
-                            border-radius: 4px;
-                          "
-                        />
-                      </div>
-                    </div>
-                    <div class="form-group full-width">
-                      <label data-i18n="admin_label_bild_doku" for="bild_doku"
-                        >Dokumentations-Foto (Dose vor Ort)</label
-                      >
-                      <input
-                        accept="image/jpeg, image/png, image/webp"
-                        class="form-control"
-                        id="bild_doku"
-                        name="bild_doku"
-                        type="file"
-                      />
-                      <div
-                        class="preview-container hidden"
-                        id="preview-container-doku"
-                        style="margin-top: 5px"
-                      >
-                        <img
-                          alt="Vorschau Dokubild"
-                          id="preview-doku"
-                          src=""
-                          style="
-                            max-width: 100px;
-                            max-height: 100px;
-                            border-radius: 4px;
-                          "
-                        />
-                      </div>
-                    </div>
-                    <div class="form-group full-width">
-                      <label data-i18n="admin_label_bild_raw" for="bild_raw"
-                        >Roh-Scan (Raw)</label
-                      >
-                      <input
-                        accept="image/jpeg, image/png, image/webp, image/tiff"
-                        class="form-control"
-                        id="bild_raw"
-                        name="bild_raw"
-                        type="file"
-                      />
-                      <div
-                        class="preview-container hidden"
-                        id="preview-container-raw"
-                        style="margin-top: 5px"
-                      >
-                        <img
-                          alt="Vorschau Raw-Bild"
-                          id="preview-raw"
-                          src=""
-                          style="
-                            max-width: 100px;
-                            max-height: 100px;
-                            border-radius: 4px;
-                          "
-                        />
-                      </div>
-                    </div>
-                    <div class="form-group full-width">
-                      <label
-                        data-i18n="admin_label_google_fotos_url"
-                        for="google_fotos_url"
-                        >Google Fotos URL</label
-                      >
-                      <input
-                        class="form-control"
-                        data-i18n-placeholder="admin_placeholder_url"
-                        id="google_fotos_url"
-                        name="google_fotos_url"
-                        placeholder="https://..."
-                        type="text"
-                      />
-                    </div>
-                    <div class="form-group">
-                      <label data-i18n="admin_label_externe_id" for="externe_id"
-                        >Externe ID</label
-                      >
-                      <input
-                        class="form-control"
-                        id="externe_id"
-                        name="externe_id"
-                        type="text"
-                      />
-                    </div>
-                    <div class="form-group">
-                      <label data-i18n="admin_label_email" for="email"
-                        >E-Mail</label
-                      >
-                      <input
-                        class="form-control"
-                        id="email"
-                        name="email"
-                        type="email"
-                      />
-                    </div>
-                    <div class="form-group full-width">
-                      <label data-i18n="admin_label_owner" for="owner"
-                        >Owner</label
-                      >
-                      <div
-                        class="tags-container form-control"
-                        id="tags-container"
-                        style="
-                          height: auto;
-                          min-height: 42px;
-                          display: flex;
-                          flex-wrap: wrap;
-                          gap: 5px;
-                          align-items: center;
-                        "
-                      >
+
+              <!-- Right Column: Form -->
+              <div
+                class="detail-pane custom-scrollbar"
+                id="solargrafie-detail-pane"
+              >
+                <div
+                  class="detail-form admin-section"
+                  style="
+                    border: none;
+                    box-shadow: none;
+                    background: transparent;
+                    padding: 20px;
+                  "
+                >
+                  <h2
+                    data-i18n="admin_form_title_entry"
+                    id="form-title"
+                    style="margin-top: 0"
+                  >
+                    Eintrag
+                  </h2>
+                  <form id="solargrafie-form">
+                    <input id="edit-id" name="id" type="hidden" value="" />
+                    <div class="form-grid">
+                      <div class="form-group full-width">
+                        <label
+                          data-i18n="admin_label_zeitstempel"
+                          for="zeitstempel"
+                          >Zeitstempel</label
+                        >
                         <input
-                          data-i18n-placeholder="admin_placeholder_owner"
-                          id="owner-input"
-                          placeholder="z.B. @name, name@domain.ch"
-                          style="
-                            border: none;
-                            background: transparent;
-                            outline: none;
-                            color: var(--color-text-main);
-                            flex: 1;
-                            min-width: 150px;
-                          "
+                          class="form-control"
+                          id="zeitstempel"
+                          name="zeitstempel"
+                          readonly=""
                           type="text"
                         />
                       </div>
-                      <input
-                        class="form-control"
-                        id="owner"
-                        name="owner"
-                        type="hidden"
-                      />
-                    </div>
-                    <div class="form-group full-width">
-                      <label
-                        data-i18n="admin_label_comment_status"
-                        for="comment_status"
-                        >Kommentar Status</label
-                      >
-                      <input
-                        class="form-control"
-                        data-i18n-placeholder="admin_placeholder_comment"
-                        id="comment_status"
-                        name="comment_status"
-                        placeholder="z.B. open oder closed"
-                        type="text"
-                      />
-                    </div>
-                    <div class="form-group full-width">
-                      <label data-i18n="admin_label_notizen" for="notizen"
-                        >Notizen</label
-                      >
-                      <textarea
-                        class="form-control"
-                        id="notizen"
-                        name="notizen"
-                      ></textarea>
-                    </div>
-                    <div
-                      class="form-group full-width"
-                      style="
-                        background: rgba(0, 0, 0, 0.2);
-                        padding: 15px;
-                        border-radius: 8px;
-                        margin-top: 20px;
-                      "
-                    >
-                      <div
-                        style="
-                          display: flex;
-                          justify-content: space-between;
-                          align-items: center;
-                          margin-bottom: 15px;
-                        "
-                      >
-                        <h3
-                          style="
-                            margin: 0;
-                            color: var(--color-primary);
-                            font-family: var(--font-head);
-                            font-size: 1.1rem;
-                          "
+                      <div class="form-group full-width">
+                        <label data-i18n="admin_label_titel" for="titel"
+                          >Titel</label
                         >
-                          Sonnen- &amp; Wetter-Berechnungen
-                        </h3>
+                        <input
+                          class="form-control"
+                          id="titel"
+                          name="titel"
+                          required=""
+                          type="text"
+                        />
+                      </div>
+                      <div
+                        class="form-group full-width"
+                        style="display: flex; gap: 10px; align-items: flex-end"
+                      >
                         <button
-                          class="btn btn-secondary btn-small"
-                          id="btn-calc"
+                          class="btn btn-secondary"
+                          id="btn-open-map"
+                          style="margin-bottom: 2px"
                           type="button"
                         >
-                          Werte berechnen
+                          🗺️ Auf Karte wählen
                         </button>
+                        <div style="display: flex; gap: 10px; width: 100%">
+                          <div style="flex: 1">
+                            <label data-i18n="admin_label_lat" for="lat"
+                              >Breitengrad (lat)</label
+                            >
+                            <input
+                              class="form-control"
+                              id="lat"
+                              name="lat"
+                              readonly=""
+                              required=""
+                              step="any"
+                              type="number"
+                            />
+                          </div>
+                          <div style="flex: 1">
+                            <label data-i18n="admin_label_lng" for="lng"
+                              >Längengrad (lng)</label
+                            >
+                            <input
+                              class="form-control"
+                              id="lng"
+                              name="lng"
+                              readonly=""
+                              required=""
+                              step="any"
+                              type="number"
+                            />
+                          </div>
+                        </div>
                       </div>
-                      <div style="display: flex; flex-wrap: wrap; gap: 15px">
-                        <div style="flex: 1; min-width: 120px">
-                          <label data-i18n="admin_label_tage_belichtung"
-                            >Tage Belichtung</label
-                          >
-                          <input
-                            class="form-control"
-                            id="tage_belichtung"
-                            name="tage_belichtung"
-                            readonly=""
-                            type="number"
+                      <div class="form-group">
+                        <label data-i18n="admin_label_placed" for="placed"
+                          >Datum Placed</label
+                        >
+                        <input
+                          class="form-control"
+                          id="placed"
+                          name="placed"
+                          required=""
+                          type="date"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label data-i18n="admin_label_opened" for="opened"
+                          >Datum Opened</label
+                        >
+                        <input
+                          class="form-control"
+                          id="opened"
+                          name="opened"
+                          type="date"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label data-i18n="admin_label_kamera" for="kamera"
+                          >Kamera</label
+                        >
+                        <input
+                          class="form-control"
+                          id="kamera"
+                          name="kamera"
+                          type="text"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label
+                          data-i18n="admin_label_fotopapier"
+                          for="fotopapier"
+                          >Fotopapier</label
+                        >
+                        <input
+                          class="form-control"
+                          id="fotopapier"
+                          name="fotopapier"
+                          type="text"
+                        />
+                      </div>
+                      <div class="form-group full-width">
+                        <label
+                          data-i18n="admin_label_bild_haupt"
+                          for="bild_haupt"
+                          >Hauptbild (Finaler Scan)</label
+                        >
+                        <input
+                          accept="image/jpeg, image/png, image/webp"
+                          class="form-control"
+                          id="bild_haupt"
+                          name="bild_haupt"
+                          type="file"
+                        />
+                        <div
+                          class="preview-container hidden"
+                          id="preview-container-haupt"
+                          style="margin-top: 5px"
+                        >
+                          <img
+                            alt="Vorschau Hauptbild"
+                            id="preview-haupt"
+                            src=""
+                            style="
+                              max-width: 100px;
+                              max-height: 100px;
+                              border-radius: 4px;
+                            "
                           />
                         </div>
-                        <div style="flex: 1; min-width: 120px">
-                          <label data-i18n="admin_label_tage_verdeckt"
-                            >Tage Verdeckt</label
-                          >
-                          <input
-                            class="form-control"
-                            id="tage_verdeckt"
-                            name="tage_verdeckt"
-                            readonly=""
-                            type="number"
+                      </div>
+                      <div class="form-group full-width">
+                        <label data-i18n="admin_label_bild_doku" for="bild_doku"
+                          >Dokumentations-Foto (Dose vor Ort)</label
+                        >
+                        <input
+                          accept="image/jpeg, image/png, image/webp"
+                          class="form-control"
+                          id="bild_doku"
+                          name="bild_doku"
+                          type="file"
+                        />
+                        <div
+                          class="preview-container hidden"
+                          id="preview-container-doku"
+                          style="margin-top: 5px"
+                        >
+                          <img
+                            alt="Vorschau Dokubild"
+                            id="preview-doku"
+                            src=""
+                            style="
+                              max-width: 100px;
+                              max-height: 100px;
+                              border-radius: 4px;
+                            "
                           />
                         </div>
-                        <div style="flex: 1; min-width: 120px">
-                          <label data-i18n="admin_label_sichtbare_boegen"
-                            >Sichtbare Bögen</label
-                          >
-                          <input
-                            class="form-control"
-                            id="sichtbare_boegen"
-                            name="sichtbare_boegen"
-                            readonly=""
-                            type="number"
+                      </div>
+                      <div class="form-group full-width">
+                        <label data-i18n="admin_label_bild_raw" for="bild_raw"
+                          >Roh-Scan (Raw)</label
+                        >
+                        <input
+                          accept="image/jpeg, image/png, image/webp, image/tiff"
+                          class="form-control"
+                          id="bild_raw"
+                          name="bild_raw"
+                          type="file"
+                        />
+                        <div
+                          class="preview-container hidden"
+                          id="preview-container-raw"
+                          style="margin-top: 5px"
+                        >
+                          <img
+                            alt="Vorschau Raw-Bild"
+                            id="preview-raw"
+                            src=""
+                            style="
+                              max-width: 100px;
+                              max-height: 100px;
+                              border-radius: 4px;
+                            "
                           />
                         </div>
-                        <div style="flex: 1; min-width: 120px">
-                          <label data-i18n="admin_label_sonnenhoehe_max"
-                            >Sonnenhöhe Max</label
-                          >
+                      </div>
+                      <div class="form-group full-width">
+                        <label
+                          data-i18n="admin_label_google_fotos_url"
+                          for="google_fotos_url"
+                          >Google Fotos URL</label
+                        >
+                        <input
+                          class="form-control"
+                          data-i18n-placeholder="admin_placeholder_url"
+                          id="google_fotos_url"
+                          name="google_fotos_url"
+                          placeholder="https://..."
+                          type="text"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label
+                          data-i18n="admin_label_externe_id"
+                          for="externe_id"
+                          >Externe ID</label
+                        >
+                        <input
+                          class="form-control"
+                          id="externe_id"
+                          name="externe_id"
+                          type="text"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <label data-i18n="admin_label_email" for="email"
+                          >E-Mail</label
+                        >
+                        <input
+                          class="form-control"
+                          id="email"
+                          name="email"
+                          type="email"
+                        />
+                      </div>
+                      <div class="form-group full-width">
+                        <label data-i18n="admin_label_owner" for="owner"
+                          >Owner</label
+                        >
+                        <div
+                          class="tags-container form-control"
+                          id="tags-container"
+                          style="
+                            height: auto;
+                            min-height: 42px;
+                            display: flex;
+                            flex-wrap: wrap;
+                            gap: 5px;
+                            align-items: center;
+                          "
+                        >
                           <input
-                            class="form-control"
-                            id="sonnenhoehe_max"
-                            name="sonnenhoehe_max"
-                            readonly=""
-                            step="any"
-                            type="number"
+                            data-i18n-placeholder="admin_placeholder_owner"
+                            id="owner-input"
+                            placeholder="z.B. @name, name@domain.ch"
+                            style="
+                              border: none;
+                              background: transparent;
+                              outline: none;
+                              color: var(--color-text-main);
+                              flex: 1;
+                              min-width: 150px;
+                            "
+                            type="text"
                           />
                         </div>
-                        <div style="flex: 1; min-width: 120px">
-                          <label data-i18n="admin_label_sonnenhoehe_min"
-                            >Sonnenhöhe Min</label
+                        <input
+                          class="form-control"
+                          id="owner"
+                          name="owner"
+                          type="hidden"
+                        />
+                      </div>
+                      <div class="form-group full-width">
+                        <label
+                          data-i18n="admin_label_comment_status"
+                          for="comment_status"
+                          >Kommentar Status</label
+                        >
+                        <input
+                          class="form-control"
+                          data-i18n-placeholder="admin_placeholder_comment"
+                          id="comment_status"
+                          name="comment_status"
+                          placeholder="z.B. open oder closed"
+                          type="text"
+                        />
+                      </div>
+                      <div class="form-group full-width">
+                        <label data-i18n="admin_label_notizen" for="notizen"
+                          >Notizen</label
+                        >
+                        <textarea
+                          class="form-control"
+                          id="notizen"
+                          name="notizen"
+                        ></textarea>
+                      </div>
+                      <div
+                        class="form-group full-width"
+                        style="
+                          background: rgba(0, 0, 0, 0.2);
+                          padding: 15px;
+                          border-radius: 8px;
+                          margin-top: 20px;
+                        "
+                      >
+                        <div
+                          style="
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            margin-bottom: 15px;
+                          "
+                        >
+                          <h3
+                            style="
+                              margin: 0;
+                              color: var(--color-primary);
+                              font-family: var(--font-head);
+                              font-size: 1.1rem;
+                            "
                           >
-                          <input
-                            class="form-control"
-                            id="sonnenhoehe_min"
-                            name="sonnenhoehe_min"
-                            readonly=""
-                            step="any"
-                            type="number"
-                          />
+                            Sonnen- &amp; Wetter-Berechnungen
+                          </h3>
+                          <button
+                            class="btn btn-secondary btn-small"
+                            id="btn-calc"
+                            type="button"
+                          >
+                            Werte berechnen
+                          </button>
+                        </div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 15px">
+                          <div style="flex: 1; min-width: 120px">
+                            <label data-i18n="admin_label_tage_belichtung"
+                              >Tage Belichtung</label
+                            >
+                            <input
+                              class="form-control"
+                              id="tage_belichtung"
+                              name="tage_belichtung"
+                              readonly=""
+                              type="number"
+                            />
+                          </div>
+                          <div style="flex: 1; min-width: 120px">
+                            <label data-i18n="admin_label_tage_verdeckt"
+                              >Tage Verdeckt</label
+                            >
+                            <input
+                              class="form-control"
+                              id="tage_verdeckt"
+                              name="tage_verdeckt"
+                              readonly=""
+                              type="number"
+                            />
+                          </div>
+                          <div style="flex: 1; min-width: 120px">
+                            <label data-i18n="admin_label_sichtbare_boegen"
+                              >Sichtbare Bögen</label
+                            >
+                            <input
+                              class="form-control"
+                              id="sichtbare_boegen"
+                              name="sichtbare_boegen"
+                              readonly=""
+                              type="number"
+                            />
+                          </div>
+                          <div style="flex: 1; min-width: 120px">
+                            <label data-i18n="admin_label_sonnenhoehe_max"
+                              >Sonnenhöhe Max</label
+                            >
+                            <input
+                              class="form-control"
+                              id="sonnenhoehe_max"
+                              name="sonnenhoehe_max"
+                              readonly=""
+                              step="any"
+                              type="number"
+                            />
+                          </div>
+                          <div style="flex: 1; min-width: 120px">
+                            <label data-i18n="admin_label_sonnenhoehe_min"
+                              >Sonnenhöhe Min</label
+                            >
+                            <input
+                              class="form-control"
+                              id="sonnenhoehe_min"
+                              name="sonnenhoehe_min"
+                              readonly=""
+                              step="any"
+                              type="number"
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                  <div
-                    style="
-                      margin-top: 20px;
-                      display: flex;
-                      gap: 10px;
-                      justify-content: flex-end;
-                    "
-                  >
-                    <button
-                      class="btn btn-secondary hidden"
-                      id="btn-cancel"
-                      type="button"
+                    <div
+                      style="
+                        margin-top: 20px;
+                        display: flex;
+                        gap: 10px;
+                        justify-content: flex-end;
+                      "
                     >
-                      <span data-i18n="admin_btn_cancel">Abbrechen</span>
-                    </button>
-                    <button class="btn" id="btn-submit" type="submit">
-                      <span data-i18n="admin_btn_save">Speichern</span>
-                    </button>
-                  </div>
-                </form>
+                      <button
+                        class="btn btn-secondary hidden"
+                        id="btn-cancel"
+                        type="button"
+                      >
+                        <span data-i18n="admin_btn_cancel">Abbrechen</span>
+                      </button>
+                      <button class="btn" id="btn-submit" type="submit">
+                        <span data-i18n="admin_btn_save">Speichern</span>
+                      </button>
+                    </div>
+                  </form>
+                </div>
               </div>
             </div>
             <div class="hidden" id="tab-translations">
