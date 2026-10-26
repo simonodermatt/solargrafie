@@ -1242,7 +1242,19 @@ adminMapSearchInput.addEventListener("keypress", (e) => {
 // --- End Admin Map Logic ---
 
 // Tab Navigation Logik
+
+function updateMobileNav(activeId) {
+  document.querySelectorAll(".admin-bottom-nav .nav-item").forEach((btn) => {
+    btn.classList.remove("active");
+  });
+  const mobileBtn = document.getElementById("mobile-btn-" + activeId);
+  if (mobileBtn) {
+    mobileBtn.classList.add("active");
+  }
+}
+
 function switchTab(tabId) {
+  updateMobileNav(tabId);
   // Hide alle Tabs
   tabSolargrafien.classList.add("hidden");
   tabTranslations.classList.add("hidden");
