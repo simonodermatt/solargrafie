@@ -293,10 +293,56 @@ async function loadSolargrafien() {
 
     alleSolargrafien = data;
     renderList(data);
+    updateFilterBadges(data);
   } catch (error) {
     console.error("Fehler beim Laden:", error.message);
     solargrafienList.innerHTML = `<p style="color: #ef4444;">Fehler: ${error.message}</p>`;
   }
+}
+
+function updateFilterBadges(data) {
+  let countAll = 0;
+  let countActive = 0;
+  let countCalculated = 0;
+  let countDraft = 0;
+
+  data.forEach((item) => {
+    countAll++;
+
+    const hasPlaced = item.placed && item.placed.trim() !== "";
+    const hasOpened = item.opened && item.opened.trim() !== "";
+    const hasBerechnung =
+      item.tage_belichtung !== null &&
+      item.tage_belichtung !== undefined &&
+      item.tage_belichtung !== "";
+
+    if (hasPlaced && !hasOpened) {
+      countActive++;
+    }
+
+    if (hasBerechnung) {
+      countCalculated++;
+    } else {
+      countDraft++;
+    }
+  });
+
+  const chips = document.querySelectorAll(".filter-chip");
+  chips.forEach((chip) => {
+    const i18nKey = chip.getAttribute("data-i18n");
+    const badge = chip.querySelector(".badge");
+    if (badge) {
+      if (i18nKey === "admin_filter_active") {
+        badge.textContent = countActive;
+      } else if (i18nKey === "admin_filter_calculated") {
+        badge.textContent = countCalculated;
+      } else if (i18nKey === "admin_filter_draft") {
+        badge.textContent = countDraft;
+      } else {
+        badge.textContent = countAll;
+      }
+    }
+  });
 }
 
 // Hilfsfunktion: Liste rendern
@@ -311,9 +357,21 @@ function renderList(data) {
     const div = document.createElement("div");
     div.className = "list-item";
 
-    // Add data attributes for searching
+    // Add data attributes for searching and filtering
     div.dataset.titel = (item.titel || "").toLowerCase();
     div.dataset.owner = (item.email || "").toLowerCase();
+
+    // Filter conditions
+    const hasPlaced = item.placed && item.placed.trim() !== "";
+    const hasOpened = item.opened && item.opened.trim() !== "";
+    const hasBerechnung =
+      item.tage_belichtung !== null &&
+      item.tage_belichtung !== undefined &&
+      item.tage_belichtung !== "";
+
+    div.dataset.isAktiv = hasPlaced && !hasOpened ? "true" : "false";
+    div.dataset.isBerechnet = hasBerechnung ? "true" : "false";
+    div.dataset.isEntwurf = !hasBerechnung ? "true" : "false";
 
     // Fallback für undefinierte Werte
     const placedDate = item.placed ? item.placed : "Unbekannt";
@@ -362,8 +420,16 @@ function renderList(data) {
             <span class="badge" style="background: ${statusColor}; color: ${statusTextColor}; border: 1px solid ${statusColor.replace("0.2", "0.3")};">${escapeHtml(statusText)}</span>
         </div>
       </div>
-      <div class="list-item-actions">
+      <div class="list-item-actions" style="display: flex; gap: 8px;">
         <button class="btn btn-small btn-edit" data-id="${item.id}" ${disabledAttr} style="padding: 4px 8px; font-size: 0.75rem;">Edit</button>
+        <button class="btn btn-small btn-delete" data-id="${item.id}" ${disabledAttr} style="padding: 4px 8px; font-size: 0.75rem; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171;" title="Löschen">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            <line x1="10" y1="11" x2="10" y2="17"></line>
+            <line x1="14" y1="11" x2="14" y2="17"></line>
+          </svg>
+        </button>
       </div>
     `;
     solargrafienList.appendChild(div);
@@ -371,12 +437,14 @@ function renderList(data) {
 
   // Event Listener für Edit/Delete Buttons hinzufügen
   document.querySelectorAll(".btn-edit").forEach((btn) => {
-    btn.addEventListener("click", (e) => loadFormForEdit(e.target.dataset.id));
+    btn.addEventListener("click", (e) =>
+      loadFormForEdit(e.currentTarget.dataset.id),
+    );
   });
 
   document.querySelectorAll(".btn-delete").forEach((btn) => {
     btn.addEventListener("click", (e) =>
-      deleteSolargrafie(e.target.dataset.id),
+      deleteSolargrafie(e.currentTarget.dataset.id),
     );
   });
 }
@@ -1619,23 +1687,65 @@ window.addEventListener("storage", function (e) {
 });
 // Search functionality
 
-if (searchInput) {
-  searchInput.addEventListener("input", (e) => {
-    const searchTerm = e.target.value.toLowerCase();
-    const items = solargrafienList.querySelectorAll(".list-item");
+let currentFilter = "all";
 
-    items.forEach((item) => {
-      const titel = item.dataset.titel || "";
-      const owner = item.dataset.owner || "";
+function applyListFilters() {
+  const searchTerm = searchInput ? searchInput.value.toLowerCase() : "";
+  const items = solargrafienList.querySelectorAll(".list-item");
 
-      if (titel.includes(searchTerm) || owner.includes(searchTerm)) {
-        item.style.display = "flex";
-      } else {
-        item.style.display = "none";
-      }
-    });
+  items.forEach((item) => {
+    const titel = item.dataset.titel || "";
+    const owner = item.dataset.owner || "";
+
+    // Check search term
+    const matchesSearch =
+      titel.includes(searchTerm) || owner.includes(searchTerm);
+
+    // Check filter
+    let matchesFilter = true;
+    if (currentFilter === "active") {
+      matchesFilter = item.dataset.isAktiv === "true";
+    } else if (currentFilter === "calculated") {
+      matchesFilter = item.dataset.isBerechnet === "true";
+    } else if (currentFilter === "draft") {
+      matchesFilter = item.dataset.isEntwurf === "true";
+    }
+
+    if (matchesSearch && matchesFilter) {
+      item.style.display = "flex";
+    } else {
+      item.style.display = "none";
+    }
   });
 }
+
+if (searchInput) {
+  searchInput.addEventListener("input", applyListFilters);
+}
+
+// Filter Chips Setup
+document.querySelectorAll(".filter-chip").forEach((chip) => {
+  chip.addEventListener("click", (e) => {
+    document
+      .querySelectorAll(".filter-chip")
+      .forEach((c) => c.classList.remove("active"));
+    const clickedChip = e.currentTarget;
+    clickedChip.classList.add("active");
+
+    const i18nKey = clickedChip.getAttribute("data-i18n");
+    if (i18nKey === "admin_filter_active") {
+      currentFilter = "active";
+    } else if (i18nKey === "admin_filter_calculated") {
+      currentFilter = "calculated";
+    } else if (i18nKey === "admin_filter_draft") {
+      currentFilter = "draft";
+    } else {
+      currentFilter = "all";
+    }
+
+    applyListFilters();
+  });
+});
 
 if (searchTranslationsInput) {
   searchTranslationsInput.addEventListener("input", (e) => {
