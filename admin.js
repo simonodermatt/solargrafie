@@ -476,6 +476,11 @@ function loadFormForEdit(id) {
 
   // Zum Formular scrollen
   formTitle.scrollIntoView({ behavior: "smooth" });
+
+  // Für Mobile: Detailansicht einblenden
+  document
+    .getElementById("tab-solargrafien")
+    .classList.add("mobile-form-active");
 }
 
 // Formular leeren (Neuer Eintrag)
@@ -512,6 +517,11 @@ function resetForm() {
   formTitle.textContent = getTranslation("admin_form_title_new");
   btnSubmit.textContent = "Speichern";
   btnCancel.classList.add("hidden");
+
+  // Für Mobile: Detailansicht einblenden
+  document
+    .getElementById("tab-solargrafien")
+    .classList.add("mobile-form-active");
 }
 
 btnNew.addEventListener("click", resetForm);
@@ -1670,5 +1680,15 @@ if (searchUsersInput) {
         item.style.display = "none";
       }
     });
+  });
+}
+
+// Zurück-Button für Mobile (Listenansicht wieder einblenden)
+const btnMobileBack = document.getElementById("btn-mobile-back");
+if (btnMobileBack) {
+  btnMobileBack.addEventListener("click", () => {
+    document
+      .getElementById("tab-solargrafien")
+      .classList.remove("mobile-form-active");
   });
 }
