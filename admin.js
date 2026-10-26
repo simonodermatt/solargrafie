@@ -117,6 +117,7 @@ async function updateUI(session) {
   loadingContainer.classList.remove("hidden");
   loginContainer.classList.add("hidden");
   dashboardContainer.classList.add("hidden");
+      document.getElementById("auth-card").classList.remove("hidden");
 
   if (session) {
     await fetchAdminTranslationsData();
@@ -146,6 +147,7 @@ async function updateUI(session) {
       }
 
       loadingContainer.classList.add("hidden");
+      document.getElementById("auth-card").classList.add("hidden");
       dashboardContainer.classList.remove("hidden");
       userEmailSpan.textContent = `${currentUserEmail} (${currentUserRole})`;
       loadSolargrafien();
@@ -157,6 +159,7 @@ async function updateUI(session) {
       currentUserEmail = null;
       currentUserRole = null;
       loadingContainer.classList.add("hidden");
+      document.getElementById("auth-card").classList.add("hidden");
       loginContainer.classList.remove("hidden");
       userEmailSpan.textContent = "";
     }
@@ -165,6 +168,7 @@ async function updateUI(session) {
     currentUserEmail = null;
     currentUserRole = null;
     loadingContainer.classList.add("hidden");
+      document.getElementById("auth-card").classList.add("hidden");
     loginContainer.classList.remove("hidden");
     userEmailSpan.textContent = "";
   }
