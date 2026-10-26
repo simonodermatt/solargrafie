@@ -1,0 +1,1292 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title data-i18n="admin_title_page">Admin - Solargrafie</title>
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#0b0f17" />
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="style.css" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Leaflet CDN -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Config -->
+    <script src="config.js"></script>
+
+    <style>
+      /* Zusätzliche Admin-spezifische Styles, angelehnt an das Hauptdesign */
+      body {
+        background-color: var(--color-bg);
+        color: var(--color-text-main);
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        align-items: center;
+        justify-content: flex-start;
+        min-height: 100vh;
+        margin: 0;
+        padding: 60px 20px 20px 20px;
+        box-sizing: border-box;
+      }
+
+      .admin-card {
+        background: rgba(25, 28, 36, 0.6);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 40px;
+        max-width: 800px; /* angepasst für Admin-Layout */
+        width: 100%;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        text-align: center;
+      }
+
+      .admin-card h1 {
+        font-family: var(--font-head);
+        color: var(--color-primary);
+        margin-top: 0;
+        margin-bottom: 24px;
+        font-size: 2rem;
+      }
+
+      .admin-card p {
+        font-family: var(--font-body);
+        color: var(--color-text-muted);
+        line-height: 1.6;
+        margin-bottom: 32px;
+      }
+
+      .btn {
+        background: rgba(14, 165, 233, 0.15);
+        border: 1px solid var(--color-primary);
+        color: var(--color-primary);
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-family: var(--font-body);
+        font-weight: 500;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 8px;
+        text-decoration: none;
+      }
+
+      .btn:hover {
+        background: var(--color-primary);
+        color: #000;
+        box-shadow: 0 0 15px rgba(14, 165, 233, 0.4);
+      }
+
+      .btn-secondary {
+        background: transparent;
+        border-color: var(--color-text-muted);
+        color: var(--color-text-muted);
+      }
+
+      .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--color-text-main);
+        border-color: var(--color-text-main);
+        box-shadow: none;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      .user-info {
+        margin-bottom: 24px;
+        font-family: var(--font-body);
+        font-weight: 500;
+      }
+
+      .user-email {
+        color: var(--color-primary);
+      }
+
+      .dashboard-content {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
+        padding: 60px 20px 20px 20px;
+        margin-bottom: 24px;
+        border: 1px dashed rgba(255, 255, 255, 0.1);
+      }
+
+      .back-link {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        color: var(--color-text-muted);
+        text-decoration: none;
+        font-family: var(--font-body);
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: color 0.3s;
+      }
+
+      .back-link:hover {
+        color: var(--color-primary);
+      }
+
+      /* Layout Dashboard */
+      .admin-layout {
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        gap: 30px;
+        width: 100%;
+        max-width: 800px; /* Breite etwas erhöht für das Layout */
+      }
+
+      .admin-section {
+        background: rgba(25, 28, 36, 0.6);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 30px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      }
+
+      .admin-section h2 {
+        font-family: var(--font-head);
+        color: var(--color-primary);
+        margin-top: 0;
+        margin-bottom: 20px;
+        font-size: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      /* Liste */
+      .list-container {
+        max-height: 400px;
+        overflow-y: auto;
+        padding-right: 10px;
+      }
+
+      .list-container::-webkit-scrollbar {
+        width: 6px;
+      }
+      .list-container::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 4px;
+      }
+      .list-container::-webkit-scrollbar-thumb {
+        background: rgba(14, 165, 233, 0.3);
+        border-radius: 4px;
+      }
+      .list-container::-webkit-scrollbar-thumb:hover {
+        background: rgba(14, 165, 233, 0.6);
+      }
+
+      .list-item {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .list-item-content {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .list-item-thumbnail {
+        width: 50px;
+        height: 50px;
+        border-radius: 8px;
+        object-fit: cover;
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .list-item-info strong {
+        display: block;
+        color: var(--color-text-main);
+        margin-bottom: 4px;
+      }
+
+      .list-item-info span {
+        font-size: 0.85rem;
+        color: var(--color-text-muted);
+      }
+
+      .list-item-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .btn-small {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+      }
+
+      .btn-danger {
+        border-color: #ef4444;
+        color: #ef4444;
+      }
+      .btn-danger:hover {
+        background: #ef4444;
+        color: #fff;
+        box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+      }
+
+      /* Formular */
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
+
+      @media (max-width: 600px) {
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        gap: 6px;
+      }
+
+      .form-group.full-width {
+        grid-column: 1 / -1;
+      }
+
+      .form-group label {
+        font-family: var(--font-body);
+        font-size: 0.9rem;
+        color: var(--color-text-muted);
+      }
+
+      .form-control {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 10px 12px;
+        color: var(--color-text-main);
+        font-family: var(--font-body);
+        font-size: 1rem;
+        width: 100%;
+        transition: border-color 0.3s;
+      }
+
+      .form-control:focus {
+        outline: none;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
+      }
+
+      textarea.form-control {
+        resize: vertical;
+        min-height: 80px;
+      }
+
+      /* Messages */
+      .message-box {
+        padding: 12px 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-family: var(--font-body);
+        font-size: 0.9rem;
+        display: none;
+      }
+
+      .message-box.success {
+        display: block;
+        background: rgba(16, 185, 129, 0.15);
+        border: 1px solid #10b981;
+        color: #10b981;
+      }
+
+      .message-box.error {
+        display: block;
+        background: rgba(239, 68, 68, 0.15);
+        border: 1px solid #ef4444;
+        color: #ef4444;
+      }
+
+      button[disabled] {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      /* Admin Map specific styling */
+      #admin-map .leaflet-control-zoom a {
+        background: var(--color-surface);
+        color: var(--color-text-main);
+        border-color: rgba(255, 255, 255, 0.1);
+      }
+      #admin-map .leaflet-control-zoom a:hover {
+        background: var(--color-surface-hover);
+        color: var(--color-primary);
+      }
+      #admin-map .leaflet-popup-content-wrapper,
+      #admin-map .leaflet-popup-tip {
+        background: var(--color-surface);
+        color: var(--color-text-main);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      }
+    </style>
+  </head>
+  <body>
+    <a href="index.html" class="back-link">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      Zurück zur Karte
+    </a>
+
+    <div class="admin-card">
+      <h1 data-i18n="admin_title_main">Admin Bereich</h1>
+
+      <!-- Lade-Indikator -->
+      <div id="loading-container">
+        <p>Status wird geprüft...</p>
+      </div>
+
+      <!-- Login Ansicht -->
+      <div id="login-container" class="hidden">
+        <p>Bitte melde dich an, um den Administrationsbereich zu betreten.</p>
+        <button id="btn-login" class="btn">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+            <polyline points="10 17 15 12 10 7"></polyline>
+            <line x1="15" y1="12" x2="3" y2="12"></line>
+          </svg>
+          <span data-i18n="admin_btn_login">Mit Google anmelden</span>
+        </button>
+      </div>
+
+      <!-- Dashboard Ansicht -->
+      <div id="dashboard-container" class="hidden">
+        <div class="user-info">
+          Eingeloggt als: <span id="user-email" class="user-email"></span>
+        </div>
+
+        <div class="admin-layout">
+          <!-- Messages -->
+          <div id="status-message" class="message-box"></div>
+
+          <!-- Navigation Tabs -->
+          <div
+            id="admin-tabs"
+            style="display: flex; gap: 10px; margin-bottom: 20px"
+          >
+            <button type="button" id="tab-btn-solargrafien" class="btn">
+              <span data-i18n="admin_tab_solargrafien">Solargrafien</span>
+            </button>
+            <button
+              type="button"
+              id="tab-btn-translations"
+              class="btn btn-secondary"
+            >
+              <span data-i18n="admin_tab_translations">Übersetzungen</span>
+            </button>
+            <button type="button" id="tab-btn-users" class="btn btn-secondary">
+              <span data-i18n="admin_tab_users">Benutzer</span>
+            </button>
+          </div>
+
+          <!-- Solargrafien Tab -->
+          <div id="tab-solargrafien">
+            <!-- Listenansicht -->
+            <div class="admin-section">
+              <h2
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  gap: 10px;
+                "
+              >
+                <span data-i18n="admin_list_title">List</span>
+                <input
+                  type="text"
+                  id="searchInput"
+                  class="form-control"
+                  placeholder="Einträge durchsuchen (Titel, Owner)..."
+                  data-i18n-placeholder="admin_search_placeholder_solargrafien"
+                  style="
+                    flex: 1;
+                    margin: 0 10px;
+                    padding: 6px 12px;
+                    font-size: 0.9rem;
+                  "
+                />
+                <div style="display: flex; gap: 5px">
+                  <button type="button" id="btn-new" class="btn btn-small">
+                    <span data-i18n="admin_btn_new">Neu</span>
+                  </button>
+                  <button type="button" id="btn-refresh" class="btn btn-small">
+                    <span data-i18n="admin_btn_refresh">Aktualisieren</span>
+                  </button>
+                </div>
+              </h2>
+              <div id="solargrafien-list" class="list-container">
+                <p>Load..</p>
+              </div>
+            </div>
+
+            <!-- Formular -->
+            <div class="admin-section">
+              <h2 id="form-title" data-i18n="admin_form_title_entry">
+                Eintrag
+              </h2>
+              <form id="solargrafie-form">
+                <input type="hidden" id="edit-id" name="id" value="" />
+
+                <div class="form-grid">
+                  <div class="form-group full-width">
+                    <label for="zeitstempel" data-i18n="admin_label_zeitstempel"
+                      >Zeitstempel</label
+                    >
+                    <input
+                      type="text"
+                      id="zeitstempel"
+                      name="zeitstempel"
+                      class="form-control"
+                      readonly
+                    />
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label for="titel" data-i18n="admin_label_titel"
+                      >Titel</label
+                    >
+                    <input
+                      type="text"
+                      id="titel"
+                      name="titel"
+                      class="form-control"
+                      required
+                    />
+                  </div>
+
+                  <div
+                    class="form-group full-width"
+                    style="display: flex; gap: 10px; align-items: flex-end"
+                  >
+                    <button
+                      type="button"
+                      id="btn-open-map"
+                      class="btn btn-secondary"
+                      style="margin-bottom: 2px"
+                    >
+                      🗺️ Auf Karte wählen
+                    </button>
+                    <div style="display: flex; gap: 10px; width: 100%">
+                      <div style="flex: 1">
+                        <label for="lat" data-i18n="admin_label_lat"
+                          >Breitengrad (lat)</label
+                        >
+                        <input
+                          type="number"
+                          step="any"
+                          id="lat"
+                          name="lat"
+                          class="form-control"
+                          readonly
+                          required
+                        />
+                      </div>
+                      <div style="flex: 1">
+                        <label for="lng" data-i18n="admin_label_lng"
+                          >Längengrad (lng)</label
+                        >
+                        <input
+                          type="number"
+                          step="any"
+                          id="lng"
+                          name="lng"
+                          class="form-control"
+                          readonly
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="placed" data-i18n="admin_label_placed"
+                      >Datum Placed</label
+                    >
+                    <input
+                      type="date"
+                      id="placed"
+                      name="placed"
+                      class="form-control"
+                      required
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="opened" data-i18n="admin_label_opened"
+                      >Datum Opened</label
+                    >
+                    <input
+                      type="date"
+                      id="opened"
+                      name="opened"
+                      class="form-control"
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="kamera" data-i18n="admin_label_kamera"
+                      >Kamera</label
+                    >
+                    <input
+                      type="text"
+                      id="kamera"
+                      name="kamera"
+                      class="form-control"
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="fotopapier" data-i18n="admin_label_fotopapier"
+                      >Fotopapier</label
+                    >
+                    <input
+                      type="text"
+                      id="fotopapier"
+                      name="fotopapier"
+                      class="form-control"
+                    />
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label for="bild_haupt" data-i18n="admin_label_bild_haupt"
+                      >Hauptbild (Finaler Scan)</label
+                    >
+                    <input
+                      type="file"
+                      id="bild_haupt"
+                      name="bild_haupt"
+                      class="form-control"
+                      accept="image/jpeg, image/png, image/webp"
+                    />
+                    <div
+                      id="preview-container-haupt"
+                      class="preview-container hidden"
+                      style="margin-top: 5px"
+                    >
+                      <img
+                        id="preview-haupt"
+                        src=""
+                        alt="Vorschau Hauptbild"
+                        style="
+                          max-width: 100px;
+                          max-height: 100px;
+                          border-radius: 4px;
+                        "
+                      />
+                    </div>
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label for="bild_doku" data-i18n="admin_label_bild_doku"
+                      >Dokumentations-Foto (Dose vor Ort)</label
+                    >
+                    <input
+                      type="file"
+                      id="bild_doku"
+                      name="bild_doku"
+                      class="form-control"
+                      accept="image/jpeg, image/png, image/webp"
+                    />
+                    <div
+                      id="preview-container-doku"
+                      class="preview-container hidden"
+                      style="margin-top: 5px"
+                    >
+                      <img
+                        id="preview-doku"
+                        src=""
+                        alt="Vorschau Dokubild"
+                        style="
+                          max-width: 100px;
+                          max-height: 100px;
+                          border-radius: 4px;
+                        "
+                      />
+                    </div>
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label for="bild_raw" data-i18n="admin_label_bild_raw"
+                      >Roh-Scan (Raw)</label
+                    >
+                    <input
+                      type="file"
+                      id="bild_raw"
+                      name="bild_raw"
+                      class="form-control"
+                      accept="image/jpeg, image/png, image/webp, image/tiff"
+                    />
+                    <div
+                      id="preview-container-raw"
+                      class="preview-container hidden"
+                      style="margin-top: 5px"
+                    >
+                      <img
+                        id="preview-raw"
+                        src=""
+                        alt="Vorschau Raw-Bild"
+                        style="
+                          max-width: 100px;
+                          max-height: 100px;
+                          border-radius: 4px;
+                        "
+                      />
+                    </div>
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label
+                      for="google_fotos_url"
+                      data-i18n="admin_label_google_fotos_url"
+                      >Google Fotos URL</label
+                    >
+                    <input
+                      type="text"
+                      id="google_fotos_url"
+                      name="google_fotos_url"
+                      class="form-control"
+                      placeholder="https://..."
+                      data-i18n-placeholder="admin_placeholder_url"
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="externe_id" data-i18n="admin_label_externe_id"
+                      >Externe ID</label
+                    >
+                    <input
+                      type="text"
+                      id="externe_id"
+                      name="externe_id"
+                      class="form-control"
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="email" data-i18n="admin_label_email"
+                      >E-Mail</label
+                    >
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      class="form-control"
+                    />
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label for="owner" data-i18n="admin_label_owner"
+                      >Owner</label
+                    >
+                    <div
+                      id="tags-container"
+                      class="tags-container form-control"
+                      style="
+                        height: auto;
+                        min-height: 42px;
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 5px;
+                        align-items: center;
+                      "
+                    >
+                      <input
+                        type="text"
+                        id="owner-input"
+                        placeholder="z.B. @name, name@domain.ch"
+                        data-i18n-placeholder="admin_placeholder_owner"
+                        style="
+                          border: none;
+                          background: transparent;
+                          outline: none;
+                          color: var(--color-text-main);
+                          flex: 1;
+                          min-width: 150px;
+                        "
+                      />
+                    </div>
+                    <input
+                      type="hidden"
+                      id="owner"
+                      name="owner"
+                      class="form-control"
+                    />
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label
+                      for="comment_status"
+                      data-i18n="admin_label_comment_status"
+                      >Kommentar Status</label
+                    >
+                    <input
+                      type="text"
+                      id="comment_status"
+                      name="comment_status"
+                      class="form-control"
+                      placeholder="z.B. open oder closed"
+                      data-i18n-placeholder="admin_placeholder_comment"
+                    />
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label for="notizen" data-i18n="admin_label_notizen"
+                      >Notizen</label
+                    >
+                    <textarea
+                      id="notizen"
+                      name="notizen"
+                      class="form-control"
+                    ></textarea>
+                  </div>
+                  <div
+                    class="form-group full-width"
+                    style="
+                      background: rgba(0, 0, 0, 0.2);
+                      padding: 15px;
+                      border-radius: 8px;
+                      margin-top: 20px;
+                    "
+                  >
+                    <div
+                      style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 15px;
+                      "
+                    >
+                      <h3
+                        style="
+                          margin: 0;
+                          color: var(--color-primary);
+                          font-family: var(--font-head);
+                          font-size: 1.1rem;
+                        "
+                      >
+                        Sonnen- & Wetter-Berechnungen
+                      </h3>
+                      <button
+                        type="button"
+                        id="btn-calc"
+                        class="btn btn-secondary btn-small"
+                      >
+                        Werte berechnen
+                      </button>
+                    </div>
+
+                    <div style="display: flex; flex-wrap: wrap; gap: 15px">
+                      <div style="flex: 1; min-width: 120px">
+                        <label data-i18n="admin_label_tage_belichtung"
+                          >Tage Belichtung</label
+                        >
+                        <input
+                          type="number"
+                          id="tage_belichtung"
+                          name="tage_belichtung"
+                          class="form-control"
+                          readonly
+                        />
+                      </div>
+                      <div style="flex: 1; min-width: 120px">
+                        <label data-i18n="admin_label_tage_verdeckt"
+                          >Tage Verdeckt</label
+                        >
+                        <input
+                          type="number"
+                          id="tage_verdeckt"
+                          name="tage_verdeckt"
+                          class="form-control"
+                          readonly
+                        />
+                      </div>
+                      <div style="flex: 1; min-width: 120px">
+                        <label data-i18n="admin_label_sichtbare_boegen"
+                          >Sichtbare Bögen</label
+                        >
+                        <input
+                          type="number"
+                          id="sichtbare_boegen"
+                          name="sichtbare_boegen"
+                          class="form-control"
+                          readonly
+                        />
+                      </div>
+                      <div style="flex: 1; min-width: 120px">
+                        <label data-i18n="admin_label_sonnenhoehe_max"
+                          >Sonnenhöhe Max</label
+                        >
+                        <input
+                          type="number"
+                          step="any"
+                          id="sonnenhoehe_max"
+                          name="sonnenhoehe_max"
+                          class="form-control"
+                          readonly
+                        />
+                      </div>
+                      <div style="flex: 1; min-width: 120px">
+                        <label data-i18n="admin_label_sonnenhoehe_min"
+                          >Sonnenhöhe Min</label
+                        >
+                        <input
+                          type="number"
+                          step="any"
+                          id="sonnenhoehe_min"
+                          name="sonnenhoehe_min"
+                          class="form-control"
+                          readonly
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  style="
+                    margin-top: 20px;
+                    display: flex;
+                    gap: 10px;
+                    justify-content: flex-end;
+                  "
+                >
+                  <button
+                    type="button"
+                    id="btn-cancel"
+                    class="btn btn-secondary hidden"
+                  >
+                    <span data-i18n="admin_btn_cancel">Abbrechen</span>
+                  </button>
+                  <button type="submit" id="btn-submit" class="btn">
+                    <span data-i18n="admin_btn_save">Speichern</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Übersetzungen Tab -->
+          <div id="tab-translations" class="hidden">
+            <div class="admin-section">
+              <h2
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  gap: 10px;
+                "
+              >
+                <span data-i18n="admin_list_title">List</span>
+                <input
+                  type="text"
+                  id="searchTranslationsInput"
+                  class="form-control"
+                  placeholder="Einträge durchsuchen (Key, Texte)..."
+                  data-i18n-placeholder="admin_search_placeholder_translations"
+                  style="
+                    flex: 1;
+                    margin: 0 10px;
+                    padding: 6px 12px;
+                    font-size: 0.9rem;
+                  "
+                />
+                <div style="display: flex; gap: 5px">
+                  <button
+                    type="button"
+                    id="btn-new-translation"
+                    class="btn btn-small"
+                  >
+                    <span data-i18n="admin_btn_new">Neu</span>
+                  </button>
+                  <button
+                    type="button"
+                    id="btn-refresh-translations"
+                    class="btn btn-small"
+                  >
+                    <span data-i18n="admin_btn_refresh">Aktualisieren</span>
+                  </button>
+                </div>
+              </h2>
+              <div id="translations-list" class="list-container">
+                <p>Load..</p>
+              </div>
+            </div>
+            <div class="admin-section">
+              <h2
+                id="form-title-translation"
+                data-i18n="admin_form_title_entry"
+              >
+                Eintrag
+              </h2>
+              <form id="translation-form">
+                <input
+                  type="hidden"
+                  id="edit-id-translation"
+                  name="id"
+                  value=""
+                />
+                <div class="form-grid">
+                  <div class="form-group full-width">
+                    <label for="trans-key" data-i18n="admin_label_key"
+                      >Key</label
+                    >
+                    <input
+                      type="text"
+                      id="trans-key"
+                      name="key"
+                      class="form-control"
+                      required
+                    />
+                  </div>
+                  <div class="form-group full-width">
+                    <label for="trans-de">DE</label>
+                    <textarea
+                      id="trans-de"
+                      name="de"
+                      class="form-control"
+                      rows="3"
+                    ></textarea>
+                  </div>
+                  <div class="form-group full-width">
+                    <label for="trans-en">EN</label>
+                    <textarea
+                      id="trans-en"
+                      name="en"
+                      class="form-control"
+                      rows="3"
+                    ></textarea>
+                  </div>
+                  <div class="form-group full-width">
+                    <label for="trans-fr">FR</label>
+                    <textarea
+                      id="trans-fr"
+                      name="fr"
+                      class="form-control"
+                      rows="3"
+                    ></textarea>
+                  </div>
+                  <div class="form-group full-width">
+                    <label for="trans-it">IT</label>
+                    <textarea
+                      id="trans-it"
+                      name="it"
+                      class="form-control"
+                      rows="3"
+                    ></textarea>
+                  </div>
+                  <div class="form-group full-width">
+                    <label for="trans-uk">UK</label>
+                    <textarea
+                      id="trans-uk"
+                      name="uk"
+                      class="form-control"
+                      rows="3"
+                    ></textarea>
+                  </div>
+                  <div class="form-group full-width">
+                    <label for="trans-ru">RU</label>
+                    <textarea
+                      id="trans-ru"
+                      name="ru"
+                      class="form-control"
+                      rows="3"
+                    ></textarea>
+                  </div>
+                  <div class="form-group full-width">
+                    <label for="trans-es">ES</label>
+                    <textarea
+                      id="trans-es"
+                      name="es"
+                      class="form-control"
+                      rows="3"
+                    ></textarea>
+                  </div>
+                </div>
+                <div
+                  style="
+                    margin-top: 20px;
+                    display: flex;
+                    gap: 10px;
+                    justify-content: flex-end;
+                  "
+                >
+                  <button
+                    type="button"
+                    id="btn-cancel-translation"
+                    class="btn btn-secondary hidden"
+                  >
+                    <span data-i18n="admin_btn_cancel">Abbrechen</span>
+                  </button>
+                  <button type="submit" id="btn-submit-translation" class="btn">
+                    <span data-i18n="admin_btn_save">Speichern</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Benutzer Tab -->
+          <div id="tab-users" class="hidden">
+            <div class="admin-section">
+              <h2
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  gap: 10px;
+                "
+              >
+                <span data-i18n="admin_list_title">List</span>
+                <input
+                  type="text"
+                  id="searchUsersInput"
+                  class="form-control"
+                  placeholder="Benutzer durchsuchen (E-Mail)..."
+                  data-i18n-placeholder="admin_search_placeholder_users"
+                  style="
+                    flex: 1;
+                    margin: 0 10px;
+                    padding: 6px 12px;
+                    font-size: 0.9rem;
+                  "
+                />
+                <div style="display: flex; gap: 5px">
+                  <button type="button" id="btn-new-user" class="btn btn-small">
+                    <span data-i18n="admin_btn_new">Neu</span>
+                  </button>
+                  <button
+                    type="button"
+                    id="btn-refresh-users"
+                    class="btn btn-small"
+                  >
+                    <span data-i18n="admin_btn_refresh">Aktualisieren</span>
+                  </button>
+                </div>
+              </h2>
+              <div id="users-list" class="list-container"><p>Load..</p></div>
+            </div>
+            <div class="admin-section">
+              <h2 id="form-title-user" data-i18n="admin_form_title_entry">
+                Eintrag
+              </h2>
+              <form id="user-form">
+                <input type="hidden" id="edit-id-user" name="id" value="" />
+                <div class="form-grid">
+                  <div class="form-group full-width">
+                    <label for="user-email-input" data-i18n="admin_label_email"
+                      >E-Mail</label
+                    >
+                    <input
+                      type="email"
+                      id="user-email-input"
+                      name="email"
+                      class="form-control"
+                      required
+                    />
+                  </div>
+                  <div class="form-group full-width">
+                    <label for="user-rolle" data-i18n="admin_label_role"
+                      >Rolle</label
+                    >
+                    <select
+                      id="user-rolle"
+                      name="rolle"
+                      class="form-control"
+                      required
+                    >
+                      <option value="erfasser">erfasser</option>
+                      <option value="superadmin">superadmin</option>
+                    </select>
+                  </div>
+                </div>
+                <div
+                  style="
+                    margin-top: 20px;
+                    display: flex;
+                    gap: 10px;
+                    justify-content: flex-end;
+                  "
+                >
+                  <button
+                    type="button"
+                    id="btn-cancel-user"
+                    class="btn btn-secondary hidden"
+                  >
+                    <span data-i18n="admin_btn_cancel">Abbrechen</span>
+                  </button>
+                  <button type="submit" id="btn-submit-user" class="btn">
+                    <span data-i18n="admin_btn_save">Speichern</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <button
+          id="btn-logout"
+          class="btn btn-secondary"
+          style="margin-top: 20px"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          <span data-i18n="admin_btn_logout">Abmelden</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Admin Map Modal -->
+    <div
+      id="admin-map-modal"
+      class="hidden"
+      style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(11, 15, 23, 0.9);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 3000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      "
+    >
+      <div
+        style="
+          background: var(--color-surface);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 16px;
+          padding: 20px;
+          width: 90%;
+          max-width: 800px;
+          display: flex;
+          flex-direction: column;
+          gap: 15px;
+        "
+      >
+        <h2 style="margin: 0" data-i18n="admin_map_title">
+          Position auf Karte wählen
+        </h2>
+        <div style="display: flex; gap: 10px">
+          <input
+            type="text"
+            id="admin-map-search"
+            class="form-control"
+            placeholder="Adresse suchen..."
+            data-i18n-placeholder="admin_map_placeholder"
+            style="flex: 1"
+          />
+          <button type="button" id="btn-admin-map-search" class="btn">
+            <span data-i18n="admin_btn_map_search">Suchen</span>
+          </button>
+        </div>
+        <div
+          id="admin-map"
+          style="
+            height: 400px;
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+          "
+        ></div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px">
+          <button
+            type="button"
+            id="btn-admin-map-cancel"
+            class="btn btn-secondary"
+          >
+            <span data-i18n="admin_btn_cancel">Abbrechen</span>
+          </button>
+          <button type="button" id="btn-admin-map-accept" class="btn">
+            <span data-i18n="admin_btn_map_accept">Position übernehmen</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin Logik -->
+
+    <script src="https://cdn.jsdelivr.net/npm/utif@3.1.0/UTIF.js"></script>
+    <script src="admin.js"></script>
+  </body>
+</html>
