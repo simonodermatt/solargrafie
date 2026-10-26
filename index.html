@@ -1445,13 +1445,18 @@
           const keys = key.split(".");
           let value = activeDict;
 
-          // Traverse the dictionary
-          for (const k of keys) {
-            if (value && value[k]) {
-              value = value[k];
-            } else {
-              value = null;
-              break;
+          // Try flat key first (Supabase stores it this way)
+          if (activeDict[key]) {
+            value = activeDict[key];
+          } else {
+            // Traverse the dictionary if it's nested (like regions.ch in default fallback)
+            for (const k of keys) {
+              if (value && value[k]) {
+                value = value[k];
+              } else {
+                value = null;
+                break;
+              }
             }
           }
 
@@ -2060,7 +2065,9 @@
       // Fetch and populate countries from REST Countries API
       async function populateCountries() {
         try {
-          const response = await fetch("https://raw.githubusercontent.com/mledoze/countries/master/countries.json");
+          const response = await fetch(
+            "https://raw.githubusercontent.com/mledoze/countries/master/countries.json",
+          );
           const countries = await response.json();
 
           const optgroup = document.getElementById("countries-optgroup");
