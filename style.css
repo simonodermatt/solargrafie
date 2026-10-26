@@ -2635,4 +2635,22 @@ body.impressum-page {
     width: 100%;
     border-right: none;
   }
+
+  /* Mobile Form Active State */
+  #tab-solargrafien.mobile-form-active .list-pane {
+    display: none !important;
+  }
+  #tab-solargrafien.mobile-form-active #solargrafie-detail-pane {
+    display: flex !important;
+    flex-direction: column;
+  }
+}
+
+.mobile-back-btn {
+  display: none;
+}
+@media (max-width: 768px) {
+  .mobile-back-btn {
+    display: block;
+  }
 }
