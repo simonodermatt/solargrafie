@@ -282,54 +282,74 @@
         </div>
       </div>
     </header>
+    <!-- Horizontal Region Bar -->
+    <div id="region-bar-container" class="region-bar-top">
+      <button
+        class="region-btn"
+        onclick="window.handleRegionChange('world')"
+        data-region="world"
+      >
+        <span class="region-icon">🌍</span>
+        <span class="btn-text" data-i18n="map.region.world">Weltweit</span>
+      </button>
+      <button
+        class="region-btn"
+        onclick="window.handleRegionChange('eu')"
+        data-region="eu"
+      >
+        <span class="region-icon">🇪🇺</span>
+        <span class="btn-text" data-i18n="map.region.europe">Europa</span>
+      </button>
+      <button
+        class="region-btn"
+        onclick="window.handleRegionChange('na')"
+        data-region="na"
+      >
+        <span class="region-icon">🌎</span>
+        <span class="btn-text" data-i18n="map.region.northamerica"
+          >Nordamerika</span
+        >
+      </button>
+      <button
+        class="region-btn"
+        onclick="window.handleRegionChange('sa')"
+        data-region="sa"
+      >
+        <span class="region-icon">🌎</span>
+        <span class="btn-text" data-i18n="map.region.southamerica"
+          >Südamerika</span
+        >
+      </button>
+      <button
+        class="region-btn"
+        onclick="window.handleRegionChange('as')"
+        data-region="as"
+      >
+        <span class="region-icon">🌏</span>
+        <span class="btn-text" data-i18n="map.region.asia">Asien</span>
+      </button>
+      <button
+        class="region-btn"
+        onclick="window.handleRegionChange('af')"
+        data-region="af"
+      >
+        <span class="region-icon">🌍</span>
+        <span class="btn-text" data-i18n="map.region.africa">Afrika</span>
+      </button>
+      <button
+        class="region-btn"
+        onclick="window.handleRegionChange('oc')"
+        data-region="oc"
+      >
+        <span class="region-icon">🌏</span>
+        <span class="btn-text" data-i18n="map.region.oceania">Ozeanien</span>
+      </button>
+      <!-- Dynamic Country Buttons will be appended here -->
+    </div>
 
     <div id="map" class="dark-tiles">
       <!-- Floating Map Controls -->
       <div class="map-controls-left">
-        <!-- Region Select Dropdown -->
-        <div class="control-group">
-          <select
-            id="region-select"
-            class="region-dropdown"
-            aria-label="Region Select"
-            onchange="window.handleRegionChange(this.value)"
-          >
-            <optgroup label="Weltweit" data-i18n="map.region.worldwide_group">
-              <option value="world" data-i18n="map.region.world">
-                🌍 Weltweit
-              </option>
-            </optgroup>
-            <optgroup
-              label="Kontinente"
-              data-i18n="map.region.continents_group"
-            >
-              <option value="eu" data-i18n="map.region.europe">
-                🇪🇺 Europa
-              </option>
-              <option value="na" data-i18n="map.region.northamerica">
-                🌎 Nordamerika
-              </option>
-              <option value="sa" data-i18n="map.region.southamerica">
-                🌎 Südamerika
-              </option>
-              <option value="as" data-i18n="map.region.asia">🌏 Asien</option>
-              <option value="af" data-i18n="map.region.africa">
-                🌍 Afrika
-              </option>
-              <option value="oc" data-i18n="map.region.oceania">
-                🌏 Ozeanien
-              </option>
-            </optgroup>
-            <optgroup
-              id="countries-optgroup"
-              label="Länder"
-              data-i18n="map.region.countries_group"
-            >
-              <option value="ch" data-i18n="map.region.ch">🇨🇭 Schweiz</option>
-              <!-- Others will be dynamically populated -->
-            </optgroup>
-          </select>
-        </div>
         <!-- Group 1: Zoom -->
         <div class="control-group">
           <button class="control-btn" id="btn-zoom-in" title="Zoom In">
@@ -836,23 +856,33 @@
       };
 
       // Add handleRegionChange which saves to localStorage and manages the select dropdown.
+
       window.handleRegionChange = function (regKey) {
         if (!regKey) return;
         localStorage.setItem("preferredMapRegion", regKey);
 
-        // If it is one of our hardcoded regions:
+        // Update active class on buttons
+        const allBtns = document.querySelectorAll(".region-btn");
+        allBtns.forEach((btn) => {
+          if (btn.dataset.region === regKey) {
+            btn.classList.add("active");
+          } else {
+            btn.classList.remove("active");
+          }
+        });
+
         if (regions[regKey]) {
           map.flyTo(regions[regKey].center, regions[regKey].zoom, {
             duration: 1.2,
           });
         } else {
-          // It might be a dynamically added country, we will handle that differently
-          const selectEl = document.getElementById("region-select");
-          const optionEl = selectEl.querySelector(`option[value="${regKey}"]`);
-          if (optionEl && optionEl.dataset.lat && optionEl.dataset.lng) {
-            const lat = parseFloat(optionEl.dataset.lat);
-            const lng = parseFloat(optionEl.dataset.lng);
-            map.flyTo([lat, lng], 6, { duration: 1.2 }); // Higher zoom for countries
+          const btn = document.querySelector(
+            `.region-btn[data-region="${regKey}"]`,
+          );
+          if (btn && btn.dataset.lat && btn.dataset.lng) {
+            const lat = parseFloat(btn.dataset.lat);
+            const lng = parseFloat(btn.dataset.lng);
+            map.flyTo([lat, lng], 6, { duration: 1.2 });
           }
         }
       };
@@ -860,19 +890,6 @@
       // Kept for backward compatibility if there are old buttons
       window.setViewRegion = function (regKey) {
         window.handleRegionChange(regKey);
-        // Also update select to match
-        const selectEl = document.getElementById("region-select");
-        if (selectEl) {
-          selectEl.value = regKey;
-        }
-
-        // Update old buttons if they exist
-        const btnCh = document.getElementById("btn-ch");
-        if (btnCh) btnCh.classList.toggle("active", regKey === "ch");
-        const btnEu = document.getElementById("btn-eu");
-        if (btnEu) btnEu.classList.toggle("active", regKey === "eu");
-        const btnWorld = document.getElementById("btn-world");
-        if (btnWorld) btnWorld.classList.toggle("active", regKey === "world");
       };
 
       // 3. Split-Hosting: Bildpfad Auflösung
@@ -1479,81 +1496,7 @@
           }
         });
 
-        // 2. Dynamic Countries from API
-        const countryOptions = document.querySelectorAll(
-          "#countries-optgroup option",
-        );
 
-        // Map app language code to API translation code
-        const langMap = {
-          de: "deu",
-          en: "eng",
-          fr: "fra",
-          it: "ita",
-          es: "spa",
-          ru: "rus",
-          uk: "ukr",
-        };
-        const apiLang = langMap[lang] || "eng";
-
-        countryOptions.forEach((opt) => {
-          if (opt.value === "ch") return; // Handled by static data-i18n
-          if (opt.dataset.translations) {
-            try {
-              const translations = JSON.parse(opt.dataset.translations);
-              const flag = opt.dataset.flag || "";
-              let name = opt.dataset.defaultName;
-
-              if (translations[apiLang] && translations[apiLang].common) {
-                name = translations[apiLang].common;
-              }
-
-              // Allow override from our own database if the key exists
-              const key = opt.getAttribute("data-i18n");
-              if (key) {
-                const keys = key.split(".");
-                let value = activeDict;
-                for (const k of keys) {
-                  if (value && value[k]) {
-                    value = value[k];
-                  } else {
-                    value = null;
-                    break;
-                  }
-                }
-                if (value && typeof value === "string") {
-                  name = value;
-                }
-              }
-
-              opt.innerText = `${flag} ${name}`;
-            } catch (e) {
-              console.error("Error translating country", e);
-            }
-          }
-        });
-        // Sort options again based on new language
-        const optgroup = document.getElementById("countries-optgroup");
-        if (optgroup) {
-          const optionsArray = Array.from(optgroup.querySelectorAll("option"));
-          const chOption = optionsArray.find((o) => o.value === "ch");
-          const otherOptions = optionsArray.filter((o) => o.value !== "ch");
-
-          otherOptions.sort((a, b) => {
-            // Extract just the text, ignoring the flag emoji
-            const partsA = a.innerText.split(" ");
-            const textA =
-              partsA.length > 1 ? partsA.slice(1).join(" ") : a.innerText;
-            const partsB = b.innerText.split(" ");
-            const textB =
-              partsB.length > 1 ? partsB.slice(1).join(" ") : b.innerText;
-            return textA.localeCompare(textB);
-          });
-
-          // Clear and re-append
-          optgroup.innerHTML = "";
-          if (chOption) optgroup.appendChild(chOption);
-          otherOptions.forEach((o) => optgroup.appendChild(o));
 
           // Restore selection after sorting
           const selectEl = document.getElementById("region-select");
@@ -2063,60 +2006,135 @@
       // Start-Ablauf
 
       // Fetch and populate countries from REST Countries API
+
+      // Helper function to calculate distance using Haversine formula
+      function getDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371; // Radius of the earth in km
+        const dLat = (lat2 - lat1) * (Math.PI / 180);
+        const dLon = (lon2 - lon1) * (Math.PI / 180);
+        const a =
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(lat1 * (Math.PI / 180)) *
+            Math.cos(lat2 * (Math.PI / 180)) *
+            Math.sin(dLon / 2) *
+            Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c; // Distance in km
+      }
+
       async function populateCountries() {
         try {
-          const response = await fetch(
-            "https://raw.githubusercontent.com/mledoze/countries/master/countries.json",
-          );
+          const response = await fetch("https://restcountries.com/v3.1/all");
+          if (!response.ok) {
+            console.error(
+              "Failed to fetch from restcountries",
+              response.status,
+            );
+            return;
+          }
           const countries = await response.json();
+          const regionBar = document.getElementById("region-bar-container");
+          if (!regionBar) return;
 
-          const optgroup = document.getElementById("countries-optgroup");
-          if (!optgroup) return;
+          // 1. Identify which countries have solargrafies
+          const countryCodesWithSolargrafies = new Set();
 
-          // Filter out CH to prevent duplicates
-          const filteredCountries = countries.filter((c) => c.cca2 !== "CH");
+          if (window.solargrafieDaten && window.solargrafieDaten.length > 0) {
+            window.solargrafieDaten.forEach((row) => {
+              let lat, lng;
+              if (row.lat !== undefined && row.lng !== undefined) {
+                lat = parseFloat(row.lat);
+                lng = parseFloat(row.lng);
+              } else {
+                const pos = getVal(row, [
+                  "position",
+                  "koordinaten",
+                  "standort",
+                  "lat,lng",
+                  "ort",
+                ]);
+                if (!pos) return;
+                const parts = pos.split(",");
+                if (parts.length < 2) return;
+                lat = parseFloat(parts[0].trim());
+                lng = parseFloat(parts[1].trim());
+              }
+              if (isNaN(lat) || isNaN(lng)) return;
 
-          // Sort alphabetically by English name by default, we'll update labels on language switch
-          filteredCountries.sort((a, b) => {
-            const nameA = a.name.common || "";
-            const nameB = b.name.common || "";
+              // Find closest country center
+              let closestCountry = null;
+              let minDistance = Infinity;
+
+              countries.forEach((c) => {
+                if (c.latlng && c.latlng.length >= 2) {
+                  const dist = getDistance(lat, lng, c.latlng[0], c.latlng[1]);
+                  if (dist < minDistance) {
+                    minDistance = dist;
+                    closestCountry = c.cca2;
+                  }
+                }
+              });
+
+              if (closestCountry) {
+                countryCodesWithSolargrafies.add(closestCountry);
+              }
+            });
+          }
+
+          // 2. Filter countries and create buttons
+          const activeCountries = countries.filter((c) =>
+            countryCodesWithSolargrafies.has(c.cca2),
+          );
+
+          activeCountries.sort((a, b) => {
+            const nameA = (a.name && a.name.common) || "";
+            const nameB = (b.name && b.name.common) || "";
             return nameA.localeCompare(nameB);
           });
 
-          filteredCountries.forEach((c) => {
-            const option = document.createElement("option");
-            option.value = c.cca2.toLowerCase();
-            option.dataset.lat = c.latlng ? c.latlng[0] : 0;
-            option.dataset.lng = c.latlng ? c.latlng[1] : 0;
+          activeCountries.forEach((c) => {
+            const cca2 = c.cca2.toLowerCase();
+            const btn = document.createElement("button");
+            btn.className = "region-btn";
+            btn.dataset.region = cca2;
+            btn.dataset.lat = c.latlng ? c.latlng[0] : 0;
+            btn.dataset.lng = c.latlng ? c.latlng[1] : 0;
+            btn.onclick = () => window.handleRegionChange(cca2);
 
-            // Setup data-i18n attribute so it can be dynamically translated if a key exists
-            option.setAttribute(
-              "data-i18n",
-              `map.country.${c.cca2.toLowerCase()}`,
-            );
-
-            // Set default text using flag emoji and common name
-            const flag = c.flag || "";
-            option.innerText = `${flag} ${c.name.common}`;
-
-            // Store the country object in dataset for later dynamic translation
-            if (c.translations) {
-              option.dataset.translations = JSON.stringify(c.translations);
+            // Fetch active translation or fallback
+            const langMap = {
+              de: "deu",
+              en: "eng",
+              fr: "fra",
+              it: "ita",
+              es: "spa",
+              ru: "rus",
+              uk: "ukr",
+            };
+            const apiLang = langMap[currentLang] || "eng";
+            let translatedName = c.name.common;
+            if (c.translations && c.translations[apiLang]) {
+              translatedName = c.translations[apiLang].common;
             }
-            option.dataset.defaultName = c.name.common;
-            option.dataset.flag = flag;
 
-            optgroup.appendChild(option);
+            // SVG flag
+            const flagUrl = c.flags ? c.flags.svg || c.flags.png : "";
+            const flagHtml = flagUrl
+              ? `<img src="${flagUrl}" alt="${c.cca2} Flag" />`
+              : `<span class="region-icon">${c.flag || ""}</span>`;
+
+            btn.innerHTML = `
+              ${flagHtml}
+              <span class="btn-text" data-i18n="map.country.${cca2}" data-translations='${JSON.stringify(c.translations || {}).replace(/'/g, "&apos;")}'>${translatedName}</span>
+            `;
+
+            regionBar.appendChild(btn);
           });
 
-          // Restore selected value if it was a country that just got loaded
-          const savedReg = localStorage.getItem("preferredMapRegion");
-          if (savedReg) {
-            const selectEl = document.getElementById("region-select");
-            if (selectEl) {
-              selectEl.value = savedReg;
-            }
-          }
+          // Re-apply active class if needed
+          let initialReg =
+            localStorage.getItem("preferredMapRegion") || "world";
+          window.handleRegionChange(initialReg);
         } catch (e) {
           console.error("Error fetching countries:", e);
         }
