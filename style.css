@@ -2655,48 +2655,74 @@ body.impressum-page {
   }
 }
 
-/* Region Select Dropdown */
-.region-dropdown {
-  width: 100%;
-  padding: 8px 12px;
-  background-color: rgba(11, 15, 23, 0.8); /* Dark base with transparency */
+/* Horizontal Region Bar */
+.region-bar-top {
+  position: absolute;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  overflow-x: auto;
+  gap: 8px;
+  scrollbar-width: none;
+  z-index: var(--z-map-controls);
+  width: 90%;
+  max-width: 800px;
+  background: rgba(11, 15, 23, 0.6);
+  padding: 8px;
+  border-radius: 12px;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.region-bar-top::-webkit-scrollbar {
+  display: none;
+}
+
+.region-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--color-text-main);
+  padding: 6px 12px;
   border-radius: 8px;
-  color: var(--text-primary);
-  font-family: var(--font-body);
-  font-size: 0.9rem;
-  appearance: none; /* Remove default arrow for custom styling if needed */
-  -moz-appearance: none;
-  -webkit-appearance: none;
   cursor: pointer;
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  transition:
-    border-color 0.3s ease,
-    box-shadow 0.3s ease;
-
-  /* Adding a custom dropdown arrow icon */
-  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%239ca3af%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E");
-  background-repeat: no-repeat;
-  background-position: right 8px center;
-  background-size: 16px;
-  padding-right: 32px; /* Space for the arrow */
+  white-space: nowrap;
+  font-family: var(--font-head);
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
 }
 
-.region-dropdown:hover,
-.region-dropdown:focus {
+.region-btn:hover,
+.region-btn.active {
+  background: rgba(14, 165, 233, 0.2);
   border-color: var(--primary-cyan);
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.3); /* Focus ring */
 }
 
-.region-dropdown option,
-.region-dropdown optgroup {
-  background-color: var(
-    --bg-dark
-  ); /* Options need a solid background, especially on some browsers */
-  color: var(--text-primary);
+.region-btn img {
+  width: 20px;
+  height: auto;
+  border-radius: 2px;
+}
+
+.region-icon {
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .region-bar-top {
+    top: 70px;
+    width: 95%;
+  }
+  .region-btn .btn-text {
+    display: none;
+  }
+  .region-btn {
+    padding: 6px 10px;
+  }
 }
