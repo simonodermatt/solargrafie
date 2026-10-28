@@ -89,51 +89,110 @@
       <div class="header-controls">
         <!-- Regionsauswahl -->
         <div class="btn-group">
-          <button
-            id="btn-ch"
-            class="toggle-btn active"
-            onclick="setViewRegion('ch')"
-            title="Schweiz"
-          >
-            <svg viewBox="0 0 24 24" width="16" height="16">
-              <rect
-                x="2"
-                y="2"
-                width="20"
-                height="20"
-                rx="4"
-                fill="#000"
-                stroke="currentColor"
-                stroke-width="1.5"
-              ></rect>
-              <path d="M10 6h4v4h4v4h-4v4h-4v-4H6v-4h4V6z" fill="#fff"></path>
-            </svg>
-            <span class="btn-text">Schweiz</span>
-          </button>
-          <button
-            id="btn-eu"
-            class="toggle-btn"
-            onclick="setViewRegion('eu')"
-            title="Europa"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              width="16"
-              height="16"
-              stroke="currentColor"
-              stroke-width="2"
-              fill="none"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+          <div class="dropdown-wrapper" id="dropdown-country">
+            <button
+              id="btn-ch"
+              class="toggle-btn active"
+              onclick="setViewRegion('ch')"
+              title="Länder"
             >
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="2" y1="12" x2="22" y2="12"></line>
-              <path
-                d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
-              ></path>
-            </svg>
-            <span class="btn-text">Europa</span>
-          </button>
+              <svg viewBox="0 0 24 24" width="16" height="16">
+                <rect
+                  x="2"
+                  y="2"
+                  width="20"
+                  height="20"
+                  rx="4"
+                  fill="#000"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                ></rect>
+                <path d="M10 6h4v4h4v4h-4v4h-4v-4H6v-4h4V6z" fill="#fff"></path>
+              </svg>
+              <span class="btn-text">Schweiz</span>
+            </button>
+            <div class="dropdown-content" id="country-dropdown-content">
+              <!-- Dynamically populated countries will go here -->
+            </div>
+          </div>
+          <div class="dropdown-wrapper" id="dropdown-continent">
+            <button
+              id="btn-eu"
+              class="toggle-btn"
+              onclick="setViewRegion('eu')"
+              title="Kontinente"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                width="16"
+                height="16"
+                stroke="currentColor"
+                stroke-width="2"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path
+                  d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+                ></path>
+              </svg>
+              <span class="btn-text">Europa</span>
+            </button>
+            <div class="dropdown-content">
+              <button
+                class="dropdown-item"
+                onclick="window.handleRegionChange('na')"
+                data-region="na"
+              >
+                <span class="dropdown-icon">🌎</span>
+                <span class="dropdown-text" data-i18n="map.region.northamerica"
+                  >Nordamerika</span
+                >
+              </button>
+              <button
+                class="dropdown-item"
+                onclick="window.handleRegionChange('sa')"
+                data-region="sa"
+              >
+                <span class="dropdown-icon">🌎</span>
+                <span class="dropdown-text" data-i18n="map.region.southamerica"
+                  >Südamerika</span
+                >
+              </button>
+              <button
+                class="dropdown-item"
+                onclick="window.handleRegionChange('as')"
+                data-region="as"
+              >
+                <span class="dropdown-icon">🌏</span>
+                <span class="dropdown-text" data-i18n="map.region.asia"
+                  >Asien</span
+                >
+              </button>
+              <button
+                class="dropdown-item"
+                onclick="window.handleRegionChange('af')"
+                data-region="af"
+              >
+                <span class="dropdown-icon">🌍</span>
+                <span class="dropdown-text" data-i18n="map.region.africa"
+                  >Afrika</span
+                >
+              </button>
+              <button
+                class="dropdown-item"
+                onclick="window.handleRegionChange('oc')"
+                data-region="oc"
+              >
+                <span class="dropdown-icon">🌏</span>
+                <span class="dropdown-text" data-i18n="map.region.oceania"
+                  >Ozeanien</span
+                >
+              </button>
+            </div>
+          </div>
           <button
             id="btn-world"
             class="toggle-btn"
@@ -282,71 +341,6 @@
         </div>
       </div>
     </header>
-    <!-- Horizontal Region Bar -->
-    <div id="region-bar-container" class="region-bar-top">
-      <button
-        class="region-btn"
-        onclick="window.handleRegionChange('world')"
-        data-region="world"
-      >
-        <span class="region-icon">🌍</span>
-        <span class="btn-text" data-i18n="map.region.world">Weltweit</span>
-      </button>
-      <button
-        class="region-btn"
-        onclick="window.handleRegionChange('eu')"
-        data-region="eu"
-      >
-        <span class="region-icon">🇪🇺</span>
-        <span class="btn-text" data-i18n="map.region.europe">Europa</span>
-      </button>
-      <button
-        class="region-btn"
-        onclick="window.handleRegionChange('na')"
-        data-region="na"
-      >
-        <span class="region-icon">🌎</span>
-        <span class="btn-text" data-i18n="map.region.northamerica"
-          >Nordamerika</span
-        >
-      </button>
-      <button
-        class="region-btn"
-        onclick="window.handleRegionChange('sa')"
-        data-region="sa"
-      >
-        <span class="region-icon">🌎</span>
-        <span class="btn-text" data-i18n="map.region.southamerica"
-          >Südamerika</span
-        >
-      </button>
-      <button
-        class="region-btn"
-        onclick="window.handleRegionChange('as')"
-        data-region="as"
-      >
-        <span class="region-icon">🌏</span>
-        <span class="btn-text" data-i18n="map.region.asia">Asien</span>
-      </button>
-      <button
-        class="region-btn"
-        onclick="window.handleRegionChange('af')"
-        data-region="af"
-      >
-        <span class="region-icon">🌍</span>
-        <span class="btn-text" data-i18n="map.region.africa">Afrika</span>
-      </button>
-      <button
-        class="region-btn"
-        onclick="window.handleRegionChange('oc')"
-        data-region="oc"
-      >
-        <span class="region-icon">🌏</span>
-        <span class="btn-text" data-i18n="map.region.oceania">Ozeanien</span>
-      </button>
-      <!-- Dynamic Country Buttons will be appended here -->
-    </div>
-
     <div id="map" class="dark-tiles">
       <!-- Floating Map Controls -->
       <div class="map-controls-left">
@@ -861,23 +855,69 @@
         if (!regKey) return;
         localStorage.setItem("preferredMapRegion", regKey);
 
-        // Update active class on buttons
-        const allBtns = document.querySelectorAll(".region-btn");
-        allBtns.forEach((btn) => {
-          if (btn.dataset.region === regKey) {
-            btn.classList.add("active");
-          } else {
+        // Remove active class from all header dropdown triggers
+        document
+          .querySelectorAll(".header-controls .toggle-btn")
+          .forEach((btn) => {
             btn.classList.remove("active");
+          });
+
+        // Determine if it's a continent, world, or country and set active state
+        if (regKey === "world") {
+          document.getElementById("btn-world").classList.add("active");
+        } else if (["eu", "na", "sa", "as", "af", "oc"].includes(regKey)) {
+          const euBtn = document.getElementById("btn-eu");
+          if (euBtn) {
+            euBtn.classList.add("active");
+            // update the text of the continent button
+            const btnText = euBtn.querySelector(".btn-text");
+            const targetBtn = document.querySelector(
+              `.dropdown-item[data-region="${regKey}"]`,
+            );
+            if (targetBtn && btnText) {
+              btnText.innerText =
+                targetBtn.querySelector(".dropdown-text").innerText;
+            }
           }
-        });
+        } else {
+          // It's a country
+          const chBtn = document.getElementById("btn-ch");
+          if (chBtn) {
+            chBtn.classList.add("active");
+            // update the text of the country button
+            const targetBtn = document.querySelector(
+              `.dropdown-item[data-region="${regKey}"]`,
+            );
+            if (targetBtn) {
+              const btnText = chBtn.querySelector(".btn-text");
+              if (btnText) {
+                btnText.innerText =
+                  targetBtn.querySelector(".dropdown-text").innerText;
+              }
+              const chIconSvg = chBtn.querySelector("svg");
+              let newIcon =
+                targetBtn.querySelector("img") ||
+                targetBtn.querySelector(".dropdown-icon");
+              if (newIcon) {
+                // Optional: We can replace the SVG with the flag, or just keep it as 'Schweiz/Land' icon.
+                // For now just update the text.
+              }
+            } else if (regKey === "ch") {
+              // fallback if it's exactly ch but ch is not dynamically in list yet
+              const btnText = chBtn.querySelector(".btn-text");
+              if (btnText) btnText.innerText = "Schweiz";
+            }
+          }
+        }
 
         if (regions[regKey]) {
           map.flyTo(regions[regKey].center, regions[regKey].zoom, {
             duration: 1.2,
           });
         } else {
+          // Wait, where do we get lat/lng for country? from the dynamic button.
           const btn = document.querySelector(
-            `.region-btn[data-region="${regKey}"]`,
+            `.dropdown-item[data-region="${regKey}"]`,
           );
           if (btn && btn.dataset.lat && btn.dataset.lng) {
             const lat = parseFloat(btn.dataset.lat);
@@ -1495,6 +1535,61 @@
             }
           }
         });
+
+        // 2. Dynamic Countries from API (Updated for Dropdown)
+        const countryBtns = document.querySelectorAll(
+          "#country-dropdown-content .dropdown-item",
+        );
+
+        const langMap = {
+          de: "deu",
+          en: "eng",
+          fr: "fra",
+          it: "ita",
+          es: "spa",
+          ru: "rus",
+          uk: "ukr",
+        };
+        const apiLang = langMap[lang] || "eng";
+
+        const dynamicBtns = [];
+        const staticBtns = [];
+
+        countryBtns.forEach((btn) => {
+          const textSpan = btn.querySelector(".dropdown-text");
+          if (textSpan && textSpan.dataset.translations) {
+            try {
+              const translations = JSON.parse(
+                textSpan.dataset.translations.replace(/&apos;/g, "'"),
+              );
+              if (translations[apiLang] && translations[apiLang].common) {
+                textSpan.innerText = translations[apiLang].common;
+              }
+            } catch (e) {
+              console.error("Error translating country", e);
+            }
+            dynamicBtns.push(btn);
+          } else {
+            staticBtns.push(btn);
+          }
+        });
+
+        // Sort dynamic buttons again based on new language
+        dynamicBtns.sort((a, b) => {
+          const textA = a.querySelector(".dropdown-text").innerText;
+          const textB = b.querySelector(".dropdown-text").innerText;
+          return textA.localeCompare(textB);
+        });
+
+        const countryDropdownContent = document.getElementById(
+          "country-dropdown-content",
+        );
+        if (countryDropdownContent && dynamicBtns.length > 0) {
+          // Clear and re-append
+          countryDropdownContent.innerHTML = "";
+          staticBtns.forEach((btn) => countryDropdownContent.appendChild(btn));
+          dynamicBtns.forEach((btn) => countryDropdownContent.appendChild(btn));
+        }
         // --- END NEW ---
 
         // Update footer translations
@@ -2023,8 +2118,10 @@
             return;
           }
           const countries = await response.json();
-          const regionBar = document.getElementById("region-bar-container");
-          if (!regionBar) return;
+          const countryDropdownContent = document.getElementById(
+            "country-dropdown-content",
+          );
+          if (!countryDropdownContent) return;
 
           // 1. Identify which countries have solargrafies
           const countryCodesWithSolargrafies = new Set();
@@ -2085,7 +2182,7 @@
           activeCountries.forEach((c) => {
             const cca2 = c.cca2.toLowerCase();
             const btn = document.createElement("button");
-            btn.className = "region-btn";
+            btn.className = "dropdown-item";
             btn.dataset.region = cca2;
             btn.dataset.lat = c.latlng ? c.latlng[0] : 0;
             btn.dataset.lng = c.latlng ? c.latlng[1] : 0;
@@ -2111,14 +2208,14 @@
             const flagUrl = c.flags ? c.flags.svg || c.flags.png : "";
             const flagHtml = flagUrl
               ? `<img src="${flagUrl}" alt="${c.cca2} Flag" />`
-              : `<span class="region-icon">${c.flag || ""}</span>`;
+              : `<span class="dropdown-icon">${c.flag || ""}</span>`;
 
             btn.innerHTML = `
               ${flagHtml}
-              <span class="btn-text" data-i18n="map.country.${cca2}" data-translations='${JSON.stringify(c.translations || {}).replace(/'/g, "&apos;")}'>${translatedName}</span>
+              <span class="dropdown-text" data-i18n="map.country.${cca2}" data-translations='${JSON.stringify(c.translations || {}).replace(/'/g, "&apos;")}'>${translatedName}</span>
             `;
 
-            regionBar.appendChild(btn);
+            countryDropdownContent.appendChild(btn);
           });
 
           // Re-apply active class if needed

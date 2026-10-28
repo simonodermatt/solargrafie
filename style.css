@@ -2655,74 +2655,74 @@ body.impressum-page {
   }
 }
 
-/* Horizontal Region Bar */
-.region-bar-top {
+/* Header Region Dropdowns */
+.dropdown-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
   position: absolute;
-  top: 80px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  overflow-x: auto;
-  gap: 8px;
-  scrollbar-width: none;
-  z-index: var(--z-map-controls);
-  width: 90%;
-  max-width: 800px;
-  background: rgba(11, 15, 23, 0.6);
-  padding: 8px;
-  border-radius: 12px;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  background: rgba(11, 15, 23, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.08);
-}
-.region-bar-top::-webkit-scrollbar {
-  display: none;
+  border-radius: 8px;
+  flex-direction: column;
+  min-width: 160px;
+  z-index: var(--z-dropdown);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  padding: 4px 0;
+  max-height: 50vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
-.region-btn {
+/* For WebKit scrollbars in the dropdown */
+.dropdown-content::-webkit-scrollbar {
+  width: 6px;
+}
+.dropdown-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.dropdown-wrapper:hover .dropdown-content {
+  display: flex;
+}
+
+.dropdown-item {
   display: flex;
   align-items: center;
-  gap: 6px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 8px;
+  background: transparent;
+  border: none;
   color: var(--color-text-main);
-  padding: 6px 12px;
-  border-radius: 8px;
+  padding: 8px 16px;
   cursor: pointer;
-  white-space: nowrap;
+  text-align: left;
   font-family: var(--font-head);
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+  width: 100%;
 }
 
-.region-btn:hover,
-.region-btn.active {
+.dropdown-item:hover {
   background: rgba(14, 165, 233, 0.2);
-  border-color: var(--primary-cyan);
+  color: var(--primary-cyan);
 }
 
-.region-btn img {
+.dropdown-item img,
+.dropdown-icon {
   width: 20px;
   height: auto;
   border-radius: 2px;
-}
-
-.region-icon {
-  font-size: 1.1rem;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-@media (max-width: 768px) {
-  .region-bar-top {
-    top: 70px;
-    width: 95%;
-  }
-  .region-btn .btn-text {
-    display: none;
-  }
-  .region-btn {
-    padding: 6px 10px;
-  }
+  font-size: 1.1rem;
 }
