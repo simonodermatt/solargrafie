@@ -65,7 +65,10 @@ self.addEventListener("fetch", (event) => {
   if (
     event.request.url.includes("arcgisonline.com") ||
     event.request.url.includes("openstreetmap.org") ||
-    event.request.url.includes("open-meteo.com")
+    event.request.url.includes("open-meteo.com") ||
+    event.request.url.includes("restcountries.com") ||
+    event.request.url.includes("flagcdn.com") ||
+    event.request.url.includes("raw.githubusercontent.com")
   ) {
     return;
   }
