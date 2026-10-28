@@ -89,51 +89,110 @@
       <div class="header-controls">
         <!-- Regionsauswahl -->
         <div class="btn-group">
-          <button
-            id="btn-ch"
-            class="toggle-btn active"
-            onclick="setViewRegion('ch')"
-            title="Schweiz"
-          >
-            <svg viewBox="0 0 24 24" width="16" height="16">
-              <rect
-                x="2"
-                y="2"
-                width="20"
-                height="20"
-                rx="4"
-                fill="#000"
-                stroke="currentColor"
-                stroke-width="1.5"
-              ></rect>
-              <path d="M10 6h4v4h4v4h-4v4h-4v-4H6v-4h4V6z" fill="#fff"></path>
-            </svg>
-            <span class="btn-text">Schweiz</span>
-          </button>
-          <button
-            id="btn-eu"
-            class="toggle-btn"
-            onclick="setViewRegion('eu')"
-            title="Europa"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              width="16"
-              height="16"
-              stroke="currentColor"
-              stroke-width="2"
-              fill="none"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+          <div class="dropdown-wrapper" id="dropdown-country">
+            <button
+              id="btn-ch"
+              class="toggle-btn active"
+              onclick="setViewRegion('ch')"
+              title="Länder"
             >
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="2" y1="12" x2="22" y2="12"></line>
-              <path
-                d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
-              ></path>
-            </svg>
-            <span class="btn-text">Europa</span>
-          </button>
+              <svg viewBox="0 0 24 24" width="16" height="16">
+                <rect
+                  x="2"
+                  y="2"
+                  width="20"
+                  height="20"
+                  rx="4"
+                  fill="#000"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                ></rect>
+                <path d="M10 6h4v4h4v4h-4v4h-4v-4H6v-4h4V6z" fill="#fff"></path>
+              </svg>
+              <span class="btn-text">Schweiz</span>
+            </button>
+            <div class="dropdown-content" id="country-dropdown-content">
+              <!-- Dynamically populated countries will go here -->
+            </div>
+          </div>
+          <div class="dropdown-wrapper" id="dropdown-continent">
+            <button
+              id="btn-eu"
+              class="toggle-btn"
+              onclick="setViewRegion('eu')"
+              title="Kontinente"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                width="16"
+                height="16"
+                stroke="currentColor"
+                stroke-width="2"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path
+                  d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+                ></path>
+              </svg>
+              <span class="btn-text">Europa</span>
+            </button>
+            <div class="dropdown-content">
+              <button
+                class="dropdown-item"
+                onclick="window.handleRegionChange('na')"
+                data-region="na"
+              >
+                <span class="dropdown-icon">🌎</span>
+                <span class="dropdown-text" data-i18n="map.region.northamerica"
+                  >Nordamerika</span
+                >
+              </button>
+              <button
+                class="dropdown-item"
+                onclick="window.handleRegionChange('sa')"
+                data-region="sa"
+              >
+                <span class="dropdown-icon">🌎</span>
+                <span class="dropdown-text" data-i18n="map.region.southamerica"
+                  >Südamerika</span
+                >
+              </button>
+              <button
+                class="dropdown-item"
+                onclick="window.handleRegionChange('as')"
+                data-region="as"
+              >
+                <span class="dropdown-icon">🌏</span>
+                <span class="dropdown-text" data-i18n="map.region.asia"
+                  >Asien</span
+                >
+              </button>
+              <button
+                class="dropdown-item"
+                onclick="window.handleRegionChange('af')"
+                data-region="af"
+              >
+                <span class="dropdown-icon">🌍</span>
+                <span class="dropdown-text" data-i18n="map.region.africa"
+                  >Afrika</span
+                >
+              </button>
+              <button
+                class="dropdown-item"
+                onclick="window.handleRegionChange('oc')"
+                data-region="oc"
+              >
+                <span class="dropdown-icon">🌏</span>
+                <span class="dropdown-text" data-i18n="map.region.oceania"
+                  >Ozeanien</span
+                >
+              </button>
+            </div>
+          </div>
           <button
             id="btn-world"
             class="toggle-btn"
@@ -282,7 +341,6 @@
         </div>
       </div>
     </header>
-
     <div id="map" class="dark-tiles">
       <!-- Floating Map Controls -->
       <div class="map-controls-left">
@@ -616,7 +674,12 @@
       window.translations = {};
       window.mapMarkers = {};
       const cfg = typeof APP_CONFIG !== "undefined" ? APP_CONFIG : {};
-      const supabaseClient = (cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY && typeof supabase !== "undefined") ? supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY) : null;
+      const supabaseClient =
+        cfg.SUPABASE_URL &&
+        cfg.SUPABASE_ANON_KEY &&
+        typeof supabase !== "undefined"
+          ? supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY)
+          : null;
       const defaultTranslations = {
         de: {
           welcome_prompt_title: "Projekt Info Anzeigen?",
@@ -774,27 +837,99 @@
       document.getElementById("btn-theme-toggle").classList.add("active");
 
       // 2. Regionen-Steuerung
+      // Continents and specific fallback regions
       const regions = {
-        ch: { center: [46.8182, 8.2275], zoom: 9 },
-        eu: { center: [49.5, 12.0], zoom: 5 },
-        world: { center: [30.0, 10.0], zoom: 3 },
+        ch: { center: [46.8182, 8.2275], zoom: 7 },
+        eu: { center: [49.5, 12.0], zoom: 4 },
+        world: { center: [20.0, 0.0], zoom: 2 },
+        na: { center: [45.0, -100.0], zoom: 3 },
+        sa: { center: [-15.0, -60.0], zoom: 3 },
+        as: { center: [45.0, 90.0], zoom: 3 },
+        af: { center: [5.0, 20.0], zoom: 3 },
+        oc: { center: [-25.0, 135.0], zoom: 4 },
       };
 
+      // Add handleRegionChange which saves to localStorage and manages the select dropdown.
+
+      window.handleRegionChange = function (regKey) {
+        if (!regKey) return;
+        localStorage.setItem("preferredMapRegion", regKey);
+
+        // Remove active class from all header dropdown triggers
+        document
+          .querySelectorAll(".header-controls .toggle-btn")
+          .forEach((btn) => {
+            btn.classList.remove("active");
+          });
+
+        // Determine if it's a continent, world, or country and set active state
+        if (regKey === "world") {
+          document.getElementById("btn-world").classList.add("active");
+        } else if (["eu", "na", "sa", "as", "af", "oc"].includes(regKey)) {
+          const euBtn = document.getElementById("btn-eu");
+          if (euBtn) {
+            euBtn.classList.add("active");
+            // update the text of the continent button
+            const btnText = euBtn.querySelector(".btn-text");
+            const targetBtn = document.querySelector(
+              `.dropdown-item[data-region="${regKey}"]`,
+            );
+            if (targetBtn && btnText) {
+              btnText.innerText =
+                targetBtn.querySelector(".dropdown-text").innerText;
+            }
+          }
+        } else {
+          // It's a country
+          const chBtn = document.getElementById("btn-ch");
+          if (chBtn) {
+            chBtn.classList.add("active");
+            // update the text of the country button
+            const targetBtn = document.querySelector(
+              `.dropdown-item[data-region="${regKey}"]`,
+            );
+            if (targetBtn) {
+              const btnText = chBtn.querySelector(".btn-text");
+              if (btnText) {
+                btnText.innerText =
+                  targetBtn.querySelector(".dropdown-text").innerText;
+              }
+              const chIconSvg = chBtn.querySelector("svg");
+              let newIcon =
+                targetBtn.querySelector("img") ||
+                targetBtn.querySelector(".dropdown-icon");
+              if (newIcon) {
+                // Optional: We can replace the SVG with the flag, or just keep it as 'Schweiz/Land' icon.
+                // For now just update the text.
+              }
+            } else if (regKey === "ch") {
+              // fallback if it's exactly ch but ch is not dynamically in list yet
+              const btnText = chBtn.querySelector(".btn-text");
+              if (btnText) btnText.innerText = "Schweiz";
+            }
+          }
+        }
+
+        if (regions[regKey]) {
+          map.flyTo(regions[regKey].center, regions[regKey].zoom, {
+            duration: 1.2,
+          });
+        } else {
+          // Wait, where do we get lat/lng for country? from the dynamic button.
+          const btn = document.querySelector(
+            `.dropdown-item[data-region="${regKey}"]`,
+          );
+          if (btn && btn.dataset.lat && btn.dataset.lng) {
+            const lat = parseFloat(btn.dataset.lat);
+            const lng = parseFloat(btn.dataset.lng);
+            map.flyTo([lat, lng], 6, { duration: 1.2 });
+          }
+        }
+      };
+
+      // Kept for backward compatibility if there are old buttons
       window.setViewRegion = function (regKey) {
-        const reg = regions[regKey];
-        if (!reg) return;
-
-        map.flyTo(reg.center, reg.zoom, { duration: 1.2 });
-
-        document
-          .getElementById("btn-ch")
-          .classList.toggle("active", regKey === "ch");
-        document
-          .getElementById("btn-eu")
-          .classList.toggle("active", regKey === "eu");
-        document
-          .getElementById("btn-world")
-          .classList.toggle("active", regKey === "world");
+        window.handleRegionChange(regKey);
       };
 
       // 3. Split-Hosting: Bildpfad Auflösung
@@ -1096,7 +1231,9 @@
         }
 
         try {
-          const { data, error } = await supabaseClient.from('solargrafien').select('*');
+          const { data, error } = await supabaseClient
+            .from("solargrafien")
+            .select("*");
           if (error) {
             throw new Error(error.message);
           }
@@ -1357,6 +1494,103 @@
               .getElementById("btn-world")
               .querySelector(".btn-text").innerText = activeDict.regions.world;
         }
+
+        // --- NEW: Update Dropdown Translations ---
+        // 1. Static groups and options
+        document.querySelectorAll("[data-i18n]").forEach((el) => {
+          const key = el.getAttribute("data-i18n");
+          const keys = key.split(".");
+          let value = activeDict;
+
+          // Try flat key first (Supabase stores it this way)
+          if (activeDict[key]) {
+            value = activeDict[key];
+          } else {
+            // Traverse the dictionary if it's nested (like regions.ch in default fallback)
+            for (const k of keys) {
+              if (value && value[k]) {
+                value = value[k];
+              } else {
+                value = null;
+                break;
+              }
+            }
+          }
+
+          if (value && typeof value === "string") {
+            // If it's an option we might want to keep the emoji
+            if (el.tagName === "OPTION") {
+              const textContent = el.innerText;
+              // Simple regex to grab anything before the first space (assuming format "EMOJI Name")
+              const parts = textContent.split(" ");
+              if (parts.length > 1) {
+                el.innerText = parts[0] + " " + value;
+              } else {
+                el.innerText = value;
+              }
+            } else if (el.tagName === "OPTGROUP") {
+              el.label = value;
+            } else {
+              el.innerText = value;
+            }
+          }
+        });
+
+        // 2. Dynamic Countries from API (Updated for Dropdown)
+        const countryBtns = document.querySelectorAll(
+          "#country-dropdown-content .dropdown-item",
+        );
+
+        const langMap = {
+          de: "deu",
+          en: "eng",
+          fr: "fra",
+          it: "ita",
+          es: "spa",
+          ru: "rus",
+          uk: "ukr",
+        };
+        const apiLang = langMap[lang] || "eng";
+
+        const dynamicBtns = [];
+        const staticBtns = [];
+
+        countryBtns.forEach((btn) => {
+          const textSpan = btn.querySelector(".dropdown-text");
+          if (textSpan && textSpan.dataset.translations) {
+            try {
+              const translations = JSON.parse(
+                textSpan.dataset.translations.replace(/&apos;/g, "'"),
+              );
+              if (translations[apiLang] && translations[apiLang].common) {
+                textSpan.innerText = translations[apiLang].common;
+              }
+            } catch (e) {
+              console.error("Error translating country", e);
+            }
+            dynamicBtns.push(btn);
+          } else {
+            staticBtns.push(btn);
+          }
+        });
+
+        // Sort dynamic buttons again based on new language
+        dynamicBtns.sort((a, b) => {
+          const textA = a.querySelector(".dropdown-text").innerText;
+          const textB = b.querySelector(".dropdown-text").innerText;
+          return textA.localeCompare(textB);
+        });
+
+        const countryDropdownContent = document.getElementById(
+          "country-dropdown-content",
+        );
+        if (countryDropdownContent && dynamicBtns.length > 0) {
+          // Clear and re-append
+          countryDropdownContent.innerHTML = "";
+          staticBtns.forEach((btn) => countryDropdownContent.appendChild(btn));
+          dynamicBtns.forEach((btn) => countryDropdownContent.appendChild(btn));
+        }
+        // --- END NEW ---
 
         // Update footer translations
         if (document.getElementById("footer-title")) {
@@ -1855,11 +2089,201 @@
       };
 
       // Start-Ablauf
-      const initialReg =
-        (typeof APP_CONFIG !== "undefined" && APP_CONFIG.defaultRegion) || "ch";
+
+      // Fetch and populate countries from REST Countries API
+
+      // Helper function to calculate distance using Haversine formula
+      function getDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371; // Radius of the earth in km
+        const dLat = (lat2 - lat1) * (Math.PI / 180);
+        const dLon = (lon2 - lon1) * (Math.PI / 180);
+        const a =
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(lat1 * (Math.PI / 180)) *
+            Math.cos(lat2 * (Math.PI / 180)) *
+            Math.sin(dLon / 2) *
+            Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c; // Distance in km
+      }
+
+      async function populateCountries() {
+        try {
+          const response = await fetch(
+            "https://raw.githubusercontent.com/mledoze/countries/master/countries.json",
+          );
+          if (!response.ok) {
+            console.error("Failed to fetch from github", response.status);
+            return;
+          }
+          let countries = await response.json();
+
+          // Map mledoze format to resemble restcountries format for SVG flags
+          countries = countries.map((c) => {
+            return {
+              ...c,
+              flags: {
+                svg: `https://flagcdn.com/${c.cca2.toLowerCase()}.svg`,
+                png: `https://flagcdn.com/w320/${c.cca2.toLowerCase()}.png`,
+              },
+            };
+          });
+
+          const countryDropdownContent = document.getElementById(
+            "country-dropdown-content",
+          );
+          if (!countryDropdownContent) return;
+
+          // 1. Identify which countries have solargrafies
+          const countryCodesWithSolargrafies = new Set();
+
+          if (window.solargrafieDaten && window.solargrafieDaten.length > 0) {
+            window.solargrafieDaten.forEach((row) => {
+              let lat, lng;
+              if (row.lat !== undefined && row.lng !== undefined) {
+                lat = parseFloat(row.lat);
+                lng = parseFloat(row.lng);
+              } else {
+                const pos = getVal(row, [
+                  "position",
+                  "koordinaten",
+                  "standort",
+                  "lat,lng",
+                  "ort",
+                ]);
+                if (!pos) return;
+                const parts = pos.split(",");
+                if (parts.length < 2) return;
+                lat = parseFloat(parts[0].trim());
+                lng = parseFloat(parts[1].trim());
+              }
+              if (isNaN(lat) || isNaN(lng)) return;
+
+              let closestCountry = null;
+
+              // Fast bounding box check for known countries to prevent distance algorithm errors near borders
+              const bounds = {
+                CH: [45.8, 5.9, 47.8, 10.5],
+                DE: [47.2, 5.8, 55.1, 15.0],
+                AT: [46.3, 9.5, 49.0, 17.1],
+                UA: [44.3, 22.1, 52.3, 40.2],
+                FR: [41.3, -5.1, 51.1, 9.5],
+                IT: [36.6, 6.6, 47.1, 18.5],
+              };
+              for (const [cca2, b] of Object.entries(bounds)) {
+                if (lat >= b[0] && lat <= b[2] && lng >= b[1] && lng <= b[3]) {
+                  closestCountry = cca2;
+                  break;
+                }
+              }
+
+              if (!closestCountry) {
+                // Fallback to normalized distance
+                let minNormDist = Infinity;
+                countries.forEach((c) => {
+                  if (c.latlng && c.latlng.length >= 2) {
+                    const dist = getDistance(
+                      lat,
+                      lng,
+                      c.latlng[0],
+                      c.latlng[1],
+                    );
+                    const area = c.area && c.area > 0 ? c.area : 1;
+                    const radius = Math.sqrt(area / Math.PI);
+                    const normDist = dist / radius;
+                    if (normDist < minNormDist) {
+                      minNormDist = normDist;
+                      closestCountry = c.cca2;
+                    }
+                  }
+                });
+              }
+
+              if (closestCountry) {
+                countryCodesWithSolargrafies.add(closestCountry);
+              }
+            });
+          }
+
+          // 2. Filter countries and create buttons
+          const activeCountries = countries.filter((c) =>
+            countryCodesWithSolargrafies.has(c.cca2),
+          );
+
+          activeCountries.sort((a, b) => {
+            const nameA = (a.name && a.name.common) || "";
+            const nameB = (b.name && b.name.common) || "";
+            return nameA.localeCompare(nameB);
+          });
+
+          activeCountries.forEach((c) => {
+            const cca2 = c.cca2.toLowerCase();
+            const btn = document.createElement("button");
+            btn.className = "dropdown-item";
+            btn.dataset.region = cca2;
+            btn.dataset.lat = c.latlng ? c.latlng[0] : 0;
+            btn.dataset.lng = c.latlng ? c.latlng[1] : 0;
+            btn.onclick = () => window.handleRegionChange(cca2);
+
+            // Fetch active translation or fallback
+            const langMap = {
+              de: "deu",
+              en: "eng",
+              fr: "fra",
+              it: "ita",
+              es: "spa",
+              ru: "rus",
+              uk: "ukr",
+            };
+            const apiLang = langMap[currentLang] || "eng";
+            let translatedName = c.name.common;
+            if (c.translations && c.translations[apiLang]) {
+              translatedName = c.translations[apiLang].common;
+            }
+
+            // SVG flag
+            const flagUrl = c.flags ? c.flags.svg || c.flags.png : "";
+            const flagHtml = flagUrl
+              ? `<img src="${flagUrl}" alt="${c.cca2} Flag" />`
+              : `<span class="dropdown-icon">${c.flag || ""}</span>`;
+
+            btn.innerHTML = `
+              ${flagHtml}
+              <span class="dropdown-text" data-i18n="map.country.${cca2}" data-translations='${JSON.stringify(c.translations || {}).replace(/'/g, "&apos;")}'>${translatedName}</span>
+            `;
+
+            countryDropdownContent.appendChild(btn);
+          });
+
+          // Re-apply active class if needed
+          let initialReg =
+            localStorage.getItem("preferredMapRegion") || "world";
+          window.handleRegionChange(initialReg);
+        } catch (e) {
+          console.error("Error fetching countries:", e);
+        }
+      }
 
       async function initializeApp() {
-        await Promise.all([fetchTranslationsData(), fetchSolargrafieDaten()]);
+        await Promise.all([
+          fetchTranslationsData(),
+          fetchSolargrafieDaten(),
+          populateCountries(),
+        ]);
+
+        let initialReg = localStorage.getItem("preferredMapRegion");
+        if (!initialReg) {
+          initialReg =
+            (typeof APP_CONFIG !== "undefined" && APP_CONFIG.defaultRegion) ||
+            "ch";
+        }
+
+        const selectEl = document.getElementById("region-select");
+        if (selectEl) {
+          selectEl.value = initialReg;
+        }
+
+        // Let the map settle before panning to default/saved region
         window.setViewRegion(initialReg);
 
         const hasSeenPrompt = localStorage.getItem("hasSeenWelcomePrompt");
