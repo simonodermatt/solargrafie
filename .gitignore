@@ -1,2 +1,9 @@
-/old
+server_output.log
+check_errors.js
+check_errors.py
+check_errors2.py
+modify_js5.py
+modify_js6.py
 node_modules/
+package-lock.json
+package.json
