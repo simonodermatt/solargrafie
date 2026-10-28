@@ -2117,7 +2117,29 @@
             );
             return;
           }
-          const countries = await response.json();
+
+          let countries = await response.json();
+          if (!Array.isArray(countries)) {
+            console.warn(
+              "REST Countries API returned object, attempting fallback",
+            );
+            const fb = await fetch(
+              "https://raw.githubusercontent.com/mledoze/countries/master/countries.json",
+            );
+            countries = await fb.json();
+
+            // Map mledoze format to resemble restcountries format for SVG flags
+            countries = countries.map((c) => {
+              return {
+                ...c,
+                flags: {
+                  svg: `https://flagcdn.com/${c.cca2.toLowerCase()}.svg`,
+                  png: `https://flagcdn.com/w320/${c.cca2.toLowerCase()}.png`,
+                },
+              };
+            });
+          }
+
           const countryDropdownContent = document.getElementById(
             "country-dropdown-content",
           );
@@ -2148,19 +2170,45 @@
               }
               if (isNaN(lat) || isNaN(lng)) return;
 
-              // Find closest country center
               let closestCountry = null;
-              let minDistance = Infinity;
 
-              countries.forEach((c) => {
-                if (c.latlng && c.latlng.length >= 2) {
-                  const dist = getDistance(lat, lng, c.latlng[0], c.latlng[1]);
-                  if (dist < minDistance) {
-                    minDistance = dist;
-                    closestCountry = c.cca2;
-                  }
+              // Fast bounding box check for known countries to prevent distance algorithm errors near borders
+              const bounds = {
+                CH: [45.8, 5.9, 47.8, 10.5],
+                DE: [47.2, 5.8, 55.1, 15.0],
+                AT: [46.3, 9.5, 49.0, 17.1],
+                UA: [44.3, 22.1, 52.3, 40.2],
+                FR: [41.3, -5.1, 51.1, 9.5],
+                IT: [36.6, 6.6, 47.1, 18.5],
+              };
+              for (const [cca2, b] of Object.entries(bounds)) {
+                if (lat >= b[0] && lat <= b[2] && lng >= b[1] && lng <= b[3]) {
+                  closestCountry = cca2;
+                  break;
                 }
-              });
+              }
+
+              if (!closestCountry) {
+                // Fallback to normalized distance
+                let minNormDist = Infinity;
+                countries.forEach((c) => {
+                  if (c.latlng && c.latlng.length >= 2) {
+                    const dist = getDistance(
+                      lat,
+                      lng,
+                      c.latlng[0],
+                      c.latlng[1],
+                    );
+                    const area = c.area && c.area > 0 ? c.area : 1;
+                    const radius = Math.sqrt(area / Math.PI);
+                    const normDist = dist / radius;
+                    if (normDist < minNormDist) {
+                      minNormDist = normDist;
+                      closestCountry = c.cca2;
+                    }
+                  }
+                });
+              }
 
               if (closestCountry) {
                 countryCodesWithSolargrafies.add(closestCountry);
