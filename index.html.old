@@ -1,0 +1,3208 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta
+      name="google-site-verification"
+      content="rtbyrVwJyzPIj5smh1ktUHK9uKXdSlyrC_XYKkeoeYg"
+    />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#0b0f17" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="Solargrafie" />
+    <link rel="apple-touch-icon" href="icon-192x192.png" />
+    <link rel="manifest" href="manifest.json" />
+
+    <title>
+      Solargrafie Karte | Analoge Langzeitbelichtungen mit der Lochkamera
+    </title>
+    <meta
+      name="description"
+      content="Interaktive Karte mit weltweiten Solargrafien. Entdecke extreme Langzeitbelichtungen, eingefangen mit selbstgebauten Lochkameras auf analogem Fotopapier."
+    />
+
+    <!-- Open Graph Tags -->
+    <meta
+      property="og:title"
+      content="Solargrafie Karte | Analoge Langzeitbelichtungen mit der Lochkamera"
+    />
+    <meta
+      property="og:description"
+      content="Interaktive Karte mit weltweiten Solargrafien. Entdecke extreme Langzeitbelichtungen, eingefangen mit selbstgebauten Lochkameras auf analogem Fotopapier."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://map.solargrafie.ch" />
+    <meta property="og:image" content="https://map.solargrafie.ch/logo.png" />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Plus+Jakarta+Sans:wght@500;600&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Inline Favicon -->
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Ccircle cx='64' cy='64' r='60' fill='%230b0f19' stroke='%2338bdf8' stroke-width='3'/%3E%3Cpath d='M18 84 Q64 24 110 84' fill='none' stroke='%23f59e0b' stroke-width='4' stroke-linecap='round'/%3E%3Cpath d='M24 93 Q64 38 104 93' fill='none' stroke='%2338bdf8' stroke-width='3' stroke-linecap='round' opacity='0.7'/%3E%3Ccircle cx='64' cy='46' r='12' fill='%23f59e0b'/%3E%3Ccircle cx='64' cy='46' r='4' fill='%230b0f19'/%3E%3C/svg%3E"
+    />
+
+    <!-- CSS Stylesheets -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"
+    />
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="top-bar" class="top-bar"></div>
+    <header>
+      <div class="header-left">
+        <img src="logo.png" alt="Logo" class="header-logo" />
+        <div class="header-title-group">
+          <div class="header-title-row">
+            <h1 id="header-title">SOLARGRAFIE PROJEKT</h1>
+            <span id="header-badge" class="badge">OBSERVATORY DECK</span>
+          </div>
+          <div id="header-subtitle" class="header-subtitle">
+            Pinhole Solar Path Cartography
+          </div>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <!-- Regionsauswahl -->
+        <div class="btn-group">
+          <div class="dropdown-wrapper" id="dropdown-country">
+            <button
+              id="btn-ch"
+              class="toggle-btn active"
+              onclick="setViewRegion('ch')"
+              title="Länder"
+            >
+              <svg viewBox="0 0 24 24" width="16" height="16">
+                <rect
+                  x="2"
+                  y="2"
+                  width="20"
+                  height="20"
+                  rx="4"
+                  fill="#000"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                ></rect>
+                <path d="M10 6h4v4h4v4h-4v4h-4v-4H6v-4h4V6z" fill="#fff"></path>
+              </svg>
+              <span class="btn-text">Schweiz</span>
+            </button>
+            <div class="dropdown-content" id="country-dropdown-content">
+              <!-- Dynamically populated countries will go here -->
+            </div>
+          </div>
+          <div class="dropdown-wrapper" id="dropdown-continent">
+            <button
+              id="btn-eu"
+              class="toggle-btn"
+              onclick="setViewRegion('eu')"
+              title="Kontinente"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                width="16"
+                height="16"
+                stroke="currentColor"
+                stroke-width="2"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path
+                  d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+                ></path>
+              </svg>
+              <span class="btn-text">Europa</span>
+            </button>
+            <div class="dropdown-content">
+              <button
+                class="dropdown-item"
+                onclick="window.handleRegionChange('eu')"
+                data-region="eu"
+              >
+                <span class="dropdown-icon">🌍</span>
+                <span class="dropdown-text" data-i18n="map.region.europe"
+                  >Europa</span
+                >
+              </button>
+              <button
+                class="dropdown-item"
+                onclick="window.handleRegionChange('na')"
+                data-region="na"
+              >
+                <span class="dropdown-icon">🌎</span>
+                <span class="dropdown-text" data-i18n="map.region.northamerica"
+                  >Nordamerika</span
+                >
+              </button>
+              <button
+                class="dropdown-item"
+                onclick="window.handleRegionChange('sa')"
+                data-region="sa"
+              >
+                <span class="dropdown-icon">🌎</span>
+                <span class="dropdown-text" data-i18n="map.region.southamerica"
+                  >Südamerika</span
+                >
+              </button>
+              <button
+                class="dropdown-item"
+                onclick="window.handleRegionChange('as')"
+                data-region="as"
+              >
+                <span class="dropdown-icon">🌏</span>
+                <span class="dropdown-text" data-i18n="map.region.asia"
+                  >Asien</span
+                >
+              </button>
+              <button
+                class="dropdown-item"
+                onclick="window.handleRegionChange('af')"
+                data-region="af"
+              >
+                <span class="dropdown-icon">🌍</span>
+                <span class="dropdown-text" data-i18n="map.region.africa"
+                  >Afrika</span
+                >
+              </button>
+              <button
+                class="dropdown-item"
+                onclick="window.handleRegionChange('oc')"
+                data-region="oc"
+              >
+                <span class="dropdown-icon">🌏</span>
+                <span class="dropdown-text" data-i18n="map.region.oceania"
+                  >Ozeanien</span
+                >
+              </button>
+            </div>
+          </div>
+          <button
+            id="btn-world"
+            class="toggle-btn"
+            onclick="setViewRegion('world')"
+            title="Welt"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M21.54 15H17a2 2 0 0 0-2 2v4.54" />
+              <path
+                d="M7 3.34V5a3 3 0 0 0 3 3a2 2 0 0 1 2 2c0 1.1.9 2 2 2a2 2 0 0 0 2-2c0-1.1.9-2 2-2h3.17"
+              />
+              <path
+                d="M11 21.95V18a2 2 0 0 0-2-2a2 2 0 0 1-2-2v-1a2 2 0 0 0-2-2H2.05"
+              />
+              <circle cx="12" cy="12" r="10" />
+            </svg>
+            <span class="btn-text">Welt</span>
+          </button>
+          <button
+            id="btn-archive"
+            class="toggle-btn"
+            onclick="toggleArchive()"
+            title="Archiv"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="21 8 21 21 3 21 3 8"></polyline>
+              <rect x="1" y="3" width="22" height="5"></rect>
+              <line x1="10" y1="12" x2="14" y2="12"></line>
+            </svg>
+            <span class="btn-text">Archiv</span>
+          </button>
+          <button
+            id="btn-project"
+            class="toggle-btn"
+            onclick="openProjectModal()"
+            title="Projekt"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <span class="btn-text">Projekt</span>
+          </button>
+          <button
+            id="btn-contact"
+            class="toggle-btn"
+            onclick="window.location.href = 'mailto:map.solargrafie@gmail.com'"
+            title="Kontakt"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="4"></circle>
+              <path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"></path>
+            </svg>
+            <span class="btn-text">Kontakt</span>
+          </button>
+        </div>
+
+        <!-- Sprachumschalter -->
+        <div class="btn-group" id="lang-group">
+          <button
+            id="lang-de"
+            class="toggle-btn lang-btn active"
+            onclick="setLanguage('de')"
+          >
+            DE
+          </button>
+          <button
+            id="lang-en"
+            class="toggle-btn lang-btn"
+            onclick="setLanguage('en')"
+          >
+            EN
+          </button>
+          <button
+            id="lang-fr"
+            class="toggle-btn lang-btn"
+            onclick="setLanguage('fr')"
+          >
+            FR
+          </button>
+          <button
+            id="lang-it"
+            class="toggle-btn lang-btn"
+            onclick="setLanguage('it')"
+          >
+            IT
+          </button>
+          <button
+            id="lang-uk"
+            class="toggle-btn lang-btn"
+            onclick="setLanguage('uk')"
+          >
+            UK
+          </button>
+          <button
+            id="lang-ru"
+            class="toggle-btn lang-btn"
+            onclick="setLanguage('ru')"
+          >
+            RU
+          </button>
+          <button
+            id="lang-es"
+            class="toggle-btn lang-btn"
+            onclick="setLanguage('es')"
+          >
+            ES
+          </button>
+        </div>
+      </div>
+    </header>
+    <div id="map" class="dark-tiles">
+      <!-- Floating Map Controls -->
+      <div class="map-controls-left">
+        <!-- Group 1: Zoom -->
+        <div class="control-group">
+          <button class="control-btn" id="btn-zoom-in" title="Zoom In">
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </button>
+          <button class="control-btn" id="btn-zoom-out" title="Zoom Out">
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Group 2: View Modes -->
+        <div class="control-group">
+          <button
+            class="control-btn"
+            id="btn-layers-toggle"
+            title="Ebenen"
+            style="display: none"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+              <polyline points="2 12 12 17 22 12"></polyline>
+              <polyline points="2 17 12 22 22 17"></polyline>
+            </svg>
+          </button>
+          <div id="layer-buttons-container" class="layer-buttons-container">
+            <button class="control-btn" id="btn-view-map" title="Karte">
+              <svg
+                viewBox="0 0 24 24"
+                width="20"
+                height="20"
+                stroke="currentColor"
+                stroke-width="2"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polygon
+                  points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"
+                ></polygon>
+                <line x1="9" y1="3" x2="9" y2="21"></line>
+                <line x1="15" y1="3" x2="15" y2="21"></line>
+              </svg>
+            </button>
+            <button
+              class="control-btn active"
+              id="btn-view-sat"
+              title="Satellit"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                width="20"
+                height="20"
+                stroke="currentColor"
+                stroke-width="2"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M12 2l3 5h-6l3-5z"></path>
+                <path d="M12 22l-3-5h6l-3 5z"></path>
+                <path d="M2 12l5-3v6l-5-3z"></path>
+                <path d="M22 12l-5 3v-6l5 3z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+            <button
+              class="control-btn"
+              id="btn-theme-toggle"
+              title="Hell/Dunkel"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                width="20"
+                height="20"
+                stroke="currentColor"
+                stroke-width="2"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detail-Modal -->
+    <div id="lightbox" class="modal" onclick="closeModal(event)">
+      <div class="modal-content-wrapper" onclick="event.stopPropagation()">
+        <!-- Header Section -->
+        <div class="modal-header">
+          <div class="modal-header-left">
+            <div class="modal-header-dot"></div>
+            <h2 id="modal-title"></h2>
+            <span id="modal-badge" class="modal-badge"></span>
+          </div>
+          <div class="modal-header-right">
+            <span class="modal-close" onclick="closeModal(event)">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </span>
+          </div>
+        </div>
+        <div class="modal-subtitle" id="modal-location-subtitle"></div>
+
+        <!-- Project Overview / Image -->
+
+        <div class="modal-image-container" style="position: relative">
+          <button
+            id="modal-img-prev"
+            class="carousel-btn prev"
+            onclick="prevModalImage(event)"
+            style="display: none"
+          >
+            &#10094;
+          </button>
+          <img
+            id="modal-img"
+            src=""
+            alt="Großansicht"
+            onclick="openImageLightbox(event)"
+            style="cursor: pointer"
+          />
+          <button
+            id="modal-img-next"
+            class="carousel-btn next"
+            onclick="nextModalImage(event)"
+            style="display: none"
+          >
+            &#10095;
+          </button>
+        </div>
+
+        <!-- Info Grid -->
+        <div class="modal-info-grid">
+          <!-- Owner Information -->
+          <div
+            class="modal-info-card full-width camera-card"
+            style="align-items: flex-start"
+          >
+            <div class="card-icon" style="margin-top: 4px">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </div>
+            <div
+              class="camera-info-text"
+              style="padding-left: 12px; width: 100%"
+            >
+              <div
+                id="modal-owner-details"
+                style="white-space: pre-line; line-height: 1.4"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Zeitfenster & Sonnenbahnen -->
+          <div class="modal-info-card">
+            <div class="card-icon">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            </div>
+            <strong id="label-time-window">Zeitfenster</strong>
+            <div id="modal-time-dates" class="card-value"></div>
+            <div id="modal-days-count" class="card-subtext blue"></div>
+          </div>
+
+          <div class="modal-info-card">
+            <div class="card-icon">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="21 8 21 21 3 21 3 8"></polyline>
+                <rect x="1" y="3" width="22" height="5"></rect>
+                <line x1="10" y1="12" x2="14" y2="12"></line>
+              </svg>
+            </div>
+            <strong id="label-sun-paths">Sonnenbahnen</strong>
+            <div id="modal-sun-arcs" class="card-value"></div>
+            <div id="modal-cloudy-days" class="card-subtext blue"></div>
+          </div>
+
+          <!-- Sensibles Medium & Sonnenhöhe -->
+          <div class="modal-info-card">
+            <div class="card-icon">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
+                ></path>
+                <circle cx="12" cy="13" r="4"></circle>
+              </svg>
+            </div>
+            <strong id="label-sensitive-medium">Sensibles Medium</strong>
+            <div
+              id="modal-medium-details"
+              class="card-value"
+              style="font-size: 0.9em; margin-bottom: 2px"
+            ></div>
+            <div id="modal-camera-details"></div>
+          </div>
+
+          <div class="modal-info-card">
+            <div class="card-icon">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </div>
+            <strong id="label-sun-height">Sonnenhöhe max.</strong>
+            <div id="modal-sun-zenith" class="card-value"></div>
+            <div id="modal-sun-nadir" class="card-subtext"></div>
+          </div>
+        </div>
+
+        <!-- Kuratoren Notiz -->
+        <div class="modal-curator-note full-width" id="modal-curator-container">
+          <div class="curator-header">
+            <span id="label-curator-note" class="curator-label"
+              >KURATOREN-NOTIZ</span
+            >
+            <span class="curator-names">Eva & Simon</span>
+          </div>
+          <p id="modal-comment" class="curator-text"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bibliotheken (GENAU IN DIESER REIHENFOLGE EINMALIG LADEN) -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+    <!-- Konfiguration & Übersetzungen -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+
+    <script>
+      window.translations = {};
+      window.mapMarkers = {};
+      const cfg = typeof APP_CONFIG !== "undefined" ? APP_CONFIG : {};
+      const supabaseClient =
+        cfg.SUPABASE_URL &&
+        cfg.SUPABASE_ANON_KEY &&
+        typeof supabase !== "undefined"
+          ? supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY)
+          : null;
+      const defaultTranslations = {
+        de: {
+          welcome_prompt_title: "Projekt Info Anzeigen?",
+          welcome_prompt_text: "Möchtest du die Projektinformationen lesen?",
+          welcome_prompt_yes: "Ja",
+          welcome_prompt_no: "Nein",
+          header: "SOLARGRAFIE PROJEKT",
+          observatoryDeck: "OBSERVATORY DECK",
+          subtitle: "Pinhole Solar Path Cartography",
+          archive: "Archiv",
+          project: "Projekt",
+          workInProgress: "Work in Progress",
+          placed: "Aufgestellt",
+          opened: "Geöffnet",
+          note: "Notiz",
+          extId: "Ext. ID",
+          viewLarge: "Großansicht",
+          regions: { ch: "Schweiz", eu: "Europa", world: "Welt" },
+        },
+      };
+
+      const supportedLangs = ["de", "en", "fr", "it", "uk", "ru", "es"];
+      const browserLang = (navigator.language || navigator.userLanguage || "en")
+        .substring(0, 2)
+        .toLowerCase();
+      const savedLang = localStorage.getItem("app_lang");
+      // Saved language takes priority. Fallback to browser or default config or "de".
+      let currentLang = supportedLangs.includes(savedLang)
+        ? savedLang
+        : supportedLangs.includes(browserLang)
+          ? browserLang
+          : typeof APP_CONFIG !== "undefined" && APP_CONFIG.defaultLanguage
+            ? APP_CONFIG.defaultLanguage
+            : "de";
+      let currentModalIndex = null;
+      window.solargrafieDaten = [];
+
+      // Global Utility Functions
+      function getVal(row, keywords) {
+        if (!row) return "";
+        const keys = Object.keys(row);
+        for (let kw of keywords) {
+          const foundKey = keys.find((k) =>
+            k.toLowerCase().includes(kw.toLowerCase()),
+          );
+          if (
+            foundKey &&
+            row[foundKey] !== undefined &&
+            row[foundKey] !== null
+          ) {
+            return String(row[foundKey]).trim();
+          }
+        }
+        return "";
+      }
+
+      function escapeHtml(str) {
+        if (!str) return "";
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      // 1. Karte initialisieren
+      const map = L.map("map", {
+        zoomControl: false,
+        center: [46.8182, 8.2275],
+        zoom: 9,
+        minZoom: 2,
+        maxZoom: 18,
+      });
+
+      map.attributionControl.setPrefix("");
+
+      const markersGroup = L.markerClusterGroup({
+        spiderfyOnMaxZoom: true,
+        showCoverageOnHover: false,
+        zoomToBoundsOnClick: true,
+        spiderfyDistanceMultiplier: 2,
+        maxClusterRadius: 100,
+      });
+      map.addLayer(markersGroup);
+
+      // Floating Menu Controls
+      document
+        .getElementById("btn-zoom-in")
+        .addEventListener("click", () => map.zoomIn());
+      document
+        .getElementById("btn-zoom-out")
+        .addEventListener("click", () => map.zoomOut());
+
+      const streetLayer = L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+          maxZoom: 19,
+          attribution: "© OpenStreetMap",
+        },
+      );
+
+      // Existing satellite layer
+      const satLayer = L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        {
+          maxZoom: 19,
+          attribution: "Tiles &copy; Esri",
+        },
+      ).addTo(map);
+
+      let currentLayer = satLayer; // Keep track of current layer to apply dark mode if needed
+
+      document
+        .getElementById("btn-layers-toggle")
+        .addEventListener("click", () => {
+          document
+            .getElementById("layer-buttons-container")
+            .classList.toggle("open");
+          document
+            .getElementById("btn-layers-toggle")
+            .classList.toggle("active");
+        });
+
+      document.getElementById("btn-view-map").addEventListener("click", (e) => {
+        map.removeLayer(satLayer);
+        streetLayer.addTo(map);
+        currentLayer = streetLayer;
+        e.currentTarget.classList.add("active");
+        document.getElementById("btn-view-sat").classList.remove("active");
+      });
+
+      document.getElementById("btn-view-sat").addEventListener("click", (e) => {
+        map.removeLayer(streetLayer);
+        satLayer.addTo(map);
+        currentLayer = satLayer;
+        e.currentTarget.classList.add("active");
+        document.getElementById("btn-view-map").classList.remove("active");
+      });
+
+      let isDarkMode = true;
+      document
+        .getElementById("btn-theme-toggle")
+        .addEventListener("click", (e) => {
+          isDarkMode = !isDarkMode;
+          if (isDarkMode) {
+            document.getElementById("map").classList.add("dark-tiles");
+            e.currentTarget.classList.add("active");
+          } else {
+            document.getElementById("map").classList.remove("dark-tiles");
+            e.currentTarget.classList.remove("active");
+          }
+        });
+      // Set initial theme toggle button state
+      document.getElementById("btn-theme-toggle").classList.add("active");
+
+      // 2. Regionen-Steuerung
+      // Continents and specific fallback regions
+      const regions = {
+        ch: { center: [46.8182, 8.2275], zoom: 7 },
+        eu: { center: [49.5, 12.0], zoom: 4 },
+        world: { center: [20.0, 0.0], zoom: 2 },
+        na: { center: [45.0, -100.0], zoom: 3 },
+        sa: { center: [-15.0, -60.0], zoom: 3 },
+        as: { center: [45.0, 90.0], zoom: 3 },
+        af: { center: [5.0, 20.0], zoom: 3 },
+        oc: { center: [-25.0, 135.0], zoom: 4 },
+      };
+
+      // Add handleRegionChange which saves to localStorage and manages the select dropdown.
+
+      window.handleRegionChange = function (regKey) {
+        if (!regKey) return;
+        localStorage.setItem("preferredMapRegion", regKey);
+
+        // Remove active class from all header dropdown triggers
+        document
+          .querySelectorAll(".header-controls .toggle-btn")
+          .forEach((btn) => {
+            btn.classList.remove("active");
+          });
+
+        // Determine if it's a continent, world, or country and set active state
+        if (regKey === "world") {
+          document.getElementById("btn-world").classList.add("active");
+        } else if (["eu", "na", "sa", "as", "af", "oc"].includes(regKey)) {
+          const euBtn = document.getElementById("btn-eu");
+          if (euBtn) {
+            euBtn.classList.add("active");
+            // update the text of the continent button
+            const btnText = euBtn.querySelector(".btn-text");
+            const targetBtn = document.querySelector(
+              `.dropdown-item[data-region="${regKey}"]`,
+            );
+            if (targetBtn && btnText) {
+              btnText.innerText =
+                targetBtn.querySelector(".dropdown-text").innerText;
+            }
+          }
+        } else {
+          // It's a country
+          const chBtn = document.getElementById("btn-ch");
+          if (chBtn) {
+            chBtn.classList.add("active");
+            // update the text of the country button
+            const targetBtn = document.querySelector(
+              `.dropdown-item[data-region="${regKey}"]`,
+            );
+            if (targetBtn) {
+              const btnText = chBtn.querySelector(".btn-text");
+              if (btnText) {
+                btnText.innerText =
+                  targetBtn.querySelector(".dropdown-text").innerText;
+              }
+              const chIconSvg = chBtn.querySelector("svg");
+              let newIcon =
+                targetBtn.querySelector("img") ||
+                targetBtn.querySelector(".dropdown-icon");
+              if (newIcon) {
+                // Optional: We can replace the SVG with the flag, or just keep it as 'Schweiz/Land' icon.
+                // For now just update the text.
+              }
+            } else if (regKey === "ch") {
+              // fallback if it's exactly ch but ch is not dynamically in list yet
+              const btnText = chBtn.querySelector(".btn-text");
+              if (btnText) btnText.innerText = "Schweiz";
+            }
+          }
+        }
+
+        if (regions[regKey]) {
+          map.flyTo(regions[regKey].center, regions[regKey].zoom, {
+            duration: 1.2,
+          });
+        } else {
+          // Wait, where do we get lat/lng for country? from the dynamic button.
+          const btn = document.querySelector(
+            `.dropdown-item[data-region="${regKey}"]`,
+          );
+          if (btn && btn.dataset.lat && btn.dataset.lng) {
+            const lat = parseFloat(btn.dataset.lat);
+            const lng = parseFloat(btn.dataset.lng);
+            map.flyTo([lat, lng], 6, { duration: 1.2 });
+          }
+        }
+      };
+
+      // Kept for backward compatibility if there are old buttons
+      window.setViewRegion = function (regKey) {
+        window.handleRegionChange(regKey);
+      };
+
+      // 3. Split-Hosting: Bildpfad Auflösung
+      function resolveImageUrl(val) {
+        if (!val) return "";
+        val = String(val).trim();
+
+        const localBase =
+          typeof APP_CONFIG !== "undefined" && APP_CONFIG.localImageFolder
+            ? APP_CONFIG.localImageFolder
+            : "./Bilder/";
+
+        if (
+          !val.startsWith("http://") &&
+          !val.startsWith("https://") &&
+          !val.startsWith("data:")
+        ) {
+          return localBase + val;
+        }
+
+        return val;
+      }
+
+      // 4. Universeller Datenabruf (API vs. GViz CSV)
+
+      function updateWelcomeModalTranslations(activeDict) {
+        if (document.getElementById("welcome-prompt-title"))
+          document.getElementById("welcome-prompt-title").innerText =
+            activeDict.welcome_prompt_title || "Projekt Info Anzeigen?";
+        if (document.getElementById("welcome-prompt-text"))
+          document.getElementById("welcome-prompt-text").innerText =
+            activeDict.welcome_prompt_text ||
+            "Möchtest du die Projektinformationen lesen?";
+        if (document.getElementById("welcome-btn-no"))
+          document.getElementById("welcome-btn-no").innerText =
+            activeDict.welcome_prompt_no || "Nein";
+        if (document.getElementById("welcome-btn-yes"))
+          document.getElementById("welcome-btn-yes").innerText =
+            activeDict.welcome_prompt_yes || "Ja";
+      }
+
+      window.closeWelcomeModal = function (e) {
+        if (
+          e.target.id === "welcome-modal-lightbox" ||
+          e.target.closest(".modal-close")
+        ) {
+          document
+            .getElementById("welcome-modal-lightbox")
+            .classList.remove("active");
+          localStorage.setItem("hasSeenWelcomePrompt", "true");
+        }
+      };
+
+      window.handleWelcome = function (showInfo) {
+        localStorage.setItem("hasSeenWelcomePrompt", "true");
+        document
+          .getElementById("welcome-modal-lightbox")
+          .classList.remove("active");
+        if (showInfo) {
+          window.openProjectModal();
+        }
+      };
+
+      function updateProjectModalTranslations(activeDict) {
+        if (document.getElementById("pm-badge"))
+          document.getElementById("pm-badge").innerText =
+            activeDict.pmBadge || "Projektbeschrieb";
+        if (document.getElementById("pm-desc-title"))
+          document.getElementById("pm-desc-title").innerText =
+            activeDict.projectDescTitle ||
+            "Die sichtbare Zeit. Wenn Monate der Sonnenbahn verschmelzen.";
+        if (document.getElementById("pm-desc-text"))
+          document.getElementById("pm-desc-text").innerText =
+            activeDict.projectDescText ||
+            "Eine Solargrafie ist das radikalste Konzentrat von Dauer. Durch eine winzige Lochblende brennt sich das Sonnenlicht über bis zu 222 Tage schichtweise in photoempfindliches Silberpapier ein – ohne Akku, ohne Linse, ohne chemische Dunkelkammerentwicklung.";
+
+        // Pillars
+        if (document.getElementById("pm-pillars-title"))
+          document.getElementById("pm-pillars-title").innerText =
+            activeDict.pillarsTitle || "Die drei Pfeiler des Verfahrens";
+        if (document.getElementById("pm-pillars-method"))
+          document.getElementById("pm-pillars-method").innerText =
+            activeDict.pillarsMethod || "Methodik";
+
+        if (document.getElementById("pm-pillar1-title"))
+          document.getElementById("pm-pillar1-title").innerText =
+            activeDict.pillar1Title || "Apparatur: Die Lochkamera";
+        if (document.getElementById("pm-pillar1-sub"))
+          document.getElementById("pm-pillar1-sub").innerText =
+            activeDict.pillar1Sub || "Upcycling-Dose & 0.2mm Nadelblende";
+        if (document.getElementById("pm-pillar1-text"))
+          document.getElementById("pm-pillar1-text").innerText =
+            activeDict.pillar1Text ||
+            "Aus gebrauchten 0.5-Liter Aluminiumdosen entstehen wetterfeste, lichtdichte Pinhole-Kammern. Eine mikroskopisch feine 0.2mm Nadelblende in Alufolie fungiert als f/150-Blende – komplett ohne optische Glaslinse, mit physikalisch nahezu unendlicher Schärfentiefe vom Nahbereich bis zum Alpenhorizont.";
+        if (document.getElementById("pm-pillar1-tag1"))
+          document.getElementById("pm-pillar1-tag1").innerText =
+            activeDict.pillar1Tag1 || "Brennweite ~40mm";
+        if (document.getElementById("pm-pillar1-tag2"))
+          document.getElementById("pm-pillar1-tag2").innerText =
+            activeDict.pillar1Tag2 || "Blende f/150";
+        if (document.getElementById("pm-pillar1-tag3"))
+          document.getElementById("pm-pillar1-tag3").innerText =
+            activeDict.pillar1Tag3 || "Wetterfest IP67";
+
+        if (document.getElementById("pm-pillar2-title"))
+          document.getElementById("pm-pillar2-title").innerText =
+            activeDict.pillar2Title || "Photolyse: Chemielose Belichtung";
+        if (document.getElementById("pm-pillar2-sub"))
+          document.getElementById("pm-pillar2-sub").innerText =
+            activeDict.pillar2Sub || "Direktbelichtung ohne Dunkelkammerbad";
+        if (document.getElementById("pm-pillar2-text"))
+          document.getElementById("pm-pillar2-text").innerText =
+            activeDict.pillar2Text ||
+            "Reine Direktbelichtung auf analoges Schwarzweiss-Silbergelatine-Fotopapier über bis zu 222 Tage ohne Dunkelkammer-Chemiebad. Durch monatelange UV-Bestrahlung spaltet sich das Silberhalogenid im Papier physikalisch selbstständig ab (Photolyse). Die Spuren werden im Anschluss zerstörungsfrei hochauflösend digitalisiert.";
+        if (document.getElementById("pm-pillar2-tag1"))
+          document.getElementById("pm-pillar2-tag1").innerText =
+            activeDict.pillar2Tag1 || "0% Chemie";
+        if (document.getElementById("pm-pillar2-tag2"))
+          document.getElementById("pm-pillar2-tag2").innerText =
+            activeDict.pillar2Tag2 || "Silbergelatine-Papier";
+        if (document.getElementById("pm-pillar2-tag3"))
+          document.getElementById("pm-pillar2-tag3").innerText =
+            activeDict.pillar2Tag3 || "Analoge Unikate";
+
+        if (document.getElementById("pm-pillar3-title"))
+          document.getElementById("pm-pillar3-title").innerText =
+            activeDict.pillar3Title || "Meteorologie: Klima- & Sonnenarchiv";
+        if (document.getElementById("pm-pillar3-sub"))
+          document.getElementById("pm-pillar3-sub").innerText =
+            activeDict.pillar3Sub || "Wolkenzüge, Nebelmeere & Seismografie";
+        if (document.getElementById("pm-pillar3-text"))
+          document.getElementById("pm-pillar3-text").innerText =
+            activeDict.pillar3Text ||
+            "Wolkenzüge, Nebelmeere und sonnige Tage zeichnen sich als seismografische Himmelsspur ein. Jeder bewölkte Tag hinterlässt eine Unterbrechung im Lichtbogen, dichte Nebeldecken im Mittelland dämpfen die Strahlung. So entsteht ein authentischer chronologischer Klimazeitzeuge.";
+        if (document.getElementById("pm-pillar3-tag1"))
+          document.getElementById("pm-pillar3-tag1").innerText =
+            activeDict.pillar3Tag1 || "Meteo-Korrelation";
+        if (document.getElementById("pm-pillar3-tag2"))
+          document.getElementById("pm-pillar3-tag2").innerText =
+            activeDict.pillar3Tag2 || "Schweizer Mikroklima";
+        if (document.getElementById("pm-pillar3-tag3"))
+          document.getElementById("pm-pillar3-tag3").innerText =
+            activeDict.pillar3Tag3 || "Sonnenstunden-Index";
+
+        if (document.getElementById("pm-astro-label"))
+          document.getElementById("pm-astro-label").innerText =
+            activeDict.astroLabel ||
+            "ASTRONOMISCHES PRINZIP · SOLSTITIUM & ELEVATION";
+        if (document.getElementById("pm-astro-badge"))
+          document.getElementById("pm-astro-badge").innerText =
+            activeDict.astroBadge || "Lat 47.0° N · Helvetischer Horizont";
+        if (document.getElementById("pm-astro-title"))
+          document.getElementById("pm-astro-title").innerText =
+            activeDict.astroTitle ||
+            "182 geschichtete Himmelsbögen zwischen zwei Extremen";
+        if (document.getElementById("pm-astro-desc"))
+          document.getElementById("pm-astro-desc").innerText =
+            activeDict.astroDesc ||
+            "Vom tiefsten Stand der Wintersonnenwende bis zum Zenit der Mittsommerhitze: 182 geschichtete Himmelsbögen spiegeln die Neigung der Erdachse (23.44°) über der Schweiz (47° N). Jeder einzelne Tag belichtet eine neue, infinitesimale Spur in das Silberhalogenid-Papier.";
+
+        if (document.getElementById("pm-stat1-title"))
+          document.getElementById("pm-stat1-title").innerHTML =
+            activeDict.pmStat1Title || "48+";
+        if (document.getElementById("pm-stat1-desc"))
+          document.getElementById("pm-stat1-desc").innerText =
+            activeDict.pmStat1Desc || "Stationen schweizweit";
+        if (document.getElementById("pm-stat2-title"))
+          document.getElementById("pm-stat2-title").innerHTML =
+            activeDict.pmStat2Title || "0%";
+        if (document.getElementById("pm-stat2-desc"))
+          document.getElementById("pm-stat2-desc").innerText =
+            activeDict.pmStat2Desc || "Chemikalien im Prozess";
+
+        if (document.getElementById("pm-btn-map"))
+          document.getElementById("pm-btn-map").innerText =
+            activeDict.pmBtnMap || "Zurück zur interaktiven Karte";
+        if (document.getElementById("pm-btn-suggest"))
+          document.getElementById("pm-btn-suggest").innerText =
+            activeDict.pmBtnSuggest || "Neuen Standort vorschlagen";
+
+        if (document.getElementById("pm-stats-active"))
+          document.getElementById("pm-stats-active").innerText =
+            activeDict.statsActive || "Aktiv";
+        if (document.getElementById("pm-stats-ch"))
+          document.getElementById("pm-stats-ch").innerText =
+            activeDict.statsStationsCh || "Stationen in CH";
+        if (document.getElementById("pm-stats-record"))
+          document.getElementById("pm-stats-record").innerText =
+            activeDict.statsRecord || "Gesamt";
+        if (document.getElementById("pm-stats-days"))
+          document.getElementById("pm-stats-days").innerText =
+            activeDict.statsDaysExposure || "Tage Belichtung";
+        if (document.getElementById("pm-stats-science"))
+          document.getElementById("pm-stats-science").innerText =
+            activeDict.statsScience || "Chemikalien";
+        if (document.getElementById("pm-stats-commons"))
+          document.getElementById("pm-stats-commons").innerText =
+            activeDict.statsCommons || "Commons";
+        if (document.getElementById("pm-stats-open"))
+          document.getElementById("pm-stats-open").innerText =
+            activeDict.statsOpenData || "Open Data CH";
+
+        if (document.getElementById("pm-toast-msg"))
+          document.getElementById("pm-toast-msg").innerText =
+            activeDict.pmToastMsg ||
+            "Danke! Vorschlagsformular wird geöffnet...";
+      }
+
+      async function fetchTranslationsData() {
+        const cfg = typeof APP_CONFIG !== "undefined" ? APP_CONFIG : {};
+
+        // Expected columns: key, de, en, fr, it, uk, ru, es
+        const buildTranslationsObj = (rows) => {
+          const transObj = {};
+          const langs = ["de", "en", "fr", "it", "uk", "ru", "es"];
+          langs.forEach((l) => {
+            transObj[l] = { regions: {} };
+          });
+
+          rows.forEach((row) => {
+            const key = row.key;
+            if (!key) return;
+
+            if (key.startsWith("regions.")) {
+              const regionKey = key.split(".")[1];
+              langs.forEach((lang) => {
+                const val = row[lang];
+                if (val) transObj[lang].regions[regionKey] = val;
+              });
+            } else {
+              langs.forEach((lang) => {
+                const val = row[lang];
+                if (val) transObj[lang][key] = val;
+              });
+            }
+          });
+          return transObj;
+        };
+
+        if (!cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY) {
+          console.warn(
+            "Supabase credentials not configured. Using default translations.",
+          );
+          window.translations = null;
+          return false;
+        }
+
+        try {
+          const apiUrl = `${cfg.SUPABASE_URL}/rest/v1/translations?select=*`;
+          const headers = {
+            apikey: cfg.SUPABASE_ANON_KEY,
+            Authorization: "Bearer " + cfg.SUPABASE_ANON_KEY,
+            "Content-Type": "application/json",
+          };
+
+          const res = await fetch(apiUrl, {
+            headers: headers,
+            cache: "no-store",
+          });
+          if (!res.ok) {
+            throw new Error("HTTP error " + res.status);
+          }
+          const data = await res.json();
+
+          if (data && data.length > 0) {
+            const resObj = buildTranslationsObj(data);
+            if (resObj && resObj.de && Object.keys(resObj.de).length > 1) {
+              window.translations = resObj;
+            } else {
+              console.warn(
+                "Translations database is empty or not formatted correctly. Using default fallback.",
+              );
+              window.translations = null;
+            }
+            return true;
+          } else {
+            console.warn(
+              "Translations database is empty. Using default fallback.",
+            );
+            window.translations = null;
+            return true;
+          }
+        } catch (err) {
+          console.warn(
+            "Translations API fehlgeschlagen, wechsle auf Fallback:",
+            err,
+          );
+          window.translations = null;
+          return false;
+        }
+      }
+
+      async function fetchSolargrafieDaten() {
+        if (!supabaseClient) {
+          console.warn(
+            "Supabase credentials not configured. Cannot fetch solargrafieDaten.",
+          );
+          return;
+        }
+
+        try {
+          const { data, error } = await supabaseClient
+            .from("solargrafien")
+            .select("*");
+          if (error) {
+            throw new Error(error.message);
+          }
+
+          window.solargrafieDaten = data;
+          renderMarkers();
+          updateProjectStats();
+
+          // Update Project Modal
+          const ad =
+            typeof window.translations !== "undefined" &&
+            window.translations !== null &&
+            window.translations[currentLang]
+              ? window.translations[currentLang]
+              : defaultTranslations.de;
+          updateWelcomeModalTranslations(ad);
+          updateProjectModalTranslations(ad);
+          return true;
+        } catch (err) {
+          console.error("Fehler beim Abrufen der Tabellendaten:", err);
+          document
+            .getElementById("error-modal-lightbox")
+            .classList.remove("hidden");
+          return false;
+        }
+      }
+
+      // 5. Marker rendern
+
+      function updateProjectStats() {
+        if (!window.solargrafieDaten || window.solargrafieDaten.length === 0)
+          return;
+
+        let activeCount = 0;
+        let totalDays = 0;
+
+        window.solargrafieDaten.forEach((row) => {
+          const keys = Object.keys(row);
+
+          const placed = getVal(row, [
+            "placed",
+            "aufgestellt",
+            "start",
+            "datum",
+            "gesetzt",
+          ]);
+          const opened = getVal(row, [
+            "opened",
+            "geöffnet",
+            "geoeffnet",
+            "ende",
+            "open",
+          ]);
+
+          if (placed !== "" && opened !== "") {
+            activeCount++;
+
+            const placedDate = parseDateStr(placed);
+            const openedDate = parseDateStr(opened);
+            if (
+              placedDate &&
+              openedDate &&
+              !isNaN(placedDate) &&
+              !isNaN(openedDate)
+            ) {
+              const diffTime = Math.abs(openedDate - placedDate);
+              const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+              totalDays += days;
+            }
+          }
+        });
+
+        const activeEl = document.getElementById("pm-stats-active-val");
+        if (activeEl) activeEl.innerText = activeCount;
+
+        const recordEl = document.getElementById("pm-stats-record-val");
+        if (recordEl) recordEl.innerText = totalDays;
+      }
+
+      function renderMarkers() {
+        markersGroup.clearLayers();
+        const activeDict =
+          typeof window.translations !== "undefined" &&
+          window.translations[currentLang]
+            ? window.translations[currentLang]
+            : defaultTranslations.de;
+
+        if (!window.solargrafieDaten || window.solargrafieDaten.length === 0)
+          return;
+
+        window.solargrafieDaten.forEach((row, idx) => {
+          let lat, lng;
+          if (row.lat !== undefined && row.lng !== undefined) {
+            lat = parseFloat(row.lat);
+            lng = parseFloat(row.lng);
+          } else {
+            const pos = getVal(row, [
+              "position",
+              "koordinaten",
+              "standort",
+              "lat,lng",
+              "ort",
+            ]);
+            if (!pos) return;
+
+            const parts = pos.split(",");
+            if (parts.length < 2) return;
+
+            lat = parseFloat(parts[0].trim());
+            lng = parseFloat(parts[1].trim());
+          }
+          if (isNaN(lat) || isNaN(lng)) return;
+
+          const id = getVal(row, ["id"]) || idx + 1;
+          const titel = getVal(row, ["titel", "name", "bezeichnung"]) || "";
+          const status = getVal(row, ["status", "zustand"]) || "";
+          const placed =
+            getVal(row, ["placed", "aufgestellt", "start", "datum"]) || "";
+          const opened =
+            getVal(row, ["opened", "geöffnet", "geoeffnet", "ende"]) || "";
+          const comment =
+            getVal(row, ["comment", "notiz", "kommentar", "bemerkung"]) || "";
+          const extId = getVal(row, ["externe_id", "ext", "externe"]) || "";
+
+          // Split-Hosting Auswertung: Prioritize bild_haupt -> bild_url -> bild_doku
+          // Nur noch bild_thumbnail verwenden (ohne Fallback für verbesserte Performance)
+          const bildThumbnailStr = getVal(row, ["bild_thumbnail"]) || "";
+          const bildUrl = resolveImageUrl(bildThumbnailStr);
+
+          const statusAnzeige = status ? `(${status})` : "";
+          const titelZusatz = `#${id} ${titel} ${statusAnzeige}`.trim();
+
+          const fotoIcon = L.icon({
+            iconUrl:
+              bildUrl ||
+              "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+            iconSize: [48, 48],
+            iconAnchor: [24, 24],
+            popupAnchor: [0, -28],
+            className: "foto-pin",
+          });
+
+          const marker = L.marker([lat, lng], { icon: fotoIcon });
+
+          marker.on("click", () => {
+            openModalById(idx);
+          });
+          markersGroup.addLayer(marker);
+        });
+      }
+
+      // 6. Sprachwechsel-Funktion
+
+      window.openProjectModal = function () {
+        const activeDict =
+          typeof window.translations !== "undefined" &&
+          window.translations[currentLang]
+            ? window.translations[currentLang]
+            : defaultTranslations.de;
+        updateProjectModalTranslations(activeDict);
+
+        document
+          .getElementById("project-modal-lightbox")
+          .classList.add("active");
+
+        // Setup toast logic
+        const suggestBtn = document.getElementById("suggestBtn");
+        const toast = document.getElementById("toastMessage");
+        if (suggestBtn && toast) {
+          suggestBtn.onclick = function () {
+            toast.classList.add("active");
+            setTimeout(() => {
+              toast.classList.remove("active");
+            }, 2800);
+          };
+        }
+      };
+
+      window.closeProjectModal = function (e) {
+        if (
+          e.target.id === "project-modal-lightbox" ||
+          e.target.closest(".modal-close") ||
+          e.target.closest(".cta-btn.primary")
+        ) {
+          document
+            .getElementById("project-modal-lightbox")
+            .classList.remove("active");
+        }
+      };
+
+      window.showWipMessage = function () {
+        const activeDict =
+          typeof window.translations !== "undefined" &&
+          window.translations[currentLang]
+            ? window.translations[currentLang]
+            : defaultTranslations.de;
+        alert(activeDict.workInProgress || "Work in Progress");
+      };
+
+      window.setLanguage = function (lang) {
+        localStorage.setItem("app_lang", lang);
+        const activeDict =
+          typeof window.translations !== "undefined" &&
+          window.translations !== null &&
+          window.translations[lang]
+            ? window.translations[lang]
+            : defaultTranslations[lang] || defaultTranslations.de;
+        currentLang = lang;
+
+        if (document.getElementById("header-title")) {
+          document.getElementById("header-title").innerText = activeDict.header;
+        }
+        if (document.getElementById("header-badge")) {
+          document.getElementById("header-badge").innerText =
+            activeDict.observatoryDeck || "OBSERVATORY DECK";
+        }
+        if (document.getElementById("header-subtitle")) {
+          document.getElementById("header-subtitle").innerText =
+            activeDict.subtitle || "Pinhole Solar Path Cartography";
+        }
+        if (document.getElementById("btn-archive")) {
+          document
+            .getElementById("btn-archive")
+            .querySelector(".btn-text").innerText =
+            activeDict.archive || "Archiv";
+        }
+        if (document.getElementById("btn-project")) {
+          document
+            .getElementById("btn-project")
+            .querySelector(".btn-text").innerText =
+            activeDict.project || "Projekt";
+        }
+        if (document.getElementById("btn-contact")) {
+          document
+            .getElementById("btn-contact")
+            .querySelector(".btn-text").innerText =
+            activeDict.contact || "Kontakt";
+          document
+            .getElementById("btn-contact")
+            .setAttribute("title", activeDict.contact || "Kontakt");
+        }
+
+        document.querySelectorAll(".lang-btn").forEach((btn) => {
+          btn.classList.toggle("active", btn.id === `lang-${lang}`);
+        });
+
+        if (activeDict.regions) {
+          if (document.getElementById("btn-ch"))
+            document
+              .getElementById("btn-ch")
+              .querySelector(".btn-text").innerText = activeDict.regions.ch;
+          if (document.getElementById("btn-eu"))
+            document
+              .getElementById("btn-eu")
+              .querySelector(".btn-text").innerText = activeDict.regions.eu;
+          const euDropdownText = document.querySelector(
+            '.dropdown-item[data-region="eu"] .dropdown-text',
+          );
+          if (euDropdownText && activeDict.regions.eu) {
+            euDropdownText.innerText = activeDict.regions.eu;
+          }
+          if (document.getElementById("btn-world"))
+            document
+              .getElementById("btn-world")
+              .querySelector(".btn-text").innerText = activeDict.regions.world;
+        }
+
+        // --- NEW: Update Dropdown Translations ---
+        // 1. Static groups and options
+        document.querySelectorAll("[data-i18n]").forEach((el) => {
+          const key = el.getAttribute("data-i18n");
+          const keys = key.split(".");
+          let value = activeDict;
+
+          // Try flat key first (Supabase stores it this way)
+          if (activeDict[key]) {
+            value = activeDict[key];
+          } else {
+            // Traverse the dictionary if it's nested (like regions.ch in default fallback)
+            for (const k of keys) {
+              if (value && value[k]) {
+                value = value[k];
+              } else {
+                value = null;
+                break;
+              }
+            }
+          }
+
+          if (value && typeof value === "string") {
+            // If it's an option we might want to keep the emoji
+            if (el.tagName === "OPTION") {
+              const textContent = el.innerText;
+              // Simple regex to grab anything before the first space (assuming format "EMOJI Name")
+              const parts = textContent.split(" ");
+              if (parts.length > 1) {
+                el.innerText = parts[0] + " " + value;
+              } else {
+                el.innerText = value;
+              }
+            } else if (el.tagName === "OPTGROUP") {
+              el.label = value;
+            } else {
+              el.innerText = value;
+            }
+          }
+        });
+
+        // 2. Dynamic Countries from API (Updated for Dropdown)
+        const countryBtns = document.querySelectorAll(
+          "#country-dropdown-content .dropdown-item",
+        );
+
+        const langMap = {
+          de: "deu",
+          en: "eng",
+          fr: "fra",
+          it: "ita",
+          es: "spa",
+          ru: "rus",
+          uk: "ukr",
+        };
+        const apiLang = langMap[lang] || "eng";
+
+        const dynamicBtns = [];
+        const staticBtns = [];
+
+        countryBtns.forEach((btn) => {
+          const textSpan = btn.querySelector(".dropdown-text");
+          if (textSpan && textSpan.dataset.translations) {
+            try {
+              const translations = JSON.parse(
+                textSpan.dataset.translations.replace(/&apos;/g, "'"),
+              );
+              if (translations[apiLang] && translations[apiLang].common) {
+                textSpan.innerText = translations[apiLang].common;
+              }
+            } catch (e) {
+              console.error("Error translating country", e);
+            }
+            dynamicBtns.push(btn);
+          } else {
+            staticBtns.push(btn);
+          }
+        });
+
+        // Sort dynamic buttons again based on new language
+        dynamicBtns.sort((a, b) => {
+          const textA = a.querySelector(".dropdown-text").innerText;
+          const textB = b.querySelector(".dropdown-text").innerText;
+          return textA.localeCompare(textB);
+        });
+
+        const countryDropdownContent = document.getElementById(
+          "country-dropdown-content",
+        );
+        if (countryDropdownContent && dynamicBtns.length > 0) {
+          // Clear and re-append
+          countryDropdownContent.innerHTML = "";
+          staticBtns.forEach((btn) => countryDropdownContent.appendChild(btn));
+          dynamicBtns.forEach((btn) => countryDropdownContent.appendChild(btn));
+        }
+
+        const currentReg = localStorage.getItem("preferredMapRegion");
+        if (currentReg && currentReg !== "world") {
+          const activeTargetBtn = document.querySelector(
+            `.dropdown-item[data-region="${currentReg}"] .dropdown-text`,
+          );
+          if (activeTargetBtn) {
+            if (["eu", "na", "sa", "as", "af", "oc"].includes(currentReg)) {
+              const euBtnText = document
+                .getElementById("btn-eu")
+                ?.querySelector(".btn-text");
+              if (euBtnText) euBtnText.innerText = activeTargetBtn.innerText;
+            } else {
+              const chBtnText = document
+                .getElementById("btn-ch")
+                ?.querySelector(".btn-text");
+              if (chBtnText) chBtnText.innerText = activeTargetBtn.innerText;
+            }
+          }
+        }
+        // --- END NEW ---
+
+        // Update footer translations
+        if (document.getElementById("footer-title")) {
+          document.getElementById("footer-title").innerText =
+            activeDict.footerTitle || "SOLARGRAFIE";
+        }
+        if (document.getElementById("footer-copy")) {
+          document.getElementById("footer-copy").innerText =
+            activeDict.footerCopy ||
+            "© Eva & Simon · Solargraphische Langzeitbeobachtung";
+        }
+
+        if (document.getElementById("footer-link-3")) {
+          document
+            .getElementById("footer-link-3")
+            .querySelector(".link-text").innerText =
+            activeDict.footerLink3 || "Impressum";
+        }
+
+        renderMarkers();
+        updateProjectStats();
+
+        // Update Project Modal
+        const ad =
+          typeof window.translations !== "undefined" &&
+          window.translations !== null &&
+          window.translations[currentLang]
+            ? window.translations[currentLang]
+            : defaultTranslations.de;
+        updateProjectModalTranslations(ad);
+        if (currentModalIndex !== null) {
+          openModalById(currentModalIndex);
+        }
+      };
+
+      // --- Archiv Logic ---
+      function toggleArchive() {
+        const archiveBar = document.getElementById("archive-bar");
+        const isHidden = archiveBar.classList.contains("hidden");
+
+        if (isHidden) {
+          archiveBar.classList.remove("hidden");
+          renderArchive();
+        } else {
+          archiveBar.classList.add("hidden");
+        }
+      }
+
+      function parseDateStr(dateStr) {
+        if (!dateStr) return null;
+        const parts = dateStr.split(".");
+        if (parts.length === 3) {
+          return new Date(parts[2], parts[1] - 1, parts[0]);
+        }
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return null;
+        return d;
+      }
+
+      function renderArchive() {
+        const carousel = document.getElementById("archive-carousel");
+        carousel.innerHTML = "";
+
+        if (!window.solargrafieDaten || window.solargrafieDaten.length === 0)
+          return;
+
+        const activeDict =
+          typeof window.translations !== "undefined" &&
+          window.translations[currentLang]
+            ? window.translations[currentLang]
+            : defaultTranslations.de;
+
+        document.getElementById("archive-title-main").innerText =
+          activeDict.archive || "Archive";
+
+        // Reverse array to start with the newest (last in sheet)
+        const reversedData = [...window.solargrafieDaten].reverse();
+
+        const count = reversedData.length;
+        const regionsDict = activeDict.regions || {};
+        const chStr = regionsDict.ch || "Schweiz";
+        document.getElementById("archive-subtitle").innerText = (
+          activeDict.stationsText || "{count} Stationen"
+        ).replace("{count}", count);
+
+        reversedData.forEach((row, reversedIdx) => {
+          // Original index in the unreversed array is needed for openModalById
+          const originalIdx = window.solargrafieDaten.length - 1 - reversedIdx;
+
+          const titel = getVal(row, ["titel", "name", "bezeichnung"]) || "";
+          const placedStr =
+            getVal(row, ["placed", "aufgestellt", "start", "datum"]) || "";
+          const openedStr =
+            getVal(row, ["opened", "geöffnet", "geoeffnet", "ende"]) || "";
+          const bildHauptStr = getVal(row, ["bild_haupt"]) || "";
+          const bildUrlStr =
+            getVal(row, [
+              "bild_url",
+              "bild",
+              "foto",
+              "image",
+              "datei",
+              "upload",
+            ]) || "";
+          const bildDokuStr = getVal(row, ["bild_doku"]) || "";
+
+          const rawBild = bildHauptStr || bildUrlStr || bildDokuStr || "";
+          const bildUrl =
+            resolveImageUrl(rawBild) ||
+            "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png";
+
+          let days = "";
+          let year = "";
+
+          if (placedStr && openedStr) {
+            const placedDate = parseDateStr(placedStr);
+            const openedDate = parseDateStr(openedStr);
+            if (
+              placedDate &&
+              openedDate &&
+              !isNaN(placedDate) &&
+              !isNaN(openedDate)
+            ) {
+              const diffTime = Math.abs(openedDate - placedDate);
+              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+              days = `${diffDays} ${activeDict.days || "Tage"}`;
+              year = openedDate.getFullYear();
+            }
+          }
+
+          if (!year && openedStr) {
+            const openedDate = parseDateStr(openedStr);
+            if (openedDate && !isNaN(openedDate))
+              year = openedDate.getFullYear();
+          }
+
+          const detailsText = [days, year].filter(Boolean).join(" · ");
+
+          const itemHtml = `
+            <div class="archive-item" onclick="openModalById('${originalIdx}')">
+              <img src="${escapeHtml(bildUrl)}" class="archive-item-img" alt="Solargrafie Langzeitbelichtung - Standort: ${escapeHtml(titel)}" onerror="this.src='https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png'">
+              <div class="archive-item-info">
+                <div class="archive-item-title">${escapeHtml(titel)}</div>
+                <div class="archive-item-details">${escapeHtml(detailsText)}</div>
+              </div>
+            </div>
+          `;
+
+          carousel.insertAdjacentHTML("beforeend", itemHtml);
+        });
+
+        updateArchiveNavButtons();
+      }
+
+      function scrollArchive(direction) {
+        const carousel = document.getElementById("archive-carousel");
+        const scrollAmount = 300; // Adjust based on item width
+        carousel.scrollBy({
+          left: direction * scrollAmount,
+          behavior: "smooth",
+        });
+        setTimeout(updateArchiveNavButtons, 400); // Wait for smooth scroll to finish
+      }
+
+      function updateArchiveNavButtons() {
+        const carousel = document.getElementById("archive-carousel");
+        const prevBtn = document.querySelector(".archive-nav-btn.prev");
+        const nextBtn = document.querySelector(".archive-nav-btn.next");
+
+        if (!carousel) return;
+
+        // Tolerance for floating point precision
+        const isAtStart = carousel.scrollLeft <= 5;
+        const isAtEnd =
+          carousel.scrollLeft + carousel.clientWidth >=
+          carousel.scrollWidth - 5;
+
+        if (isAtStart) {
+          prevBtn.classList.add("hidden");
+        } else {
+          prevBtn.classList.remove("hidden");
+        }
+
+        if (isAtEnd) {
+          nextBtn.classList.add("hidden");
+        } else {
+          nextBtn.classList.remove("hidden");
+        }
+      }
+
+      // Setup event listeners for scroll
+      document.addEventListener("DOMContentLoaded", () => {
+        const carousel = document.getElementById("archive-carousel");
+        if (carousel) {
+          carousel.addEventListener("scroll", updateArchiveNavButtons);
+        }
+      });
+
+      // 7. Großansicht Modal
+      // Helpers for new Modal functions
+      const geocodeCache = {};
+      async function getCanton(lat, lng) {
+        if (!lat || !lng) return "";
+        const key = `${lat},${lng}`;
+        if (geocodeCache[key]) return geocodeCache[key];
+        try {
+          const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=10`;
+          const res = await fetch(url);
+          const data = await res.json();
+          let canton = data.address?.state || data.address?.county || "";
+          geocodeCache[key] = canton;
+          return canton;
+        } catch (e) {
+          console.error("Geocoding error", e);
+          return "";
+        }
+      }
+
+      window.prevModalImage = function (e) {
+        if (e) e.stopPropagation();
+        if (!window.currentModalImages || window.currentModalImages.length <= 1)
+          return;
+        window.currentModalImageIndex =
+          (window.currentModalImageIndex -
+            1 +
+            window.currentModalImages.length) %
+          window.currentModalImages.length;
+        document.getElementById("modal-img").src =
+          window.currentModalImages[window.currentModalImageIndex];
+      };
+
+      window.nextModalImage = function (e) {
+        if (e) e.stopPropagation();
+        if (!window.currentModalImages || window.currentModalImages.length <= 1)
+          return;
+        window.currentModalImageIndex =
+          (window.currentModalImageIndex + 1) %
+          window.currentModalImages.length;
+        document.getElementById("modal-img").src =
+          window.currentModalImages[window.currentModalImageIndex];
+      };
+
+      window.openModalById = async function (index) {
+        currentModalIndex = index;
+        const row = window.solargrafieDaten[index];
+        if (!row) return;
+
+        const activeDict =
+          typeof window.translations !== "undefined" &&
+          window.translations[currentLang]
+            ? window.translations[currentLang]
+            : defaultTranslations.de;
+
+        const id = getVal(row, ["id"]) || parseInt(index) + 1;
+        const titel = getVal(row, ["titel", "name", "bezeichnung"]) || "";
+        const placed =
+          getVal(row, ["placed", "aufgestellt", "start", "datum"]) || "";
+        const opened =
+          getVal(row, ["opened", "geöffnet", "geoeffnet", "ende"]) || "";
+        const comment =
+          getVal(row, [
+            "comment",
+            "notiz",
+            "kommentar",
+            "bemerkung",
+            "kurator",
+          ]) || "";
+        const rawBild =
+          getVal(row, [
+            "bild_url",
+            "bild",
+            "foto",
+            "image",
+            "datei",
+            "upload",
+          ]) || "";
+        const bildUrl = resolveImageUrl(rawBild);
+
+        // New columns
+        const posStr = getVal(row, [
+          "position",
+          "koordinaten",
+          "standort",
+          "lat,lng",
+          "ort",
+        ]);
+        const kamera = getVal(row, ["kamera", "aufbau"]) || "";
+        const medium = getVal(row, ["fotopapier", "medium", "papier"]) || "";
+        const owner =
+          getVal(row, ["owner", "besitzer", "inhaber"]) || row[14] || "";
+
+        // Setup image
+        const bildHaupt = getVal(row, ["bild_haupt"]);
+        const bildDoku = getVal(row, ["bild_doku"]);
+        const bildRaw = getVal(row, ["bild_raw"]);
+
+        let images = [bildHaupt, bildDoku, bildRaw]
+          .filter(Boolean)
+          .map(resolveImageUrl);
+        if (images.length === 0 && bildUrl) {
+          images.push(bildUrl);
+        }
+
+        window.currentModalImages = images;
+        window.currentModalImageIndex = 0;
+
+        const imgElem = document.getElementById("modal-img");
+        const prevBtn = document.getElementById("modal-img-prev");
+        const nextBtn = document.getElementById("modal-img-next");
+
+        if (images.length > 0) {
+          imgElem.src = images[0];
+          imgElem.style.display = "block";
+        } else {
+          imgElem.src = "";
+          imgElem.style.display = "none";
+        }
+
+        imgElem.alt = titel
+          ? "Solargrafie Langzeitbelichtung - Standort: " + titel
+          : "Solargrafie Langzeitbelichtung";
+
+        if (images.length > 1) {
+          prevBtn.style.display = "block";
+          nextBtn.style.display = "block";
+        } else {
+          prevBtn.style.display = "none";
+          nextBtn.style.display = "none";
+        }
+
+        // Title and Badge
+        document.getElementById("modal-title").innerText = titel;
+        document.getElementById("modal-badge").innerText = id;
+
+        // Subtitle (Canton and coordinates)
+        let lat = null,
+          lng = null;
+
+        if (row.lat !== undefined && row.lng !== undefined) {
+          lat = parseFloat(row.lat);
+          lng = parseFloat(row.lng);
+        } else if (posStr) {
+          const parts = posStr.split(",");
+          if (parts.length >= 2) {
+            lat = parseFloat(parts[0].trim());
+            lng = parseFloat(parts[1].trim());
+          }
+        }
+
+        const subtitleElem = document.getElementById("modal-location-subtitle");
+        subtitleElem.innerText = "Lade Standort...";
+
+        if (lat && lng) {
+          getCanton(lat, lng).then((canton) => {
+            const cantonStr = canton ? canton + " · " : "";
+            subtitleElem.innerText = `${cantonStr}${lat.toFixed(4)}° N, ${lng.toFixed(4)}° E`;
+          });
+        } else {
+          subtitleElem.innerText = "";
+        }
+
+        // Days count & Timeline
+        let placedDate = parseDateStr(placed);
+        let openedDate = parseDateStr(opened);
+        const tage_belichtung = getVal(row, ["tage_belichtung"]) || 0;
+        document.getElementById("modal-days-count").innerText =
+          `${tage_belichtung} ${activeDict.days || "Tage"} Belichtung`;
+
+        const months = [
+          "Jan",
+          "Feb",
+          "März",
+          "April",
+          "Mai",
+          "Juni",
+          "Juli",
+          "Aug",
+          "Sep",
+          "Okt",
+          "Nov",
+          "Dez",
+        ];
+        const formatShortDate = (d) =>
+          d ? `${d.getDate()}. ${months[d.getMonth()]}` : "";
+        document.getElementById("modal-time-dates").innerText =
+          placedDate && openedDate
+            ? `${formatShortDate(placedDate)} - ${formatShortDate(openedDate)}`
+            : "";
+
+        // Kamera & Medium
+
+        // Translate labels
+        const el = (id) => document.getElementById(id);
+        if (el("label-time-window"))
+          el("label-time-window").innerText =
+            activeDict.timeWindow || "Zeitfenster";
+        if (el("label-sun-paths"))
+          el("label-sun-paths").innerText =
+            activeDict.sunPaths || "Sonnenbahnen";
+        if (el("label-sensitive-medium"))
+          el("label-sensitive-medium").innerText =
+            activeDict.sensitiveMedium || "Sensibles Medium";
+        if (el("label-sun-height"))
+          el("label-sun-height").innerText =
+            activeDict.sunHeightMax || "Sonnenhöhe max.";
+        if (el("label-curator-note"))
+          el("label-curator-note").innerText =
+            activeDict.curatorNote || "KURATOREN-NOTIZ";
+        document.getElementById("modal-camera-details").innerText = kamera;
+        document.getElementById("modal-medium-details").innerText = medium;
+        let ownerHtml = owner;
+        try {
+          if (typeof owner === "string" && owner.startsWith("[")) {
+            const ownerArray = JSON.parse(owner);
+            if (Array.isArray(ownerArray)) {
+              const links = ownerArray.map((val) => {
+                if (val.startsWith("@")) {
+                  return `<a href="https://instagram.com/${val.substring(1)}" target="_blank" class="owner-link">${val}</a>`;
+                } else if (val.includes("@")) {
+                  return `<a href="mailto:${val}" class="owner-link">${val}</a>`;
+                } else if (val.startsWith("www.") || val.startsWith("http")) {
+                  const url = val.startsWith("http") ? val : "https://" + val;
+                  return `<a href="${url}" target="_blank" class="owner-link">${val}</a>`;
+                }
+                return val;
+              });
+              ownerHtml = links.join(" &bull; ");
+            }
+          }
+        } catch (e) {
+          console.error("Error parsing owner array:", e);
+        }
+        document.getElementById("modal-owner-details").innerHTML = ownerHtml;
+
+        // Sun paths and weather
+        const arcsElem = document.getElementById("modal-sun-arcs");
+        const cloudyElem = document.getElementById("modal-cloudy-days");
+        const sichtbare_boegen = getVal(row, ["sichtbare_boegen"]) || 0;
+        const tage_verdeckt = getVal(row, ["tage_verdeckt"]) || 0;
+
+        arcsElem.innerText = `${sichtbare_boegen} ${activeDict.visibleArcs || "sichtbare Bögen"}`;
+        cloudyElem.innerText = `${tage_verdeckt} ${activeDict.cloudyDays || "Tage wetterbedingt verdeckt"}`;
+
+        // Sun height (Zenith / Nadir)
+        const zenithElem = document.getElementById("modal-sun-zenith");
+        const nadirElem = document.getElementById("modal-sun-nadir");
+        const sonnenhoehe_max = getVal(row, ["sonnenhoehe_max"]) || "-";
+        const sonnenhoehe_min = getVal(row, ["sonnenhoehe_min"]) || "-";
+
+        zenithElem.innerText = `${sonnenhoehe_max}° (${activeDict.zenith || "Zenit"})`;
+        nadirElem.innerText = `${activeDict.nadir || "Tiefststand"} ${sonnenhoehe_min}°`;
+
+        // Curator Note
+        document.getElementById("modal-comment").innerText = comment
+          ? `„${comment}“`
+          : "";
+        document.getElementById("modal-curator-container").style.display =
+          comment ? "block" : "none";
+
+        document.getElementById("lightbox").classList.add("active");
+      };
+
+      window.openImageLightbox = function (e) {
+        e.preventDefault();
+        const lightbox = document.getElementById("image-lightbox");
+        const lightboxImg = document.getElementById("lightbox-img");
+        lightboxImg.src = e.target.src;
+        lightboxImg.alt = e.target.alt || "Solargrafie Langzeitbelichtung";
+        lightbox.classList.add("active");
+        document.body.classList.add("lightbox-open");
+      };
+
+      window.closeImageLightbox = function (e) {
+        if (
+          e.target.id === "image-lightbox" ||
+          e.target.id === "lightbox-close"
+        ) {
+          const lightbox = document.getElementById("image-lightbox");
+          lightbox.classList.remove("active");
+          document.body.classList.remove("lightbox-open");
+
+          // Clear src after fadeout to prevent ghosting on next open
+          setTimeout(() => {
+            if (!lightbox.classList.contains("active")) {
+              document.getElementById("lightbox-img").src = "";
+            }
+          }, 300); // match CSS transition duration
+        }
+      };
+
+      window.closeModal = function (e) {
+        if (e.target.id === "lightbox" || e.target.closest(".modal-close")) {
+          document.getElementById("lightbox").classList.remove("active");
+          currentModalIndex = null;
+        }
+      };
+
+      // Start-Ablauf
+
+      // Fetch and populate countries from REST Countries API
+
+      // Helper function to calculate distance using Haversine formula
+      function getDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371; // Radius of the earth in km
+        const dLat = (lat2 - lat1) * (Math.PI / 180);
+        const dLon = (lon2 - lon1) * (Math.PI / 180);
+        const a =
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(lat1 * (Math.PI / 180)) *
+            Math.cos(lat2 * (Math.PI / 180)) *
+            Math.sin(dLon / 2) *
+            Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c; // Distance in km
+      }
+
+      async function populateCountries() {
+        try {
+          const response = await fetch(
+            "https://raw.githubusercontent.com/mledoze/countries/master/countries.json",
+          );
+          if (!response.ok) {
+            console.error("Failed to fetch from github", response.status);
+            return;
+          }
+          let countries = await response.json();
+
+          // Map mledoze format to resemble restcountries format for SVG flags
+          countries = countries.map((c) => {
+            return {
+              ...c,
+              flags: {
+                svg: `https://flagcdn.com/${c.cca2.toLowerCase()}.svg`,
+                png: `https://flagcdn.com/w320/${c.cca2.toLowerCase()}.png`,
+              },
+            };
+          });
+
+          const countryDropdownContent = document.getElementById(
+            "country-dropdown-content",
+          );
+          if (!countryDropdownContent) return;
+
+          // 1. Identify which countries have solargrafies
+          const countryCodesWithSolargrafies = new Set();
+
+          if (window.solargrafieDaten && window.solargrafieDaten.length > 0) {
+            window.solargrafieDaten.forEach((row) => {
+              let lat, lng;
+              if (row.lat !== undefined && row.lng !== undefined) {
+                lat = parseFloat(row.lat);
+                lng = parseFloat(row.lng);
+              } else {
+                const pos = getVal(row, [
+                  "position",
+                  "koordinaten",
+                  "standort",
+                  "lat,lng",
+                  "ort",
+                ]);
+                if (!pos) return;
+                const parts = pos.split(",");
+                if (parts.length < 2) return;
+                lat = parseFloat(parts[0].trim());
+                lng = parseFloat(parts[1].trim());
+              }
+              if (isNaN(lat) || isNaN(lng)) return;
+
+              let closestCountry = null;
+
+              // Fast bounding box check for known countries to prevent distance algorithm errors near borders
+              const bounds = {
+                CH: [45.8, 5.9, 47.8, 10.5],
+                DE: [47.2, 5.8, 55.1, 15.0],
+                AT: [46.3, 9.5, 49.0, 17.1],
+                UA: [44.3, 22.1, 52.3, 40.2],
+                FR: [41.3, -5.1, 51.1, 9.5],
+                IT: [36.6, 6.6, 47.1, 18.5],
+              };
+              for (const [cca2, b] of Object.entries(bounds)) {
+                if (lat >= b[0] && lat <= b[2] && lng >= b[1] && lng <= b[3]) {
+                  closestCountry = cca2;
+                  break;
+                }
+              }
+
+              if (!closestCountry) {
+                // Fallback to normalized distance
+                let minNormDist = Infinity;
+                countries.forEach((c) => {
+                  if (c.latlng && c.latlng.length >= 2) {
+                    const dist = getDistance(
+                      lat,
+                      lng,
+                      c.latlng[0],
+                      c.latlng[1],
+                    );
+                    const area = c.area && c.area > 0 ? c.area : 1;
+                    const radius = Math.sqrt(area / Math.PI);
+                    const normDist = dist / radius;
+                    if (normDist < minNormDist) {
+                      minNormDist = normDist;
+                      closestCountry = c.cca2;
+                    }
+                  }
+                });
+              }
+
+              if (closestCountry) {
+                countryCodesWithSolargrafies.add(closestCountry);
+              }
+            });
+          }
+
+          // 2. Filter countries and create buttons
+          const activeCountries = countries.filter((c) =>
+            countryCodesWithSolargrafies.has(c.cca2),
+          );
+
+          activeCountries.sort((a, b) => {
+            const nameA = (a.name && a.name.common) || "";
+            const nameB = (b.name && b.name.common) || "";
+            return nameA.localeCompare(nameB);
+          });
+
+          activeCountries.forEach((c) => {
+            const cca2 = c.cca2.toLowerCase();
+            const btn = document.createElement("button");
+            btn.className = "dropdown-item";
+            btn.dataset.region = cca2;
+            btn.dataset.lat = c.latlng ? c.latlng[0] : 0;
+            btn.dataset.lng = c.latlng ? c.latlng[1] : 0;
+            btn.onclick = () => window.handleRegionChange(cca2);
+
+            // Fetch active translation or fallback
+            const langMap = {
+              de: "deu",
+              en: "eng",
+              fr: "fra",
+              it: "ita",
+              es: "spa",
+              ru: "rus",
+              uk: "ukr",
+            };
+            const apiLang = langMap[currentLang] || "eng";
+            let translatedName = c.name.common;
+            if (c.translations && c.translations[apiLang]) {
+              translatedName = c.translations[apiLang].common;
+            }
+
+            // SVG flag
+            const flagUrl = c.flags ? c.flags.svg || c.flags.png : "";
+            const flagHtml = flagUrl
+              ? `<img src="${flagUrl}" alt="${c.cca2} Flag" />`
+              : `<span class="dropdown-icon">${c.flag || ""}</span>`;
+
+            btn.innerHTML = `
+              ${flagHtml}
+              <span class="dropdown-text" data-i18n="map.country.${cca2}" data-translations='${JSON.stringify(c.translations || {}).replace(/'/g, "&apos;")}'>${translatedName}</span>
+            `;
+
+            countryDropdownContent.appendChild(btn);
+          });
+
+          // Re-apply active class if needed
+          let initialReg =
+            localStorage.getItem("preferredMapRegion") || "world";
+          window.handleRegionChange(initialReg);
+        } catch (e) {
+          console.error("Error fetching countries:", e);
+        }
+      }
+
+      async function initializeApp() {
+        await Promise.all([
+          fetchTranslationsData(),
+          fetchSolargrafieDaten(),
+          populateCountries(),
+        ]);
+
+        let initialReg = localStorage.getItem("preferredMapRegion");
+        if (!initialReg) {
+          initialReg =
+            (typeof APP_CONFIG !== "undefined" && APP_CONFIG.defaultRegion) ||
+            "ch";
+        }
+
+        const selectEl = document.getElementById("region-select");
+        if (selectEl) {
+          selectEl.value = initialReg;
+        }
+
+        // Let the map settle before panning to default/saved region
+        window.setViewRegion(initialReg);
+
+        const hasSeenPrompt = localStorage.getItem("hasSeenWelcomePrompt");
+        if (!hasSeenPrompt) {
+          const activeDict =
+            typeof window.translations !== "undefined" &&
+            window.translations !== null &&
+            window.translations[currentLang]
+              ? window.translations[currentLang]
+              : defaultTranslations.de;
+          updateWelcomeModalTranslations(activeDict);
+          setTimeout(() => {
+            document
+              .getElementById("welcome-modal-lightbox")
+              .classList.add("active");
+          }, 500); // Slight delay for smoother entry
+        }
+        window.setLanguage(currentLang);
+      }
+
+      initializeApp();
+
+      // PWA Service Worker Registration
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("./sw.js")
+            .then((registration) => {
+              console.log(
+                "ServiceWorker registration successful with scope: ",
+                registration.scope,
+              );
+            })
+            .catch((err) => {
+              console.log("ServiceWorker registration failed: ", err);
+            });
+        });
+      }
+    </script>
+
+    <!-- Archiv Leiste -->
+    <div id="archive-bar" class="archive-bar hidden">
+      <div class="archive-header">
+        <div class="archive-icon">
+          <svg
+            viewBox="0 0 24 24"
+            width="20"
+            height="20"
+            stroke="var(--color-secondary)"
+            stroke-width="2"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="21 8 21 21 3 21 3 8"></polyline>
+            <rect x="1" y="3" width="22" height="5"></rect>
+            <line x1="10" y1="12" x2="14" y2="12"></line>
+          </svg>
+        </div>
+        <div class="archive-title-group">
+          <h3 id="archive-title-main">Archive</h3>
+          <span id="archive-subtitle"></span>
+        </div>
+      </div>
+
+      <button class="archive-nav-btn prev hidden" onclick="scrollArchive(-1)">
+        <svg
+          viewBox="0 0 24 24"
+          width="20"
+          height="20"
+          stroke="currentColor"
+          stroke-width="2"
+          fill="none"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+
+      <div class="archive-carousel-container" id="archive-carousel">
+        <!-- JS generated cards will go here -->
+      </div>
+
+      <button class="archive-nav-btn next hidden" onclick="scrollArchive(1)">
+        <svg
+          viewBox="0 0 24 24"
+          width="20"
+          height="20"
+          stroke="currentColor"
+          stroke-width="2"
+          fill="none"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
+    </div>
+
+    <footer id="bottom-bar" class="bottom-bar">
+      <div class="bottom-bar-left">
+        <span id="footer-title" class="footer-title">SOLARGRAFIE</span>
+        <span id="footer-copy" class="footer-copy"
+          >© Eva & Simon · Solargraphische Langzeitbeobachtung</span
+        >
+      </div>
+      <div class="bottom-bar-right">
+        <a
+          href="impressum.html"
+          target="_blank"
+          id="footer-link-3"
+          class="footer-link"
+        >
+          <svg
+            class="footer-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          <span class="link-text">Impressum</span>
+        </a>
+        <a
+          href="admin.html"
+          target="_blank"
+          id="footer-link-admin"
+          class="footer-link"
+        >
+          <svg
+            class="footer-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <span class="link-text">Admin</span>
+        </a>
+      </div>
+    </footer>
+
+    <!-- Error Modal -->
+    <div id="error-modal-lightbox" class="modal-lightbox hidden">
+      <div
+        class="modal-content"
+        style="max-width: 400px; text-align: center; padding: 24px"
+      >
+        <h2
+          style="
+            color: #ef4444;
+            margin-bottom: 16px;
+            font-family: var(--font-head);
+          "
+        >
+          Verbindungsfehler
+        </h2>
+        <p
+          style="
+            color: var(--color-text-muted);
+            font-family: var(--font-body);
+            margin-bottom: 24px;
+          "
+        >
+          Die Datenbank konnte nicht erreicht werden. Bitte überprüfe deine
+          Internetverbindung oder lade die Seite neu.
+        </p>
+        <button class="cta-btn primary" onclick="location.reload()">
+          Neu laden
+        </button>
+      </div>
+    </div>
+
+    <!-- Welcome Modal -->
+    <div
+      id="welcome-modal-lightbox"
+      class="modal"
+      onclick="closeWelcomeModal(event)"
+    >
+      <div
+        class="modal-content-wrapper welcome-content"
+        onclick="event.stopPropagation()"
+      >
+        <div class="modal-header">
+          <div class="modal-header-left">
+            <h2 id="welcome-prompt-title">Projekt Info Anzeigen?</h2>
+          </div>
+        </div>
+
+        <div class="welcome-body">
+          <p
+            id="welcome-prompt-text"
+            style="margin-bottom: 24px; color: var(--color-text-muted)"
+          >
+            Möchtest du die Projektinformationen lesen?
+          </p>
+          <div style="display: flex; gap: 16px; justify-content: flex-end">
+            <button
+              id="welcome-btn-no"
+              class="cta-btn secondary"
+              onclick="handleWelcome(false)"
+            >
+              Nein
+            </button>
+            <button
+              id="welcome-btn-yes"
+              class="cta-btn primary"
+              onclick="handleWelcome(true)"
+            >
+              Ja
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Image Lightbox Modal -->
+    <div id="image-lightbox" onclick="closeImageLightbox(event)">
+      <button id="lightbox-close" onclick="closeImageLightbox(event)">
+        &times;
+      </button>
+      <img id="lightbox-img" src="" alt="Vollbild" />
+    </div>
+    <!-- Projekt Modal Overlay -->
+    <div
+      id="project-modal-lightbox"
+      class="modal"
+      onclick="closeProjectModal(event)"
+    >
+      <div class="modal-content-wrapper" onclick="event.stopPropagation()">
+        <!-- Header -->
+        <div class="modal-header">
+          <div class="modal-header-left">
+            <div class="modal-header-dot"></div>
+            <div>
+              <h2 id="project-modal-title">SOLARGRAFIE</h2>
+              <div class="font-body-sm text-body-sm text-on-surface-variant">
+                Observatorische Langzeitfotografie & Geodaten
+              </div>
+            </div>
+          </div>
+          <div class="modal-header-right">
+            <div class="modal-close" onclick="closeProjectModal(event)">
+              <svg
+                viewBox="0 0 24 24"
+                width="24"
+                height="24"
+                stroke="currentColor"
+                stroke-width="2"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="project-modal-body">
+          <!-- Hero Section -->
+          <div class="project-hero-section">
+            <h1 id="pm-desc-title" class="project-hero-title">
+              Die sichtbare Zeit. Wenn Monate der Sonnenbahn verschmelzen.
+            </h1>
+            <p id="pm-desc-text" class="project-hero-text">
+              Eine Solargrafie ist das radikalste Konzentrat von Dauer. Durch
+              eine winzige Lochblende brennt sich das Sonnenlicht über bis zu
+              222 Tage schichtweise in photoempfindliches Silberpapier ein –
+              ohne Akku, ohne Linse, ohne chemische Dunkelkammerentwicklung.
+            </p>
+          </div>
+
+          <!-- 2x2 Key Stats Matrix Bento -->
+          <div class="project-stats-grid">
+            <div class="project-stat-card">
+              <div class="stat-header">
+                <span class="material-symbols-outlined stat-icon primary-color"
+                  >location_on</span
+                >
+                <span id="pm-stats-active" class="stat-label">Aktiv</span>
+              </div>
+              <div class="stat-body">
+                <div class="stat-value" id="pm-stats-active-val">48+</div>
+                <div id="pm-stats-ch" class="stat-subtext">Stationen in CH</div>
+              </div>
+            </div>
+            <div class="project-stat-card">
+              <div class="stat-header">
+                <span
+                  class="material-symbols-outlined stat-icon secondary-color"
+                  >wb_sunny</span
+                >
+                <span id="pm-stats-record" class="stat-label">Rekord</span>
+              </div>
+              <div class="stat-body">
+                <div class="stat-value" id="pm-stats-record-val">222</div>
+                <div id="pm-stats-days" class="stat-subtext">
+                  Tage Belichtung
+                </div>
+              </div>
+            </div>
+            <div class="project-stat-card">
+              <div class="stat-header">
+                <span class="material-symbols-outlined stat-icon error-color"
+                  >science</span
+                >
+                <span class="stat-label">0%</span>
+              </div>
+              <div class="stat-body">
+                <div class="stat-value">0%</div>
+                <div id="pm-stats-science" class="stat-subtext">
+                  Chemikalien
+                </div>
+              </div>
+            </div>
+            <div class="project-stat-card">
+              <div class="stat-header">
+                <span class="material-symbols-outlined stat-icon tertiary-color"
+                  >public</span
+                >
+                <span id="pm-stats-commons" class="stat-label">Commons</span>
+              </div>
+              <div class="stat-body">
+                <div class="stat-value">100%</div>
+                <div id="pm-stats-open" class="stat-subtext">Open Data CH</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- The Three Pillars of the Process -->
+          <div class="project-pillars-section">
+            <div class="pillars-header">
+              <span id="pm-pillars-title" class="pillars-title"
+                >Die drei Pfeiler des Verfahrens</span
+              >
+              <span id="pm-pillars-method" class="pillars-method"
+                >Methodik</span
+              >
+            </div>
+
+            <details class="pillar-details" open>
+              <summary class="pillar-summary">
+                <div class="pillar-summary-left">
+                  <span class="pillar-number primary-bg primary-text">01</span>
+                  <div class="pillar-summary-text">
+                    <span id="pm-p1-title" class="pillar-item-title"
+                      ><span id="pm-pillar1-title"
+                        >Apparatur: Die Lochkamera</span
+                      ></span
+                    >
+                    <span id="pm-p1-sub" class="pillar-item-sub"
+                      ><span id="pm-pillar1-sub"
+                        >Upcycling-Dose & 0.2mm Nadelblende</span
+                      ></span
+                    >
+                  </div>
+                </div>
+                <span class="material-symbols-outlined expand-icon"
+                  >expand_more</span
+                >
+              </summary>
+              <div class="pillar-content">
+                <p id="pm-pillar1-text" class="pillar-desc">
+                  Aus gebrauchten 0.5-Liter Aluminiumdosen entstehen
+                  wetterfeste, lichtdichte Pinhole-Kammern. Eine mikroskopisch
+                  feine 0.2mm Nadelblende in Alufolie fungiert als f/150-Blende
+                  – komplett ohne optische Glaslinse, mit physikalisch nahezu
+                  unendlicher Schärfentiefe vom Nahbereich bis zum
+                  Alpenhorizont.
+                </p>
+                <div class="pillar-tags">
+                  <span id="pm-p1-tag1" class="pillar-tag"
+                    ><span id="pm-pillar1-tag1">Brennweite ~40mm</span></span
+                  >
+                  <span id="pm-p1-tag2" class="pillar-tag"
+                    ><span id="pm-pillar1-tag2">Blende f/150</span></span
+                  >
+                  <span id="pm-p1-tag3" class="pillar-tag"
+                    ><span id="pm-pillar1-tag3">Wetterfest IP67</span></span
+                  >
+                </div>
+              </div>
+            </details>
+
+            <details class="pillar-details" open>
+              <summary class="pillar-summary">
+                <div class="pillar-summary-left">
+                  <span class="pillar-number secondary-bg secondary-text"
+                    >02</span
+                  >
+                  <div class="pillar-summary-text">
+                    <span id="pm-p2-title" class="pillar-item-title"
+                      ><span id="pm-pillar2-title"
+                        >Photolyse: Chemielose Belichtung</span
+                      ></span
+                    >
+                    <span id="pm-p2-sub" class="pillar-item-sub"
+                      ><span id="pm-pillar2-sub"
+                        >Direktbelichtung ohne Dunkelkammerbad</span
+                      ></span
+                    >
+                  </div>
+                </div>
+                <span class="material-symbols-outlined expand-icon"
+                  >expand_more</span
+                >
+              </summary>
+              <div class="pillar-content">
+                <p id="pm-pillar2-text" class="pillar-desc">
+                  Reine Direktbelichtung auf analoges
+                  Schwarzweiss-Silbergelatine-Fotopapier über bis zu 222 Tage
+                  ohne Dunkelkammer-Chemiebad. Durch monatelange UV-Bestrahlung
+                  spaltet sich das Silberhalogenid im Papier physikalisch
+                  selbstständig ab (Photolyse). Die Spuren werden im Anschluss
+                  zerstörungsfrei hochauflösend digitalisiert.
+                </p>
+                <div class="pillar-tags">
+                  <span id="pm-p2-tag1" class="pillar-tag"
+                    ><span id="pm-pillar2-tag1">0% Chemie</span></span
+                  >
+                  <span id="pm-p2-tag2" class="pillar-tag"
+                    ><span id="pm-pillar2-tag2"
+                      >Silbergelatine-Papier</span
+                    ></span
+                  >
+                  <span id="pm-p2-tag3" class="pillar-tag"
+                    ><span id="pm-pillar2-tag3">Analoge Unikate</span></span
+                  >
+                </div>
+              </div>
+            </details>
+
+            <details class="pillar-details" open>
+              <summary class="pillar-summary">
+                <div class="pillar-summary-left">
+                  <span class="pillar-number tertiary-bg tertiary-text"
+                    >03</span
+                  >
+                  <div class="pillar-summary-text">
+                    <span id="pm-p3-title" class="pillar-item-title"
+                      ><span id="pm-pillar3-title"
+                        >Meteorologie: Klima- & Sonnenarchiv</span
+                      ></span
+                    >
+                    <span id="pm-p3-sub" class="pillar-item-sub"
+                      ><span id="pm-pillar3-sub"
+                        >Wolkenzüge, Nebelmeere & Seismografie</span
+                      ></span
+                    >
+                  </div>
+                </div>
+                <span class="material-symbols-outlined expand-icon"
+                  >expand_more</span
+                >
+              </summary>
+              <div class="pillar-content">
+                <p id="pm-pillar3-text" class="pillar-desc">
+                  Wolkenzüge, Nebelmeere und sonnige Tage zeichnen sich als
+                  seismografische Himmelsspur ein. Jeder bewölkte Tag
+                  hinterlässt eine Unterbrechung im Lichtbogen, dichte
+                  Nebeldecken im Mittelland dämpfen die Strahlung. So entsteht
+                  ein authentischer chronologischer Klimazeitzeuge.
+                </p>
+                <div class="pillar-tags">
+                  <span id="pm-p3-tag1" class="pillar-tag"
+                    ><span id="pm-pillar3-tag1">Meteo-Korrelation</span></span
+                  >
+                  <span id="pm-p3-tag2" class="pillar-tag"
+                    ><span id="pm-pillar3-tag2"
+                      >Schweizer Mikroklima</span
+                    ></span
+                  >
+                  <span id="pm-p3-tag3" class="pillar-tag"
+                    ><span id="pm-pillar3-tag3">Sonnenstunden-Index</span></span
+                  >
+                </div>
+              </div>
+            </details>
+          </div>
+
+          <!-- Astronomical Elevation Section (Interactive Solstice Diagram) -->
+          <div class="project-astronomy-section">
+            <div class="astronomy-header">
+              <div class="astronomy-title-row">
+                <span
+                  class="w-2 h-2 rounded-full bg-secondary animate-pulse"
+                ></span>
+                <span id="pm-astro-label" class="astronomy-label"
+                  >ASTRONOMISCHES PRINZIP · SOLSTITIUM & ELEVATION</span
+                >
+                <div class="flex-1 divider-line"></div>
+                <span id="pm-astro-badge" class="astronomy-badge"
+                  >Lat 47.0° N · Helvetischer Horizont</span
+                >
+              </div>
+              <h2 id="pm-astro-title" class="astronomy-title">
+                182 geschichtete Himmelsbögen zwischen zwei Extremen
+              </h2>
+              <p id="pm-astro-desc" class="astronomy-desc">
+                Vom tiefsten Stand der Wintersonnenwende bis zum Zenit der
+                Mittsommerhitze: 182 geschichtete Himmelsbögen spiegeln die
+                Neigung der Erdachse (23.44°) über der Schweiz (47° N). Jeder
+                einzelne Tag belichtet eine neue, infinitesimale Spur in das
+                Silberhalogenid-Papier.
+              </p>
+            </div>
+
+            <div class="astronomy-grid">
+              <div class="astronomy-diagram-card">
+                <div class="diagram-header">
+                  <div class="diagram-title">
+                    <span class="material-symbols-outlined primary-color"
+                      >explore</span
+                    >
+                    <span id="pm-diagram-title"
+                      >Sonnenbahnen am Schweizer Horizont (Südprojektion
+                      180°)</span
+                    >
+                  </div>
+                  <div class="diagram-legend">
+                    <div class="legend-item secondary-color">
+                      <span class="legend-dot bg-secondary"></span>
+                      <span id="pm-legend-summer">21. JUNI (63.4°)</span>
+                    </div>
+                    <div class="legend-item muted-color">
+                      <span class="legend-dot bg-muted"></span>
+                      <span id="pm-legend-equinox">ÄQUINOX (43.0°)</span>
+                    </div>
+                    <div class="legend-item primary-color">
+                      <span class="legend-dot bg-primary"></span>
+                      <span id="pm-legend-winter">21. DEZ (16.5°)</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="diagram-svg-container">
+                  <svg class="diagram-svg" fill="none" viewBox="0 0 720 240">
+                    <defs>
+                      <linearGradient
+                        id="summerGlow"
+                        x1="0%"
+                        x2="100%"
+                        y1="0%"
+                        y2="0%"
+                      >
+                        <stop
+                          offset="0%"
+                          stop-color="#ee9800"
+                          stop-opacity="0.2"
+                        ></stop>
+                        <stop
+                          offset="50%"
+                          stop-color="#ffb95f"
+                          stop-opacity="1"
+                        ></stop>
+                        <stop
+                          offset="100%"
+                          stop-color="#ee9800"
+                          stop-opacity="0.2"
+                        ></stop>
+                      </linearGradient>
+                      <linearGradient
+                        id="winterGlow"
+                        x1="0%"
+                        x2="100%"
+                        y1="0%"
+                        y2="0%"
+                      >
+                        <stop
+                          offset="0%"
+                          stop-color="#006591"
+                          stop-opacity="0.2"
+                        ></stop>
+                        <stop
+                          offset="50%"
+                          stop-color="#89ceff"
+                          stop-opacity="0.95"
+                        ></stop>
+                        <stop
+                          offset="100%"
+                          stop-color="#006591"
+                          stop-opacity="0.2"
+                        ></stop>
+                      </linearGradient>
+                      <radialGradient
+                        cx="50%"
+                        cy="100%"
+                        id="horizonAura"
+                        r="80%"
+                      >
+                        <stop
+                          offset="0%"
+                          stop-color="#0ea5e9"
+                          stop-opacity="0.12"
+                        ></stop>
+                        <stop
+                          offset="100%"
+                          stop-color="#0ea5e9"
+                          stop-opacity="0"
+                        ></stop>
+                      </radialGradient>
+                    </defs>
+                    <rect
+                      fill="url(#horizonAura)"
+                      height="200"
+                      width="720"
+                      x="0"
+                      y="0"
+                    ></rect>
+                    <line
+                      stroke="#31353e"
+                      stroke-width="1.5"
+                      x1="40"
+                      x2="680"
+                      y1="195"
+                      y2="195"
+                    ></line>
+                    <line
+                      stroke="#262a33"
+                      stroke-dasharray="4 4"
+                      stroke-width="1"
+                      x1="40"
+                      x2="680"
+                      y1="145"
+                      y2="145"
+                    ></line>
+                    <line
+                      stroke="#262a33"
+                      stroke-dasharray="4 4"
+                      stroke-width="1"
+                      x1="40"
+                      x2="680"
+                      y1="95"
+                      y2="95"
+                    ></line>
+                    <line
+                      stroke="#262a33"
+                      stroke-dasharray="4 4"
+                      stroke-width="1"
+                      x1="40"
+                      x2="680"
+                      y1="35"
+                      y2="35"
+                    ></line>
+                    <text
+                      fill="#88929b"
+                      font-family="Inter"
+                      font-size="10"
+                      x="15"
+                      y="199"
+                    >
+                      0°
+                    </text>
+                    <text
+                      fill="#88929b"
+                      font-family="Inter"
+                      font-size="10"
+                      x="15"
+                      y="149"
+                    >
+                      20°
+                    </text>
+                    <text
+                      fill="#88929b"
+                      font-family="Inter"
+                      font-size="10"
+                      x="15"
+                      y="99"
+                    >
+                      45°
+                    </text>
+                    <text
+                      fill="#88929b"
+                      font-family="Inter"
+                      font-size="10"
+                      x="15"
+                      y="39"
+                    >
+                      65°
+                    </text>
+
+                    <text
+                      id="pm-svg-east"
+                      fill="#bec8d2"
+                      font-family="Inter"
+                      font-size="11"
+                      font-weight="600"
+                      x="60"
+                      y="215"
+                    >
+                      OST (90°)
+                    </text>
+                    <text
+                      id="pm-svg-south"
+                      fill="#dfe2ee"
+                      font-family="Inter"
+                      font-size="11"
+                      font-weight="600"
+                      text-anchor="middle"
+                      x="360"
+                      y="215"
+                    >
+                      SÜDEN (180° Zenith)
+                    </text>
+                    <text
+                      id="pm-svg-west"
+                      fill="#bec8d2"
+                      font-family="Inter"
+                      font-size="11"
+                      font-weight="600"
+                      text-anchor="end"
+                      x="660"
+                      y="215"
+                    >
+                      WEST (270°)
+                    </text>
+
+                    <path
+                      d="M 70 190 Q 360 20 650 190"
+                      fill="none"
+                      stroke="url(#summerGlow)"
+                      stroke-linecap="round"
+                      stroke-width="3.5"
+                    ></path>
+                    <circle cx="360" cy="20" fill="#ffb95f" r="5.5"></circle>
+                    <text
+                      id="pm-svg-summer-text"
+                      fill="#ffb95f"
+                      font-family="Inter"
+                      font-size="11"
+                      font-weight="700"
+                      x="375"
+                      y="24"
+                    >
+                      63.4° Zenit (Sommersolstitium · 21. Juni)
+                    </text>
+
+                    <path
+                      d="M 125 192 Q 360 88 595 192"
+                      fill="none"
+                      opacity="0.65"
+                      stroke="#88929b"
+                      stroke-dasharray="5 4"
+                      stroke-width="1.8"
+                    ></path>
+                    <circle cx="360" cy="88" fill="#88929b" r="3.5"></circle>
+                    <text
+                      id="pm-svg-equinox-text"
+                      fill="#bec8d2"
+                      font-family="Inter"
+                      font-size="10"
+                      x="375"
+                      y="92"
+                    >
+                      43.0° Äquinoktium (21. März / Sept)
+                    </text>
+
+                    <path
+                      d="M 180 194 Q 360 148 540 194"
+                      fill="none"
+                      stroke="url(#winterGlow)"
+                      stroke-linecap="round"
+                      stroke-width="3"
+                    ></path>
+                    <circle cx="360" cy="148" fill="#89ceff" r="4.5"></circle>
+                    <text
+                      id="pm-svg-winter-text"
+                      fill="#89ceff"
+                      font-family="Inter"
+                      font-size="11"
+                      font-weight="700"
+                      x="375"
+                      y="152"
+                    >
+                      16.5° Tiefststand (Wintersolstitium · 21. Dez)
+                    </text>
+                  </svg>
+                </div>
+                <div class="diagram-footer">
+                  <span id="pm-diagram-proj"
+                    >Zylindrische Projektion der
+                    Nadelloch-Belichtungsebene</span
+                  >
+                  <span id="pm-diagram-drift" class="tertiary-color"
+                    >Neigung der Erdachse: 23.44° · Δ 46.9° Drift</span
+                  >
+                </div>
+              </div>
+
+              <div class="astronomy-stats-col">
+                <div class="astro-stat-card">
+                  <div class="astro-stat-header">
+                    <span id="pm-winter-card-title" class="primary-color"
+                      >WINTERSOLSTITIUM</span
+                    >
+                    <span class="astro-stat-val primary-color">16.5°</span>
+                  </div>
+                  <div class="astro-stat-row">
+                    <span id="pm-winter-daylength-lbl">Tageslänge</span>
+                    <span class="astro-stat-bold">~8h 28min</span>
+                  </div>
+                  <div class="astro-stat-row">
+                    <span id="pm-winter-month-lbl">Monat</span>
+                    <span
+                      class="astro-stat-bold primary-color"
+                      id="pm-winter-month-val"
+                      >21. Dezember</span
+                    >
+                  </div>
+                </div>
+
+                <div class="astro-stat-card">
+                  <div class="astro-stat-header">
+                    <span id="pm-summer-card-title" class="secondary-color"
+                      >SOMMERSOLSTITIUM</span
+                    >
+                    <span class="astro-stat-val secondary-color">63.4°</span>
+                  </div>
+                  <div class="astro-stat-row">
+                    <span id="pm-summer-daylength-lbl">Tageslänge</span>
+                    <span class="astro-stat-bold">~15h 53min</span>
+                  </div>
+                  <div class="astro-stat-row">
+                    <span id="pm-summer-month-lbl">Monat</span>
+                    <span
+                      class="astro-stat-bold secondary-color"
+                      id="pm-summer-month-val"
+                      >21. Juni</span
+                    >
+                  </div>
+                </div>
+
+                <div class="astro-stat-card tertiary-border">
+                  <div class="astro-stat-header">
+                    <span id="pm-drift-card-title" class="tertiary-color"
+                      >DEKLINATION & DRIFT</span
+                    >
+                    <span class="astro-stat-val tertiary-color">Δ 46.9°</span>
+                  </div>
+                  <div class="astro-stat-row">
+                    <span id="pm-drift-span-lbl">Himmelsspanne</span>
+                    <span class="astro-stat-bold" id="pm-drift-span-val"
+                      >Schweizer Mittelland</span
+                    >
+                  </div>
+                  <div class="astro-stat-row">
+                    <span id="pm-drift-diff-lbl">Tageslicht-Differenz</span>
+                    <span class="astro-stat-bold tertiary-color"
+                      >+7h 25min</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- End of project-modal-body -->
+      </div>
+
+      <!-- Micro Modal Feedback Toast -->
+      <div id="toastMessage" class="toast-message">
+        <span class="material-symbols-outlined">check_circle</span>
+        <span id="pm-toast-msg" class="toast-text"
+          >Danke! Vorschlagsformular wird geöffnet...</span
+        >
+      </div>
+    </div>
+  </body>
+</html>

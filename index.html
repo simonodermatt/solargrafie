@@ -143,16 +143,6 @@
             <div class="dropdown-content">
               <button
                 class="dropdown-item"
-                onclick="window.handleRegionChange('eu')"
-                data-region="eu"
-              >
-                <span class="dropdown-icon">🌍</span>
-                <span class="dropdown-text" data-i18n="map.region.europe"
-                  >Europa</span
-                >
-              </button>
-              <button
-                class="dropdown-item"
                 onclick="window.handleRegionChange('na')"
                 data-region="na"
               >
@@ -1499,12 +1489,6 @@
             document
               .getElementById("btn-eu")
               .querySelector(".btn-text").innerText = activeDict.regions.eu;
-          const euDropdownText = document.querySelector(
-            '.dropdown-item[data-region="eu"] .dropdown-text',
-          );
-          if (euDropdownText && activeDict.regions.eu) {
-            euDropdownText.innerText = activeDict.regions.eu;
-          }
           if (document.getElementById("btn-world"))
             document
               .getElementById("btn-world")
@@ -1605,26 +1589,6 @@
           countryDropdownContent.innerHTML = "";
           staticBtns.forEach((btn) => countryDropdownContent.appendChild(btn));
           dynamicBtns.forEach((btn) => countryDropdownContent.appendChild(btn));
-        }
-
-        const currentReg = localStorage.getItem("preferredMapRegion");
-        if (currentReg && currentReg !== "world") {
-          const activeTargetBtn = document.querySelector(
-            `.dropdown-item[data-region="${currentReg}"] .dropdown-text`,
-          );
-          if (activeTargetBtn) {
-            if (["eu", "na", "sa", "as", "af", "oc"].includes(currentReg)) {
-              const euBtnText = document
-                .getElementById("btn-eu")
-                ?.querySelector(".btn-text");
-              if (euBtnText) euBtnText.innerText = activeTargetBtn.innerText;
-            } else {
-              const chBtnText = document
-                .getElementById("btn-ch")
-                ?.querySelector(".btn-text");
-              if (chBtnText) chBtnText.innerText = activeTargetBtn.innerText;
-            }
-          }
         }
         // --- END NEW ---
 
