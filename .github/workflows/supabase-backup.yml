@@ -2,7 +2,7 @@ name: Supabase Code Backup
 
 on:
   schedule:
-    - cron: "0 4 * * 0" # Jeden Sonntag um 04:00 Uhr UTC
+    - cron: '0 3 * * *'
   workflow_dispatch: # Erlaubt manuelles Ausloesen des Workflows
 
 jobs:
