@@ -7,6 +7,7 @@
     <title data-i18n="admin_title_page">Admin - Solargrafie</title>
     <!-- PWA Meta Tags -->
     <meta content="#0b0f17" name="theme-color" />
+    <meta content="yes" name="mobile-web-app-capable" />
     <!-- Stylesheets -->
     <link href="style.css" rel="stylesheet" />
     <!-- Fonts -->
@@ -889,6 +890,7 @@
                           class="form-control"
                           id="email"
                           name="email"
+                          autocomplete="email"
                           type="email"
                         />
                       </div>
@@ -993,9 +995,7 @@
                         </div>
                         <div style="display: flex; flex-wrap: wrap; gap: 15px">
                           <div style="flex: 1; min-width: 120px">
-                            <label data-i18n="admin_label_tage_belichtung"
-                              >Tage Belichtung</label
-                            >
+                            <label data-i18n="admin_label_tage_belichtung" for="tage_belichtung">Tage Belichtung</label>
                             <input
                               class="form-control"
                               id="tage_belichtung"
@@ -1005,9 +1005,7 @@
                             />
                           </div>
                           <div style="flex: 1; min-width: 120px">
-                            <label data-i18n="admin_label_tage_verdeckt"
-                              >Tage Verdeckt</label
-                            >
+                            <label data-i18n="admin_label_tage_verdeckt" for="tage_verdeckt">Tage Verdeckt</label>
                             <input
                               class="form-control"
                               id="tage_verdeckt"
@@ -1017,9 +1015,7 @@
                             />
                           </div>
                           <div style="flex: 1; min-width: 120px">
-                            <label data-i18n="admin_label_sichtbare_boegen"
-                              >Sichtbare Bögen</label
-                            >
+                            <label data-i18n="admin_label_sichtbare_boegen" for="sichtbare_boegen">Sichtbare Bögen</label>
                             <input
                               class="form-control"
                               id="sichtbare_boegen"
@@ -1029,9 +1025,7 @@
                             />
                           </div>
                           <div style="flex: 1; min-width: 120px">
-                            <label data-i18n="admin_label_sonnenhoehe_max"
-                              >Sonnenhöhe Max</label
-                            >
+                            <label data-i18n="admin_label_sonnenhoehe_max" for="sonnenhoehe_max">Sonnenhöhe Max</label>
                             <input
                               class="form-control"
                               id="sonnenhoehe_max"
@@ -1042,9 +1036,7 @@
                             />
                           </div>
                           <div style="flex: 1; min-width: 120px">
-                            <label data-i18n="admin_label_sonnenhoehe_min"
-                              >Sonnenhöhe Min</label
-                            >
+                            <label data-i18n="admin_label_sonnenhoehe_min" for="sonnenhoehe_min">Sonnenhöhe Min</label>
                             <input
                               class="form-control"
                               id="sonnenhoehe_min"
@@ -1133,7 +1125,7 @@
                 >
                   Eintrag
                 </h2>
-                <form id="translation-form">
+                <form id="translation-form" autocomplete="off">
                   <input
                     id="edit-id-translation"
                     name="id"
@@ -1291,7 +1283,7 @@
                 <h2 data-i18n="admin_form_title_entry" id="form-title-user">
                   Eintrag
                 </h2>
-                <form id="user-form">
+                <form id="user-form" autocomplete="off">
                   <input id="edit-id-user" name="id" type="hidden" value="" />
                   <div class="form-grid">
                     <div class="form-group full-width">
@@ -1340,6 +1332,204 @@
                       <span data-i18n="admin_btn_cancel">Abbrechen</span>
                     </button>
                     <button class="btn" id="btn-submit-user" type="submit">
+                      <span data-i18n="admin_btn_save">Speichern</span>
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <div class="hidden" id="panel-countries">
+              <div class="admin-section">
+                <h2
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    gap: 10px;
+                  "
+                >
+                  <span data-i18n="admin_tab_countries">Länder</span>
+                  <div style="display: flex; gap: 5px">
+                    <button
+                      class="btn btn-small"
+                      id="btn-new-country"
+                      type="button"
+                    >
+                      <span data-i18n="admin_btn_new">Neu</span>
+                    </button>
+                    <button
+                      class="btn btn-small"
+                      id="btn-refresh-countries"
+                      type="button"
+                    >
+                      <span data-i18n="admin_btn_refresh">Aktualisieren</span>
+                    </button>
+                  </div>
+                </h2>
+                <div class="list-container" id="countries-list"><p>Load..</p></div>
+              </div>
+              <div
+                class="admin-section hidden"
+                id="country-form-container"
+                style="margin-top: 20px"
+              >
+                <h2 id="country-form-title">Land bearbeiten</h2>
+                <form id="country-form" autocomplete="off">
+                  <input id="country-id" name="id" type="hidden" value="" />
+                  <div class="form-grid">
+                    <div class="form-group">
+                      <label for="country-code">Ländercode (z.B. ch, de, it)</label>
+                      <input
+                        class="form-control"
+                        id="country-code"
+                        name="country_code"
+                        required=""
+                        type="text"
+                      />
+                    </div>
+                    <div class="form-group">
+                      <label for="country-flag">Flagge (Emoji oder SVG-URL)</label>
+                      <input
+                        class="form-control"
+                        id="country-flag"
+                        name="flag"
+                        required=""
+                        type="text"
+                      />
+                    </div>
+                    <div class="form-group">
+                      <label for="country-lat">Breitengrad (lat)</label>
+                      <input
+                        class="form-control"
+                        id="country-lat"
+                        name="lat"
+                        required=""
+                        step="any"
+                        type="number"
+                      />
+                    </div>
+                    <div class="form-group">
+                      <label for="country-lng">Längengrad (lng)</label>
+                      <input
+                        class="form-control"
+                        id="country-lng"
+                        name="lng"
+                        required=""
+                        step="any"
+                        type="number"
+                      />
+                    </div>
+                    <div class="form-group">
+                      <label for="country-zoom">Zoom-Level</label>
+                      <input
+                        class="form-control"
+                        id="country-zoom"
+                        name="zoom_level"
+                        required=""
+                        type="number"
+                        value="7"
+                      />
+                    </div>
+                    <div class="form-group">
+                      <label for="country-sort">Sortierung (Reihenfolge)</label>
+                      <input
+                        class="form-control"
+                        id="country-sort"
+                        name="sort_order"
+                        required=""
+                        type="number"
+                        value="10"
+                      />
+                    </div>
+                    <div class="form-group">
+                      <label for="country-name-de">Name DE</label>
+                      <input
+                        class="form-control"
+                        id="country-name-de"
+                        name="name_de"
+                        required=""
+                        type="text"
+                      />
+                    </div>
+                    <div class="form-group">
+                      <label for="country-name-en">Name EN</label>
+                      <input
+                        class="form-control"
+                        id="country-name-en"
+                        name="name_en"
+                        type="text"
+                      />
+                    </div>
+                    <div class="form-group">
+                      <label for="country-name-fr">Name FR</label>
+                      <input
+                        class="form-control"
+                        id="country-name-fr"
+                        name="name_fr"
+                        type="text"
+                      />
+                    </div>
+                    <div class="form-group">
+                      <label for="country-name-it">Name IT</label>
+                      <input
+                        class="form-control"
+                        id="country-name-it"
+                        name="name_it"
+                        type="text"
+                      />
+                    </div>
+                    <div class="form-group">
+                      <label for="country-name-uk">Name UK</label>
+                      <input
+                        class="form-control"
+                        id="country-name-uk"
+                        name="name_uk"
+                        type="text"
+                      />
+                    </div>
+                    <div class="form-group">
+                      <label for="country-name-ru">Name RU</label>
+                      <input
+                        class="form-control"
+                        id="country-name-ru"
+                        name="name_ru"
+                        type="text"
+                      />
+                    </div>
+                    <div class="form-group full-width">
+                      <label for="country-name-es">Name ES</label>
+                      <input
+                        class="form-control"
+                        id="country-name-es"
+                        name="name_es"
+                        type="text"
+                      />
+                    </div>
+                  </div>
+                  <div
+                    style="
+                      margin-top: 20px;
+                      display: flex;
+                      gap: 10px;
+                      justify-content: flex-end;
+                    "
+                  >
+                    <button
+                      class="btn btn-danger"
+                      id="btn-delete-country"
+                      style="display: none"
+                      type="button"
+                    >
+                      Löschen
+                    </button>
+                    <button
+                      class="btn btn-secondary"
+                      id="btn-cancel-country"
+                      type="button"
+                    >
+                      <span data-i18n="admin_btn_cancel">Abbrechen</span>
+                    </button>
+                    <button class="btn" id="btn-submit-country" type="submit">
                       <span data-i18n="admin_btn_save">Speichern</span>
                     </button>
                   </div>

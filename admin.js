@@ -151,9 +151,11 @@ async function updateUI(session) {
       if (currentUserRole === "erfasser") {
         tabBtnTranslations.classList.add("hidden");
         tabBtnUsers.classList.add("hidden");
+        if (tabBtnCountries) tabBtnCountries.classList.add("hidden");
       } else {
         tabBtnTranslations.classList.remove("hidden");
         tabBtnUsers.classList.remove("hidden");
+        if (tabBtnCountries) tabBtnCountries.classList.remove("hidden");
       }
 
       loadingContainer.classList.add("hidden");
@@ -1358,7 +1360,7 @@ function switchTab(tabId) {
   if (tabId === "solargrafien") {
     tabSolargrafien.classList.remove("hidden");
     tabBtnSolargrafien.classList.replace("btn-secondary", "btn");
-    loadData();
+    loadSolargrafien();
   } else if (tabId === "translations") {
     tabTranslations.classList.remove("hidden");
     tabBtnTranslations.classList.replace("btn-secondary", "btn");
@@ -1368,8 +1370,8 @@ function switchTab(tabId) {
     tabBtnUsers.classList.replace("btn-secondary", "btn");
     loadAdmins();
   } else if (tabId === "countries") {
-    if(tabCountries) tabCountries.classList.remove("hidden");
-    if(tabBtnCountries) tabBtnCountries.classList.replace("btn-secondary", "btn");
+    if (tabCountries) tabCountries.classList.remove("hidden");
+    if (tabBtnCountries) tabBtnCountries.classList.replace("btn-secondary", "btn");
     loadCountries();
   }
 }
@@ -1377,6 +1379,9 @@ function switchTab(tabId) {
 tabBtnSolargrafien.addEventListener("click", () => switchTab("solargrafien"));
 tabBtnTranslations.addEventListener("click", () => switchTab("translations"));
 tabBtnUsers.addEventListener("click", () => switchTab("users"));
+if (tabBtnCountries) {
+  tabBtnCountries.addEventListener("click", () => switchTab("countries"));
+}
 
 // ----------------------------------------------------
 // TRANSLATIONS CRUD LOGIK
@@ -1824,36 +1829,28 @@ if (btnMobileBack) {
 // ==========================================
 
 async function loadCountries() {
-  if (currentUserRole !== "superadmin") return;
-  countriesList.innerHTML =
-    '<div class="loading"><div class="spinner"></div></div>';
-  countryFormContainer.classList.add("hidden");
+  if (!countriesList) return;
+  countriesList.innerHTML = "<p>Lade Länder...</p>";
+  if (countryFormContainer) countryFormContainer.classList.add("hidden");
 
   try {
-    const response = await fetch(
-      `${SUPABASE_URL}/rest/v1/countries?select=*&order=sort_order.asc`,
-      {
-        headers: {
-          apikey: SUPABASE_ANON_KEY,
-          Authorization: `Bearer ${sessionToken}`,
-        },
-      },
-    );
+    const { data: countries, error } = await supabaseClient
+      .from("countries")
+      .select("*")
+      .order("sort_order", { ascending: true });
 
-    if (!response.ok) throw new Error("Fehler beim Laden der Länder");
-
-    const countries = await response.json();
-    renderCountriesList(countries);
+    if (error) throw error;
+    renderCountriesList(countries || []);
   } catch (error) {
-    console.error(error);
+    console.error("Fehler beim Laden der Länder:", error);
     countriesList.innerHTML = `<div style="color: #ef4444; padding: 20px;">Fehler: ${error.message}</div>`;
   }
 }
 
 function renderCountriesList(countries) {
-  if (countries.length === 0) {
+  if (!countries || countries.length === 0) {
     countriesList.innerHTML =
-      '<div style="padding: 20px; color: #94a3b8;">Keine Länder gefunden.</div>';
+      '<div style="padding: 20px; color: #94a3b8;">Keine Länder gefunden. Klicke oben auf "Neu", um ein Land anzulegen.</div>';
     return;
   }
 
@@ -1862,19 +1859,27 @@ function renderCountriesList(countries) {
     const item = document.createElement("div");
     item.className = "list-item";
 
+    let flagDisplay = escapeHtml(country.flag || "");
+    if (country.flag && country.flag.startsWith("http")) {
+      flagDisplay = `<img src="${escapeHtml(country.flag)}" alt="Flag" style="width: 20px; height: auto; vertical-align: middle; margin-right: 6px; border-radius: 2px;" />`;
+    }
+
     const left = document.createElement("div");
     left.className = "list-item-left";
     left.innerHTML = `
-      <div style="font-weight: 600; font-size: 16px;">${escapeHtml(country.flag)} ${escapeHtml(country.name_de)} (${escapeHtml(country.country_code)})</div>
-      <div style="color: #94a3b8; font-size: 13px; margin-top: 4px;">Sort: ${country.sort_order} | Zoom: ${country.zoom_level} | Lat: ${country.lat}, Lng: ${country.lng}</div>
+      <div style="font-weight: 600; font-size: 16px;">${flagDisplay} ${escapeHtml(country.name_de)} (${escapeHtml(country.country_code)})</div>
+      <div style="color: #94a3b8; font-size: 13px; margin-top: 4px;">Sort: ${country.sort_order ?? "-"} | Zoom: ${country.zoom_level ?? "-"} | Lat: ${country.lat ?? "-"}, Lng: ${country.lng ?? "-"}</div>
     `;
 
     const right = document.createElement("div");
     right.className = "list-item-right";
+    right.style.display = "flex";
+    right.style.gap = "8px";
 
     const btnEdit = document.createElement("button");
-    btnEdit.className = "btn-icon";
-    btnEdit.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
+    btnEdit.className = "btn btn-small";
+    btnEdit.type = "button";
+    btnEdit.textContent = "Bearbeiten";
     btnEdit.onclick = () => openEditCountryForm(country);
 
     right.appendChild(btnEdit);
@@ -1889,7 +1894,9 @@ function openNewCountryForm() {
     "Neues Land anlegen";
   countryForm.reset();
   document.getElementById("country-id").value = "";
-  btnDeleteCountry.style.display = "none";
+  document.getElementById("country-zoom").value = "7";
+  document.getElementById("country-sort").value = "10";
+  if (btnDeleteCountry) btnDeleteCountry.style.display = "none";
   countryFormContainer.classList.remove("hidden");
   countryFormContainer.scrollIntoView({ behavior: "smooth" });
 }
@@ -1897,12 +1904,12 @@ function openNewCountryForm() {
 function openEditCountryForm(country) {
   document.getElementById("country-form-title").innerText = "Land bearbeiten";
   document.getElementById("country-id").value = country.id;
-  document.getElementById("country-code").value = country.country_code;
-  document.getElementById("country-flag").value = country.flag;
-  document.getElementById("country-lat").value = country.lat;
-  document.getElementById("country-lng").value = country.lng;
-  document.getElementById("country-zoom").value = country.zoom_level;
-  document.getElementById("country-sort").value = country.sort_order;
+  document.getElementById("country-code").value = country.country_code || "";
+  document.getElementById("country-flag").value = country.flag || "";
+  document.getElementById("country-lat").value = country.lat ?? "";
+  document.getElementById("country-lng").value = country.lng ?? "";
+  document.getElementById("country-zoom").value = country.zoom_level ?? 7;
+  document.getElementById("country-sort").value = country.sort_order ?? 10;
 
   document.getElementById("country-name-de").value = country.name_de || "";
   document.getElementById("country-name-en").value = country.name_en || "";
@@ -1912,7 +1919,7 @@ function openEditCountryForm(country) {
   document.getElementById("country-name-ru").value = country.name_ru || "";
   document.getElementById("country-name-es").value = country.name_es || "";
 
-  btnDeleteCountry.style.display = "inline-flex";
+  if (btnDeleteCountry) btnDeleteCountry.style.display = "inline-flex";
   countryFormContainer.classList.remove("hidden");
   countryFormContainer.scrollIntoView({ behavior: "smooth" });
 }
@@ -1922,19 +1929,22 @@ async function saveCountry(e) {
 
   const id = document.getElementById("country-id").value;
   const data = {
-    country_code: document.getElementById("country-code").value.toLowerCase(),
-    flag: document.getElementById("country-flag").value,
+    country_code: document
+      .getElementById("country-code")
+      .value.trim()
+      .toLowerCase(),
+    flag: document.getElementById("country-flag").value.trim(),
     lat: parseFloat(document.getElementById("country-lat").value),
     lng: parseFloat(document.getElementById("country-lng").value),
     zoom_level: parseInt(document.getElementById("country-zoom").value, 10),
     sort_order: parseInt(document.getElementById("country-sort").value, 10),
-    name_de: document.getElementById("country-name-de").value,
-    name_en: document.getElementById("country-name-en").value,
-    name_fr: document.getElementById("country-name-fr").value,
-    name_it: document.getElementById("country-name-it").value,
-    name_uk: document.getElementById("country-name-uk").value,
-    name_ru: document.getElementById("country-name-ru").value,
-    name_es: document.getElementById("country-name-es").value,
+    name_de: document.getElementById("country-name-de").value.trim(),
+    name_en: document.getElementById("country-name-en").value.trim(),
+    name_fr: document.getElementById("country-name-fr").value.trim(),
+    name_it: document.getElementById("country-name-it").value.trim(),
+    name_uk: document.getElementById("country-name-uk").value.trim(),
+    name_ru: document.getElementById("country-name-ru").value.trim(),
+    name_es: document.getElementById("country-name-es").value.trim(),
   };
 
   const submitBtn = countryForm.querySelector('button[type="submit"]');
@@ -1943,36 +1953,24 @@ async function saveCountry(e) {
   submitBtn.disabled = true;
 
   try {
-    let url = `${SUPABASE_URL}/rest/v1/countries`;
-    let method = "POST";
-    let headers = {
-      apikey: SUPABASE_ANON_KEY,
-      Authorization: `Bearer ${sessionToken}`,
-      "Content-Type": "application/json",
-      Prefer: "return=representation",
-    };
-
     if (id) {
-      url = `${url}?id=eq.${id}`;
-      method = "PATCH";
-    }
-
-    const res = await fetch(url, {
-      method: method,
-      headers: headers,
-      body: JSON.stringify(data),
-    });
-
-    if (!res.ok) {
-      const errText = await res.text();
-      throw new Error(`Fehler: ${res.status} ${errText}`);
+      const { error } = await supabaseClient
+        .from("countries")
+        .update(data)
+        .eq("id", id);
+      if (error) throw error;
+      showMessage("Land erfolgreich aktualisiert.");
+    } else {
+      const { error } = await supabaseClient.from("countries").insert([data]);
+      if (error) throw error;
+      showMessage("Land erfolgreich angelegt.");
     }
 
     countryFormContainer.classList.add("hidden");
     loadCountries();
   } catch (error) {
     console.error(error);
-    alert(error.message);
+    showMessage("Fehler beim Speichern: " + error.message, true);
   } finally {
     submitBtn.innerHTML = originalText;
     submitBtn.disabled = false;
@@ -1990,31 +1988,33 @@ async function deleteCountry() {
   btnDeleteCountry.disabled = true;
 
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/countries?id=eq.${id}`, {
-      method: "DELETE",
-      headers: {
-        apikey: SUPABASE_ANON_KEY,
-        Authorization: `Bearer ${sessionToken}`,
-      },
-    });
+    const { error } = await supabaseClient
+      .from("countries")
+      .delete()
+      .eq("id", id);
 
-    if (!res.ok) {
-      const errText = await res.text();
-      throw new Error(`Fehler: ${res.status} ${errText}`);
-    }
+    if (error) throw error;
 
+    showMessage("Land erfolgreich gelöscht.");
     countryFormContainer.classList.add("hidden");
     loadCountries();
   } catch (error) {
     console.error(error);
-    alert(error.message);
+    showMessage("Fehler beim Löschen: " + error.message, true);
   } finally {
-    btnDeleteCountry.innerHTML = `
-      <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg">
-        <polyline points="3 6 5 6 21 6"></polyline>
-        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-      </svg>
-      Löschen`;
+    btnDeleteCountry.innerHTML = "Löschen";
     btnDeleteCountry.disabled = false;
   }
 }
+
+const btnRefreshCountries = document.getElementById("btn-refresh-countries");
+if (btnNewCountry) btnNewCountry.addEventListener("click", openNewCountryForm);
+if (btnRefreshCountries)
+  btnRefreshCountries.addEventListener("click", loadCountries);
+if (btnCancelCountry) {
+  btnCancelCountry.addEventListener("click", () => {
+    countryFormContainer.classList.add("hidden");
+  });
+}
+if (countryForm) countryForm.addEventListener("submit", saveCountry);
+if (btnDeleteCountry) btnDeleteCountry.addEventListener("click", deleteCountry);
