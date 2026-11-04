@@ -531,6 +531,7 @@
                       class="search-input"
                       data-i18n-placeholder="admin_search_placeholder_solargrafien"
                       id="searchInput"
+                      aria-label="Suchen"
                       placeholder="Einträge durchsuchen..."
                       type="text"
                     />
@@ -647,7 +648,7 @@
                   >
                     Eintrag
                   </h2>
-                  <form id="solargrafie-form">
+                  <form id="solargrafie-form" autocomplete="off">
                     <input id="edit-id" name="id" type="hidden" value="" />
                     <div class="form-grid">
                       <div class="form-group full-width">
@@ -910,6 +911,7 @@
                           <input
                             data-i18n-placeholder="admin_placeholder_owner"
                             id="owner-input"
+                            aria-label="Besitzer"
                             placeholder="z.B. @name, name@domain.ch"
                             style="
                               border: none;
@@ -1093,6 +1095,7 @@
                     class="form-control"
                     data-i18n-placeholder="admin_search_placeholder_translations"
                     id="searchTranslationsInput"
+                    aria-label="Übersetzungen durchsuchen"
                     placeholder="Einträge durchsuchen (Key, Texte)..."
                     style="
                       flex: 1;
@@ -1255,6 +1258,7 @@
                     class="form-control"
                     data-i18n-placeholder="admin_search_placeholder_users"
                     id="searchUsersInput"
+                    aria-label="Benutzer durchsuchen"
                     placeholder="Benutzer durchsuchen (E-Mail)..."
                     style="
                       flex: 1;
@@ -1299,6 +1303,7 @@
                       <input
                         class="form-control"
                         id="user-email-input"
+                        autocomplete="email"
                         name="email"
                         required=""
                         type="email"
@@ -1513,6 +1518,7 @@
             class="form-control"
             data-i18n-placeholder="admin_map_placeholder"
             id="admin-map-search"
+            aria-label="Karte durchsuchen"
             placeholder="Adresse suchen..."
             style="flex: 1"
             type="text"

@@ -11,7 +11,6 @@
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#0b0f17" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="mobile-web-app-capable" content="yes" />
     <meta
       name="apple-mobile-web-app-status-bar-style"
       content="black-translucent"
@@ -925,9 +924,25 @@
             `.dropdown-item[data-region="${regKey}"]`,
           );
           if (btn && btn.dataset.lat && btn.dataset.lng) {
-            const lat = parseFloat(btn.dataset.lat);
-            const lng = parseFloat(btn.dataset.lng);
-            const zoom = btn.dataset.zoom ? parseInt(btn.dataset.zoom, 10) : 6;
+            let lat = parseFloat(btn.dataset.lat);
+            let lng = parseFloat(btn.dataset.lng);
+            let zoom = btn.dataset.zoom ? parseInt(btn.dataset.zoom, 10) : 6;
+
+            // Validation fallback
+            if (
+              isNaN(lat) ||
+              isNaN(lng) ||
+              lat < -90 ||
+              lat > 90 ||
+              lng < -180 ||
+              lng > 180
+            ) {
+              lat = 20.0; // fallback to world
+              lng = 0.0;
+              zoom = 2;
+            }
+            if (isNaN(zoom) || zoom < 1 || zoom > 20) zoom = 6;
+
             map.flyTo([lat, lng], zoom, { duration: 1.2 });
           }
         }
@@ -2127,19 +2142,24 @@
       // Fetch and populate countries from Supabase
       async function populateCountries() {
         try {
-          if (!supabaseClient) {
-            console.error("Supabase client not initialized.");
-            return;
-          }
-          const { data: countries, error } = await supabaseClient
-            .from("countries")
-            .select("*")
-            .order("sort_order", { ascending: true });
+          const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/countries?select=*&order=sort_order.asc`,
+            {
+              headers: {
+                apikey: SUPABASE_ANON_KEY,
+              },
+            },
+          );
 
-          if (error) {
-            console.error("Failed to fetch countries from Supabase", error);
+          if (!response.ok) {
+            console.error(
+              "Failed to fetch countries from Supabase",
+              response.status,
+            );
             return;
           }
+
+          let countries = await response.json();
 
           const countryDropdownContent = document.getElementById(
             "country-dropdown-content",
@@ -2158,13 +2178,8 @@
             btn.dataset.zoom = c.zoom_level;
 
             // Onclick function to handle region change
-            btn.onclick = () => {
-              if (window.map) {
-                window.map.setView([c.lat, c.lng], c.zoom_level);
-                localStorage.setItem("preferredMapRegion", cca2);
-                updateRegionUI(cca2);
-              }
-            };
+            // Onclick function to handle region change
+            btn.onclick = () => window.handleRegionChange(cca2);
 
             // Use the translations from the database directly
             // Store them in a data attribute to be updated on language change
