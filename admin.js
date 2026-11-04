@@ -84,7 +84,14 @@ function applyAdminTranslations() {
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     const key = el.getAttribute("data-i18n");
     if (dict[key]) {
-      el.innerText = dict[key];
+      const badge = el.querySelector(".badge");
+      if (badge) {
+        const badgeClone = badge.cloneNode(true);
+        el.innerText = dict[key] + " ";
+        el.appendChild(badgeClone);
+      } else {
+        el.innerText = dict[key];
+      }
     }
   });
 
@@ -171,7 +178,7 @@ async function updateUI(session) {
       currentUserEmail = null;
       currentUserRole = null;
       loadingContainer.classList.add("hidden");
-      document.getElementById("auth-card").classList.add("hidden");
+      document.getElementById("auth-card").classList.remove("hidden");
       loginContainer.classList.remove("hidden");
       userEmailSpan.textContent = "";
     }
@@ -180,7 +187,7 @@ async function updateUI(session) {
     currentUserEmail = null;
     currentUserRole = null;
     loadingContainer.classList.add("hidden");
-    document.getElementById("auth-card").classList.add("hidden");
+    document.getElementById("auth-card").classList.remove("hidden");
     loginContainer.classList.remove("hidden");
     userEmailSpan.textContent = "";
   }
