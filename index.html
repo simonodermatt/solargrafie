@@ -2127,10 +2127,10 @@
       async function populateCountries() {
         try {
           const response = await fetch(
-            `${SUPABASE_URL}/rest/v1/countries?select=*&order=sort_order.asc`,
+            `${cfg.SUPABASE_URL}/rest/v1/countries?select=*&order=sort_order.asc`,
             {
               headers: {
-                apikey: SUPABASE_ANON_KEY,
+                apikey: cfg.SUPABASE_ANON_KEY,
               },
             },
           );
