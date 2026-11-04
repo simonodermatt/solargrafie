@@ -859,9 +859,8 @@
         oc: { center: [-25.0, 135.0], zoom: 4 },
       };
 
-      // Add handleRegionChange which saves to localStorage and manages the select dropdown.
-
-      window.handleRegionChange = function (regKey) {
+      // Add updateRegionUI to only update the UI state
+      window.updateRegionUI = function (regKey) {
         if (!regKey) return;
         localStorage.setItem("preferredMapRegion", regKey);
 
@@ -904,35 +903,31 @@
                 btnText.innerText =
                   targetBtn.querySelector(".dropdown-text").innerText;
               }
-              const chIconSvg = chBtn.querySelector("svg");
-              let newIcon =
-                targetBtn.querySelector("img") ||
-                targetBtn.querySelector(".dropdown-icon");
-              if (newIcon) {
-                // Optional: We can replace the SVG with the flag, or just keep it as 'Schweiz/Land' icon.
-                // For now just update the text.
-              }
             } else if (regKey === "ch") {
-              // fallback if it's exactly ch but ch is not dynamically in list yet
               const btnText = chBtn.querySelector(".btn-text");
               if (btnText) btnText.innerText = "Schweiz";
             }
           }
         }
+      };
+
+      // Add handleRegionChange which saves to localStorage, updates UI and map view
+      window.handleRegionChange = function (regKey) {
+        window.updateRegionUI(regKey);
 
         if (regions[regKey]) {
           map.flyTo(regions[regKey].center, regions[regKey].zoom, {
             duration: 1.2,
           });
         } else {
-          // Wait, where do we get lat/lng for country? from the dynamic button.
           const btn = document.querySelector(
             `.dropdown-item[data-region="${regKey}"]`,
           );
           if (btn && btn.dataset.lat && btn.dataset.lng) {
             const lat = parseFloat(btn.dataset.lat);
             const lng = parseFloat(btn.dataset.lng);
-            map.flyTo([lat, lng], 6, { duration: 1.2 });
+            const zoom = btn.dataset.zoom ? parseInt(btn.dataset.zoom, 10) : 6;
+            map.flyTo([lat, lng], zoom, { duration: 1.2 });
           }
         }
       };
@@ -2128,164 +2123,80 @@
 
       // Fetch and populate countries from REST Countries API
 
-      // Helper function to calculate distance using Haversine formula
-      function getDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371; // Radius of the earth in km
-        const dLat = (lat2 - lat1) * (Math.PI / 180);
-        const dLon = (lon2 - lon1) * (Math.PI / 180);
-        const a =
-          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-          Math.cos(lat1 * (Math.PI / 180)) *
-            Math.cos(lat2 * (Math.PI / 180)) *
-            Math.sin(dLon / 2) *
-            Math.sin(dLon / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c; // Distance in km
-      }
-
+      // Fetch and populate countries from Supabase
       async function populateCountries() {
         try {
           const response = await fetch(
-            "https://raw.githubusercontent.com/mledoze/countries/master/countries.json",
+            `${SUPABASE_URL}/rest/v1/countries?select=*&order=sort_order.asc`,
+            {
+              headers: {
+                apikey: SUPABASE_ANON_KEY,
+              },
+            },
           );
+
           if (!response.ok) {
-            console.error("Failed to fetch from github", response.status);
+            console.error(
+              "Failed to fetch countries from Supabase",
+              response.status,
+            );
             return;
           }
-          let countries = await response.json();
 
-          // Map mledoze format to resemble restcountries format for SVG flags
-          countries = countries.map((c) => {
-            return {
-              ...c,
-              flags: {
-                svg: `https://flagcdn.com/${c.cca2.toLowerCase()}.svg`,
-                png: `https://flagcdn.com/w320/${c.cca2.toLowerCase()}.png`,
-              },
-            };
-          });
+          let countries = await response.json();
 
           const countryDropdownContent = document.getElementById(
             "country-dropdown-content",
           );
           if (!countryDropdownContent) return;
 
-          // 1. Identify which countries have solargrafies
-          const countryCodesWithSolargrafies = new Set();
+          countryDropdownContent.innerHTML = ""; // Clear previous if any
 
-          if (window.solargrafieDaten && window.solargrafieDaten.length > 0) {
-            window.solargrafieDaten.forEach((row) => {
-              let lat, lng;
-              if (row.lat !== undefined && row.lng !== undefined) {
-                lat = parseFloat(row.lat);
-                lng = parseFloat(row.lng);
-              } else {
-                const pos = getVal(row, [
-                  "position",
-                  "koordinaten",
-                  "standort",
-                  "lat,lng",
-                  "ort",
-                ]);
-                if (!pos) return;
-                const parts = pos.split(",");
-                if (parts.length < 2) return;
-                lat = parseFloat(parts[0].trim());
-                lng = parseFloat(parts[1].trim());
-              }
-              if (isNaN(lat) || isNaN(lng)) return;
-
-              let closestCountry = null;
-
-              // Fast bounding box check for known countries to prevent distance algorithm errors near borders
-              const bounds = {
-                CH: [45.8, 5.9, 47.8, 10.5],
-                DE: [47.2, 5.8, 55.1, 15.0],
-                AT: [46.3, 9.5, 49.0, 17.1],
-                UA: [44.3, 22.1, 52.3, 40.2],
-                FR: [41.3, -5.1, 51.1, 9.5],
-                IT: [36.6, 6.6, 47.1, 18.5],
-              };
-              for (const [cca2, b] of Object.entries(bounds)) {
-                if (lat >= b[0] && lat <= b[2] && lng >= b[1] && lng <= b[3]) {
-                  closestCountry = cca2;
-                  break;
-                }
-              }
-
-              if (!closestCountry) {
-                // Fallback to normalized distance
-                let minNormDist = Infinity;
-                countries.forEach((c) => {
-                  if (c.latlng && c.latlng.length >= 2) {
-                    const dist = getDistance(
-                      lat,
-                      lng,
-                      c.latlng[0],
-                      c.latlng[1],
-                    );
-                    const area = c.area && c.area > 0 ? c.area : 1;
-                    const radius = Math.sqrt(area / Math.PI);
-                    const normDist = dist / radius;
-                    if (normDist < minNormDist) {
-                      minNormDist = normDist;
-                      closestCountry = c.cca2;
-                    }
-                  }
-                });
-              }
-
-              if (closestCountry) {
-                countryCodesWithSolargrafies.add(closestCountry);
-              }
-            });
-          }
-
-          // 2. Filter countries and create buttons
-          const activeCountries = countries.filter((c) =>
-            countryCodesWithSolargrafies.has(c.cca2),
-          );
-
-          activeCountries.sort((a, b) => {
-            const nameA = (a.name && a.name.common) || "";
-            const nameB = (b.name && b.name.common) || "";
-            return nameA.localeCompare(nameB);
-          });
-
-          activeCountries.forEach((c) => {
-            const cca2 = c.cca2.toLowerCase();
+          countries.forEach((c) => {
+            const cca2 = c.country_code.toLowerCase();
             const btn = document.createElement("button");
             btn.className = "dropdown-item";
             btn.dataset.region = cca2;
-            btn.dataset.lat = c.latlng ? c.latlng[0] : 0;
-            btn.dataset.lng = c.latlng ? c.latlng[1] : 0;
-            btn.onclick = () => window.handleRegionChange(cca2);
+            btn.dataset.lat = c.lat;
+            btn.dataset.lng = c.lng;
+            btn.dataset.zoom = c.zoom_level;
 
-            // Fetch active translation or fallback
-            const langMap = {
-              de: "deu",
-              en: "eng",
-              fr: "fra",
-              it: "ita",
-              es: "spa",
-              ru: "rus",
-              uk: "ukr",
+            // Onclick function to handle region change
+            btn.onclick = () => {
+              if (window.map) {
+                window.map.setView([c.lat, c.lng], c.zoom_level);
+                localStorage.setItem("preferredMapRegion", cca2);
+                updateRegionUI(cca2);
+              }
             };
-            const apiLang = langMap[currentLang] || "eng";
-            let translatedName = c.name.common;
-            if (c.translations && c.translations[apiLang]) {
-              translatedName = c.translations[apiLang].common;
-            }
 
-            // SVG flag
-            const flagUrl = c.flags ? c.flags.svg || c.flags.png : "";
-            const flagHtml = flagUrl
-              ? `<img src="${flagUrl}" alt="${c.cca2} Flag" />`
-              : `<span class="dropdown-icon">${c.flag || ""}</span>`;
+            // Use the translations from the database directly
+            // Store them in a data attribute to be updated on language change
+            const translations = {
+              de: c.name_de,
+              en: c.name_en || c.name_de,
+              fr: c.name_fr || c.name_de,
+              it: c.name_it || c.name_de,
+              uk: c.name_uk || c.name_de,
+              ru: c.name_ru || c.name_de,
+              es: c.name_es || c.name_de,
+            };
+
+            let translatedName = translations[currentLang] || c.name_de;
+
+            // Flag rendering (check if it's a URL or an Emoji)
+            let flagHtml = "";
+            if (c.flag) {
+              if (c.flag.startsWith("http")) {
+                flagHtml = `<img src="${c.flag}" alt="${c.country_code} Flag" style="width:20px; height:auto; margin-right:8px; border-radius:2px;" />`;
+              } else {
+                flagHtml = `<span class="dropdown-icon" style="margin-right:8px;">${c.flag}</span>`;
+              }
+            }
 
             btn.innerHTML = `
               ${flagHtml}
-              <span class="dropdown-text" data-i18n="map.country.${cca2}" data-translations='${JSON.stringify(c.translations || {}).replace(/'/g, "&apos;")}'>${translatedName}</span>
+              <span class="dropdown-text" data-country-code="${cca2}" data-translations='${JSON.stringify(translations).replace(/'/g, "&apos;")}'>${translatedName}</span>
             `;
 
             countryDropdownContent.appendChild(btn);
@@ -2294,7 +2205,8 @@
           // Re-apply active class if needed
           let initialReg =
             localStorage.getItem("preferredMapRegion") || "world";
-          window.handleRegionChange(initialReg);
+          // We call updateRegionUI here because handleRegionChange is modified
+          updateRegionUI(initialReg);
         } catch (e) {
           console.error("Error fetching countries:", e);
         }
