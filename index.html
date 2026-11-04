@@ -11,6 +11,7 @@
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#0b0f17" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta
       name="apple-mobile-web-app-status-bar-style"
       content="black-translucent"
@@ -2126,24 +2127,19 @@
       // Fetch and populate countries from Supabase
       async function populateCountries() {
         try {
-          const response = await fetch(
-            `${cfg.SUPABASE_URL}/rest/v1/countries?select=*&order=sort_order.asc`,
-            {
-              headers: {
-                apikey: cfg.SUPABASE_ANON_KEY,
-              },
-            },
-          );
-
-          if (!response.ok) {
-            console.error(
-              "Failed to fetch countries from Supabase",
-              response.status,
-            );
+          if (!supabaseClient) {
+            console.error("Supabase client not initialized.");
             return;
           }
+          const { data: countries, error } = await supabaseClient
+            .from("countries")
+            .select("*")
+            .order("sort_order", { ascending: true });
 
-          let countries = await response.json();
+          if (error) {
+            console.error("Failed to fetch countries from Supabase", error);
+            return;
+          }
 
           const countryDropdownContent = document.getElementById(
             "country-dropdown-content",
