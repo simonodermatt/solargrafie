@@ -12,6 +12,16 @@ const tabSolargrafien = document.getElementById("tab-solargrafien");
 const tabTranslations = document.getElementById("tab-translations");
 const tabUsers = document.getElementById("tab-users");
 
+// Countries tab elements
+const tabCountries = document.getElementById("panel-countries");
+const tabBtnCountries = document.getElementById("tab-btn-countries");
+const countriesList = document.getElementById("countries-list");
+const countryFormContainer = document.getElementById("country-form-container");
+const countryForm = document.getElementById("country-form");
+const btnNewCountry = document.getElementById("btn-new-country");
+const btnCancelCountry = document.getElementById("btn-cancel-country");
+const btnDeleteCountry = document.getElementById("btn-delete-country");
+
 // DOM Elemente
 const loadingContainer = document.getElementById("loading-container");
 const loginContainer = document.getElementById("login-container");
@@ -74,7 +84,14 @@ function applyAdminTranslations() {
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     const key = el.getAttribute("data-i18n");
     if (dict[key]) {
-      el.innerText = dict[key];
+      const badge = el.querySelector(".badge");
+      if (badge) {
+        const badgeClone = badge.cloneNode(true);
+        el.innerText = dict[key] + " ";
+        el.appendChild(badgeClone);
+      } else {
+        el.innerText = dict[key];
+      }
     }
   });
 
@@ -141,9 +158,11 @@ async function updateUI(session) {
       if (currentUserRole === "erfasser") {
         tabBtnTranslations.classList.add("hidden");
         tabBtnUsers.classList.add("hidden");
+        if (tabBtnCountries) tabBtnCountries.classList.add("hidden");
       } else {
         tabBtnTranslations.classList.remove("hidden");
         tabBtnUsers.classList.remove("hidden");
+        if (tabBtnCountries) tabBtnCountries.classList.remove("hidden");
       }
 
       loadingContainer.classList.add("hidden");
@@ -159,7 +178,7 @@ async function updateUI(session) {
       currentUserEmail = null;
       currentUserRole = null;
       loadingContainer.classList.add("hidden");
-      document.getElementById("auth-card").classList.add("hidden");
+      document.getElementById("auth-card").classList.remove("hidden");
       loginContainer.classList.remove("hidden");
       userEmailSpan.textContent = "";
     }
@@ -168,7 +187,7 @@ async function updateUI(session) {
     currentUserEmail = null;
     currentUserRole = null;
     loadingContainer.classList.add("hidden");
-    document.getElementById("auth-card").classList.add("hidden");
+    document.getElementById("auth-card").classList.remove("hidden");
     loginContainer.classList.remove("hidden");
     userEmailSpan.textContent = "";
   }
@@ -1337,16 +1356,18 @@ function switchTab(tabId) {
   tabSolargrafien.classList.add("hidden");
   tabTranslations.classList.add("hidden");
   tabUsers.classList.add("hidden");
+  if(tabCountries) tabCountries.classList.add("hidden");
 
   // Reset Buttons
   tabBtnSolargrafien.classList.replace("btn", "btn-secondary");
   tabBtnTranslations.classList.replace("btn", "btn-secondary");
   tabBtnUsers.classList.replace("btn", "btn-secondary");
+  if(tabBtnCountries) tabBtnCountries.classList.replace("btn", "btn-secondary");
 
   if (tabId === "solargrafien") {
     tabSolargrafien.classList.remove("hidden");
     tabBtnSolargrafien.classList.replace("btn-secondary", "btn");
-    loadData();
+    loadSolargrafien();
   } else if (tabId === "translations") {
     tabTranslations.classList.remove("hidden");
     tabBtnTranslations.classList.replace("btn-secondary", "btn");
@@ -1355,12 +1376,19 @@ function switchTab(tabId) {
     tabUsers.classList.remove("hidden");
     tabBtnUsers.classList.replace("btn-secondary", "btn");
     loadAdmins();
+  } else if (tabId === "countries") {
+    if (tabCountries) tabCountries.classList.remove("hidden");
+    if (tabBtnCountries) tabBtnCountries.classList.replace("btn-secondary", "btn");
+    loadCountries();
   }
 }
 
 tabBtnSolargrafien.addEventListener("click", () => switchTab("solargrafien"));
 tabBtnTranslations.addEventListener("click", () => switchTab("translations"));
 tabBtnUsers.addEventListener("click", () => switchTab("users"));
+if (tabBtnCountries) {
+  tabBtnCountries.addEventListener("click", () => switchTab("countries"));
+}
 
 // ----------------------------------------------------
 // TRANSLATIONS CRUD LOGIK
@@ -1802,3 +1830,198 @@ if (btnMobileBack) {
       .classList.remove("mobile-form-active");
   });
 }
+
+// ==========================================
+// COUNTRIES LOGIC
+// ==========================================
+
+async function loadCountries() {
+  if (!countriesList) return;
+  countriesList.innerHTML = "<p>Lade Länder...</p>";
+  if (countryFormContainer) countryFormContainer.classList.add("hidden");
+
+  try {
+    const { data: countries, error } = await supabaseClient
+      .from("countries")
+      .select("*")
+      .order("sort_order", { ascending: true });
+
+    if (error) throw error;
+    renderCountriesList(countries || []);
+  } catch (error) {
+    console.error("Fehler beim Laden der Länder:", error);
+    countriesList.innerHTML = `<div style="color: #ef4444; padding: 20px;">Fehler: ${error.message}</div>`;
+  }
+}
+
+function renderCountriesList(countries) {
+  if (!countries || countries.length === 0) {
+    countriesList.innerHTML =
+      '<div style="padding: 20px; color: #94a3b8;">Keine Länder gefunden. Klicke oben auf "Neu", um ein Land anzulegen.</div>';
+    return;
+  }
+
+  countriesList.innerHTML = "";
+  countries.forEach((country) => {
+    const item = document.createElement("div");
+    item.className = "list-item";
+
+    let flagDisplay = escapeHtml(country.flag || "");
+    if (country.flag && country.flag.startsWith("http")) {
+      flagDisplay = `<img src="${escapeHtml(country.flag)}" alt="Flag" style="width: 20px; height: auto; vertical-align: middle; margin-right: 6px; border-radius: 2px;" />`;
+    }
+
+    const left = document.createElement("div");
+    left.className = "list-item-left";
+    left.innerHTML = `
+      <div style="font-weight: 600; font-size: 16px;">${flagDisplay} ${escapeHtml(country.name_de)} (${escapeHtml(country.country_code)})</div>
+      <div style="color: #94a3b8; font-size: 13px; margin-top: 4px;">Sort: ${country.sort_order ?? "-"} | Zoom: ${country.zoom_level ?? "-"} | Lat: ${country.lat ?? "-"}, Lng: ${country.lng ?? "-"}</div>
+    `;
+
+    const right = document.createElement("div");
+    right.className = "list-item-right";
+    right.style.display = "flex";
+    right.style.gap = "8px";
+
+    const btnEdit = document.createElement("button");
+    btnEdit.className = "btn btn-small";
+    btnEdit.type = "button";
+    btnEdit.textContent = "Bearbeiten";
+    btnEdit.onclick = () => openEditCountryForm(country);
+
+    right.appendChild(btnEdit);
+    item.appendChild(left);
+    item.appendChild(right);
+    countriesList.appendChild(item);
+  });
+}
+
+function openNewCountryForm() {
+  document.getElementById("country-form-title").innerText =
+    "Neues Land anlegen";
+  countryForm.reset();
+  document.getElementById("country-id").value = "";
+  document.getElementById("country-zoom").value = "7";
+  document.getElementById("country-sort").value = "10";
+  if (btnDeleteCountry) btnDeleteCountry.style.display = "none";
+  countryFormContainer.classList.remove("hidden");
+  countryFormContainer.scrollIntoView({ behavior: "smooth" });
+}
+
+function openEditCountryForm(country) {
+  document.getElementById("country-form-title").innerText = "Land bearbeiten";
+  document.getElementById("country-id").value = country.id;
+  document.getElementById("country-code").value = country.country_code || "";
+  document.getElementById("country-flag").value = country.flag || "";
+  document.getElementById("country-lat").value = country.lat ?? "";
+  document.getElementById("country-lng").value = country.lng ?? "";
+  document.getElementById("country-zoom").value = country.zoom_level ?? 7;
+  document.getElementById("country-sort").value = country.sort_order ?? 10;
+
+  document.getElementById("country-name-de").value = country.name_de || "";
+  document.getElementById("country-name-en").value = country.name_en || "";
+  document.getElementById("country-name-fr").value = country.name_fr || "";
+  document.getElementById("country-name-it").value = country.name_it || "";
+  document.getElementById("country-name-uk").value = country.name_uk || "";
+  document.getElementById("country-name-ru").value = country.name_ru || "";
+  document.getElementById("country-name-es").value = country.name_es || "";
+
+  if (btnDeleteCountry) btnDeleteCountry.style.display = "inline-flex";
+  countryFormContainer.classList.remove("hidden");
+  countryFormContainer.scrollIntoView({ behavior: "smooth" });
+}
+
+async function saveCountry(e) {
+  e.preventDefault();
+
+  const id = document.getElementById("country-id").value;
+  const data = {
+    country_code: document
+      .getElementById("country-code")
+      .value.trim()
+      .toLowerCase(),
+    flag: document.getElementById("country-flag").value.trim(),
+    lat: parseFloat(document.getElementById("country-lat").value),
+    lng: parseFloat(document.getElementById("country-lng").value),
+    zoom_level: parseInt(document.getElementById("country-zoom").value, 10),
+    sort_order: parseInt(document.getElementById("country-sort").value, 10),
+    name_de: document.getElementById("country-name-de").value.trim(),
+    name_en: document.getElementById("country-name-en").value.trim(),
+    name_fr: document.getElementById("country-name-fr").value.trim(),
+    name_it: document.getElementById("country-name-it").value.trim(),
+    name_uk: document.getElementById("country-name-uk").value.trim(),
+    name_ru: document.getElementById("country-name-ru").value.trim(),
+    name_es: document.getElementById("country-name-es").value.trim(),
+  };
+
+  const submitBtn = countryForm.querySelector('button[type="submit"]');
+  const originalText = submitBtn.innerHTML;
+  submitBtn.innerHTML = "Wird gespeichert...";
+  submitBtn.disabled = true;
+
+  try {
+    if (id) {
+      const { error } = await supabaseClient
+        .from("countries")
+        .update(data)
+        .eq("id", id);
+      if (error) throw error;
+      showMessage("Land erfolgreich aktualisiert.");
+    } else {
+      const { error } = await supabaseClient.from("countries").insert([data]);
+      if (error) throw error;
+      showMessage("Land erfolgreich angelegt.");
+    }
+
+    countryFormContainer.classList.add("hidden");
+    loadCountries();
+  } catch (error) {
+    console.error(error);
+    showMessage("Fehler beim Speichern: " + error.message, true);
+  } finally {
+    submitBtn.innerHTML = originalText;
+    submitBtn.disabled = false;
+  }
+}
+
+async function deleteCountry() {
+  const id = document.getElementById("country-id").value;
+  if (!id) return;
+
+  const confirmMsg = "Soll dieses Land wirklich endgültig gelöscht werden?";
+  if (!confirm(confirmMsg)) return;
+
+  btnDeleteCountry.innerHTML = "Lösche...";
+  btnDeleteCountry.disabled = true;
+
+  try {
+    const { error } = await supabaseClient
+      .from("countries")
+      .delete()
+      .eq("id", id);
+
+    if (error) throw error;
+
+    showMessage("Land erfolgreich gelöscht.");
+    countryFormContainer.classList.add("hidden");
+    loadCountries();
+  } catch (error) {
+    console.error(error);
+    showMessage("Fehler beim Löschen: " + error.message, true);
+  } finally {
+    btnDeleteCountry.innerHTML = "Löschen";
+    btnDeleteCountry.disabled = false;
+  }
+}
+
+const btnRefreshCountries = document.getElementById("btn-refresh-countries");
+if (btnNewCountry) btnNewCountry.addEventListener("click", openNewCountryForm);
+if (btnRefreshCountries)
+  btnRefreshCountries.addEventListener("click", loadCountries);
+if (btnCancelCountry) {
+  btnCancelCountry.addEventListener("click", () => {
+    countryFormContainer.classList.add("hidden");
+  });
+}
+if (countryForm) countryForm.addEventListener("submit", saveCountry);
+if (btnDeleteCountry) btnDeleteCountry.addEventListener("click", deleteCountry);
