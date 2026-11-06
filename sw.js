@@ -1,4 +1,4 @@
-const CACHE_NAME = "solargrafie-cache-v1";
+const CACHE_NAME = "solargrafie-cache-v2";
 const MAX_CACHE_ITEMS = 50;
 const ASSETS_TO_CACHE = [
   "./",
@@ -68,7 +68,8 @@ self.addEventListener("fetch", (event) => {
     event.request.url.includes("open-meteo.com") ||
     event.request.url.includes("restcountries.com") ||
     event.request.url.includes("flagcdn.com") ||
-    event.request.url.includes("raw.githubusercontent.com")
+    event.request.url.includes("raw.githubusercontent.com") ||
+    event.request.url.includes("supabase.co")
   ) {
     return;
   }

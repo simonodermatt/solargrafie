@@ -33,7 +33,15 @@ const btnLogout = document.getElementById("btn-logout");
 // ----------------------------------------------------
 // Translations & Localization
 // ----------------------------------------------------
-window.adminTranslations = {};
+window.adminTranslations = {
+  de: { admin_tab_countries: "Länder" },
+  en: { admin_tab_countries: "Countries" },
+  fr: { admin_tab_countries: "Pays" },
+  it: { admin_tab_countries: "Paesi" },
+  uk: { admin_tab_countries: "Країни" },
+  ru: { admin_tab_countries: "Страны" },
+  es: { admin_tab_countries: "Países" },
+};
 const supportedLangs = ["de", "en", "fr", "it", "uk", "ru", "es"];
 
 async function fetchAdminTranslationsData() {
@@ -50,7 +58,9 @@ async function fetchAdminTranslationsData() {
     const data = await res.json();
     if (data && data.length > 0) {
       const transObj = {};
-      supportedLangs.forEach((l) => (transObj[l] = {}));
+      supportedLangs.forEach((l) => {
+        transObj[l] = { ...(window.adminTranslations[l] || {}) };
+      });
       data.forEach((row) => {
         if (row.key) {
           supportedLangs.forEach((l) => {
@@ -129,16 +139,21 @@ function getTranslation(key) {
 // UI Update Logik
 let currentUserEmail = null;
 let currentUserRole = null;
+let updateUIRunId = 0;
 
 async function updateUI(session) {
+  const runId = ++updateUIRunId;
+
   loadingContainer.classList.remove("hidden");
   loginContainer.classList.add("hidden");
   dashboardContainer.classList.add("hidden");
   document.getElementById("auth-card").classList.remove("hidden");
 
-  if (session) {
-    await fetchAdminTranslationsData();
-    applyAdminTranslations();
+  await fetchAdminTranslationsData();
+  if (runId !== updateUIRunId) return;
+  applyAdminTranslations();
+
+  if (session && session.user) {
     currentUserEmail = session.user.email;
 
     try {
@@ -147,6 +162,8 @@ async function updateUI(session) {
         .select("rolle")
         .eq("email", currentUserEmail)
         .single();
+
+      if (runId !== updateUIRunId) return;
 
       if (error || !data) {
         throw new Error("Kein Zugriff: Benutzer nicht berechtigt.");
@@ -171,6 +188,7 @@ async function updateUI(session) {
       userEmailSpan.textContent = `${currentUserEmail} (${currentUserRole})`;
       loadSolargrafien();
     } catch (err) {
+      if (runId !== updateUIRunId) return;
       console.error("Rollen-Check fehlgeschlagen:", err.message);
       alert(err.message);
       await supabaseClient.auth.signOut();
@@ -178,6 +196,7 @@ async function updateUI(session) {
       currentUserEmail = null;
       currentUserRole = null;
       loadingContainer.classList.add("hidden");
+      dashboardContainer.classList.add("hidden");
       document.getElementById("auth-card").classList.remove("hidden");
       loginContainer.classList.remove("hidden");
       userEmailSpan.textContent = "";
@@ -187,6 +206,7 @@ async function updateUI(session) {
     currentUserEmail = null;
     currentUserRole = null;
     loadingContainer.classList.add("hidden");
+    dashboardContainer.classList.add("hidden");
     document.getElementById("auth-card").classList.remove("hidden");
     loginContainer.classList.remove("hidden");
     userEmailSpan.textContent = "";
@@ -221,20 +241,33 @@ btnLogout.addEventListener("click", async () => {
 
 // Initialer Status Check & Auth State Listener
 async function initAuth() {
-  // 1. Initialen Session-Status abfragen
-  const {
-    data: { session },
-    error,
-  } = await supabaseClient.auth.getSession();
-  if (error) {
-    console.error("Fehler beim Abrufen der Session:", error.message);
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      registrations.forEach((reg) => reg.update());
+    });
   }
-  updateUI(session);
+
+  // 1. Initialen Session-Status abfragen
+  let session = null;
+  try {
+    const { data, error } = await supabaseClient.auth.getSession();
+    if (error) {
+      console.error("Fehler beim Abrufen der Session:", error.message);
+    } else if (data) {
+      session = data.session;
+    }
+  } catch (err) {
+    console.error("Unerwarteter Fehler beim Session-Check:", err);
+  }
+  await updateUI(session);
 
   // 2. Auf Änderungen lauschen (Login/Logout in anderen Tabs etc.)
   supabaseClient.auth.onAuthStateChange((event, newSession) => {
     console.log("Auth Event:", event);
-    updateUI(newSession);
+    if (event === "INITIAL_SESSION") return;
+    setTimeout(() => {
+      updateUI(newSession);
+    }, 0);
   });
 }
 
