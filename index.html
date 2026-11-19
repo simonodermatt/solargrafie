@@ -6,6 +6,7 @@
       content="rtbyrVwJyzPIj5smh1ktUHK9uKXdSlyrC_XYKkeoeYg"
     />
     <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https:; connect-src 'self' https://hoiyyovdabzpjaqdlheu.supabase.co wss://hoiyyovdabzpjaqdlheu.supabase.co https://archive-api.open-meteo.com https://nominatim.openstreetmap.org; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- PWA Meta Tags -->
@@ -41,12 +42,8 @@
     <meta property="og:url" content="https://map.solargrafie.ch" />
     <meta property="og:image" content="https://map.solargrafie.ch/logo.png" />
     <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Plus+Jakarta+Sans:wght@500;600&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap"
-      rel="stylesheet"
-    />
+    <link rel="stylesheet" href="fonts/fonts.css" />
+    <link rel="stylesheet" href="fonts/material-symbols.css" />
 
     <!-- Inline Favicon -->
     <link
@@ -58,15 +55,15 @@
     <!-- CSS Stylesheets -->
     <link
       rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      href="vendor/leaflet/leaflet.css"
     />
     <link
       rel="stylesheet"
-      href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"
+      href="vendor/markercluster/MarkerCluster.css"
     />
     <link
       rel="stylesheet"
-      href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"
+      href="vendor/markercluster/MarkerCluster.Default.css"
     />
 
     <link rel="stylesheet" href="style.css" />
@@ -674,11 +671,11 @@
     </div>
 
     <!-- Bibliotheken (GENAU IN DIESER REIHENFOLGE EINMALIG LADEN) -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+    <script src="vendor/leaflet/leaflet.js"></script>
+    <script src="vendor/markercluster/leaflet.markercluster.js"></script>
 
     <!-- Konfiguration & Übersetzungen -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="vendor/supabase/supabase.js"></script>
     <script src="config.js"></script>
 
     <script>
@@ -1424,7 +1421,7 @@
           const fotoIcon = L.icon({
             iconUrl:
               bildUrl ||
-              "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+              "vendor/leaflet/images/marker-icon.png",
             iconSize: [48, 48],
             iconAnchor: [24, 24],
             popupAnchor: [0, -28],
@@ -1732,7 +1729,7 @@
           const rawBild = bildHauptStr || bildUrlStr || bildDokuStr || "";
           const bildUrl =
             resolveImageUrl(rawBild) ||
-            "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png";
+            "vendor/leaflet/images/marker-icon.png";
 
           let days = "";
           let year = "";
@@ -1763,7 +1760,7 @@
 
           const itemHtml = `
             <div class="archive-item" onclick="openModalById('${originalIdx}')">
-              <img src="${escapeHtml(bildUrl)}" class="archive-item-img" alt="Solargrafie Langzeitbelichtung - Standort: ${escapeHtml(titel)}" onerror="this.src='https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png'">
+              <img src="${escapeHtml(bildUrl)}" class="archive-item-img" alt="Solargrafie Langzeitbelichtung - Standort: ${escapeHtml(titel)}" onerror="this.src='vendor/leaflet/images/marker-icon.png'">
               <div class="archive-item-info">
                 <div class="archive-item-title">${escapeHtml(titel)}</div>
                 <div class="archive-item-details">${escapeHtml(detailsText)}</div>
