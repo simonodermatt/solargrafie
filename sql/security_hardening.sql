@@ -24,7 +24,11 @@ SET search_path = public
 AS $$
   SELECT EXISTS (
     SELECT 1 FROM public.admins a
-    WHERE a.email = (auth.jwt() ->> 'email') AND a.rolle = 'superadmin'
+    WHERE a.email = (auth.jwt() ->> 'email')
+      -- Nur Google-Login zählt (app_metadata ist für Nutzer NICHT änderbar).
+      -- Verhindert Übernahme einer Admin-Adresse per E-Mail/Passwort-Signup.
+      AND (auth.jwt() -> 'app_metadata' ->> 'provider') = 'google'
+      AND coalesce((auth.jwt() -> 'user_metadata' ->> 'email_verified')::boolean, false) AND a.rolle = 'superadmin'
   );
 $$;
 
@@ -35,6 +39,10 @@ AS $$
   SELECT EXISTS (
     SELECT 1 FROM public.admins a
     WHERE a.email = (auth.jwt() ->> 'email')
+      -- Nur Google-Login zählt (app_metadata ist für Nutzer NICHT änderbar).
+      -- Verhindert Übernahme einer Admin-Adresse per E-Mail/Passwort-Signup.
+      AND (auth.jwt() -> 'app_metadata' ->> 'provider') = 'google'
+      AND coalesce((auth.jwt() -> 'user_metadata' ->> 'email_verified')::boolean, false)
   );
 $$;
 
