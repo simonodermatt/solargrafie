@@ -2,6 +2,7 @@
 <html lang="de">
   <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https:; connect-src 'self' https://hoiyyovdabzpjaqdlheu.supabase.co wss://hoiyyovdabzpjaqdlheu.supabase.co https://archive-api.open-meteo.com https://nominatim.openstreetmap.org; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'" />
     <!-- Verhindert Zoomen auf mobilen Geräten (PWA-Stabilität) -->
     <meta
       name="viewport"
@@ -9,10 +10,7 @@
     />
     <title>Impressum - Solargrafie</title>
     <link rel="stylesheet" href="style.css" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <link rel="stylesheet" href="fonts/fonts.css" />
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   </head>
   <body class="impressum-page">
@@ -54,7 +52,7 @@
 
       <h2>Kontakt:</h2>
       <p>
-        E-Mail: <a href="mailto:sp.odermatt@gmail.com">sp.odermatt@gmail.ch</a><br />
+        E-Mail: <a href="mailto:sp.odermatt@gmail.com">sp.odermatt@gmail.com</a><br />
         Webseite: <a href="https://map.solargrafie.ch">map.solargrafie.ch</a>
       </p>
 
@@ -75,6 +73,8 @@
       <p>
         <strong>Admin-Login:</strong> Die Anmeldung für den geschützten Administrationsbereich erfolgt über Google OAuth in Verbindung mit Supabase Auth. Hierbei werden Authentifizierungs-Token (Session-Daten) sicher im LocalStorage gespeichert. Diese Daten werden ausschliesslich für die Sitzungsverwaltung der berechtigten Administratoren verwendet.
       </p>
+
+      <p><a href="datenschutz.html">Datenschutzerklärung</a></p>
 
       <h2>Haftungsausschluss</h2>
       <h2>Haftung für Inhalte und Links</h2>

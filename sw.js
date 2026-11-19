@@ -1,4 +1,4 @@
-const CACHE_NAME = "solargrafie-cache-v2";
+const CACHE_NAME = "solargrafie-cache-v3";
 const MAX_CACHE_ITEMS = 50;
 const ASSETS_TO_CACHE = [
   "./",
