@@ -41,3 +41,25 @@ VALUES
     ('ua', 'Ukraine', 'Ukraine', 48.3794, 31.1656, 5, '🇺🇦', 2),
     ('de', 'Deutschland', 'Germany', 51.1657, 10.4515, 6, '🇩🇪', 3)
 ON CONFLICT (country_code) DO NOTHING;
+
+-- Übersetzung für den "Länder"-Button (admin_tab_countries) in der Admin-Maske
+INSERT INTO public.translations (key, de, en, fr, it, uk, ru, es)
+VALUES (
+    'admin_tab_countries',
+    'Länder',
+    'Countries',
+    'Pays',
+    'Paesi',
+    'Країни',
+    'Страны',
+    'Países'
+)
+ON CONFLICT (key) DO UPDATE SET
+    de = EXCLUDED.de,
+    en = EXCLUDED.en,
+    fr = EXCLUDED.fr,
+    it = EXCLUDED.it,
+    uk = EXCLUDED.uk,
+    ru = EXCLUDED.ru,
+    es = EXCLUDED.es;
+
