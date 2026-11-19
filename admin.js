@@ -348,7 +348,7 @@ async function loadSolargrafien() {
     updateFilterBadges(data);
   } catch (error) {
     console.error("Fehler beim Laden:", error.message);
-    solargrafienList.innerHTML = `<p style="color: #ef4444;">Fehler: ${error.message}</p>`;
+    solargrafienList.innerHTML = `<p style="color: #ef4444;">Fehler: ${escapeHtml(error.message)}</p>`;
   }
 }
 
@@ -1447,7 +1447,7 @@ async function loadTranslations() {
     renderTranslationsList(data);
   } catch (error) {
     console.error("Fehler beim Laden der Übersetzungen:", error);
-    translationsList.innerHTML = `<p style="color: red;">Fehler: ${error.message}</p>`;
+    translationsList.innerHTML = `<p style="color: red;">Fehler: ${escapeHtml(error.message)}</p>`;
   }
 }
 
@@ -1464,7 +1464,7 @@ function renderTranslationsList(data) {
     div.dataset.key = item.key || "";
 
     const infoDiv = document.createElement("div");
-    infoDiv.innerHTML = `<strong>${item.key}</strong> - DE: ${item.de ? item.de.substring(0, 30) + "..." : ""}`;
+    infoDiv.innerHTML = `<strong>${escapeHtml(item.key)}</strong> - DE: ${item.de ? escapeHtml(item.de.substring(0, 30)) + "..." : ""}`;
 
     const actionDiv = document.createElement("div");
     actionDiv.className = "list-actions";
@@ -1610,7 +1610,7 @@ async function loadAdmins() {
     renderAdminsList(data);
   } catch (error) {
     console.error("Fehler beim Laden der Benutzer:", error);
-    usersList.innerHTML = `<p style="color: red;">Fehler: ${error.message}</p>`;
+    usersList.innerHTML = `<p style="color: red;">Fehler: ${escapeHtml(error.message)}</p>`;
   }
 }
 
@@ -1627,7 +1627,7 @@ function renderAdminsList(data) {
     div.dataset.email = item.email || "";
 
     const infoDiv = document.createElement("div");
-    infoDiv.innerHTML = `<strong>${item.email}</strong> - Rolle: ${item.rolle}`;
+    infoDiv.innerHTML = `<strong>${escapeHtml(item.email)}</strong> - Rolle: ${escapeHtml(item.rolle)}`;
 
     const actionDiv = document.createElement("div");
     actionDiv.className = "list-actions";
@@ -1883,7 +1883,7 @@ async function loadCountries() {
     renderCountriesList(countries || []);
   } catch (error) {
     console.error("Fehler beim Laden der Länder:", error);
-    countriesList.innerHTML = `<div style="color: #ef4444; padding: 20px;">Fehler: ${error.message}</div>`;
+    countriesList.innerHTML = `<div style="color: #ef4444; padding: 20px;">Fehler: ${escapeHtml(error.message)}</div>`;
   }
 }
 

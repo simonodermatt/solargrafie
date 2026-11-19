@@ -747,6 +747,27 @@
         return "";
       }
 
+      // Öffentliche Spalten (ohne "email" – personenbezogen, nur für Admins)
+      const PUBLIC_SOLARGRAFIE_COLUMNS = [
+        "id", "zeitstempel", "titel", "lat", "lng", "status", "placed",
+        "opened", "comment_status", "bild_url", "google_fotos_url",
+        "externe_id", "kamera", "fotopapier", "owner", "bild_haupt",
+        "bild_doku", "bild_raw", "bild_thumbnail", "tage_belichtung",
+        "tage_verdeckt", "sichtbare_boegen", "sonnenhoehe_max",
+        "sonnenhoehe_min",
+      ].join(",");
+
+      function safeHttpUrl(raw) {
+        try {
+          const u = new URL(raw, window.location.href);
+          return u.protocol === "https:" || u.protocol === "http:"
+            ? u.href
+            : null;
+        } catch (e) {
+          return null;
+        }
+      }
+
       function escapeHtml(str) {
         if (!str) return "";
         return String(str)
@@ -1267,7 +1288,7 @@
         try {
           const { data, error } = await supabaseClient
             .from("solargrafien")
-            .select("*");
+            .select(PUBLIC_SOLARGRAFIE_COLUMNS);
           if (error) {
             throw new Error(error.message);
           }
@@ -2012,21 +2033,28 @@
             activeDict.curatorNote || "KURATOREN-NOTIZ";
         document.getElementById("modal-camera-details").innerText = kamera;
         document.getElementById("modal-medium-details").innerText = medium;
-        let ownerHtml = owner;
+        let ownerHtml = escapeHtml(owner);
         try {
           if (typeof owner === "string" && owner.startsWith("[")) {
             const ownerArray = JSON.parse(owner);
             if (Array.isArray(ownerArray)) {
-              const links = ownerArray.map((val) => {
+              const links = ownerArray.map((raw) => {
+                const val = String(raw).trim();
+                const label = escapeHtml(val);
                 if (val.startsWith("@")) {
-                  return `<a href="https://instagram.com/${val.substring(1)}" target="_blank" class="owner-link">${val}</a>`;
-                } else if (val.includes("@")) {
-                  return `<a href="mailto:${val}" class="owner-link">${val}</a>`;
+                  const handle = encodeURIComponent(val.substring(1));
+                  return `<a href="https://instagram.com/${handle}" target="_blank" rel="noopener noreferrer" class="owner-link">${label}</a>`;
+                } else if (val.includes("@") && !/[\s<>"']/.test(val)) {
+                  return `<a href="mailto:${escapeHtml(val)}" class="owner-link">${label}</a>`;
                 } else if (val.startsWith("www.") || val.startsWith("http")) {
-                  const url = val.startsWith("http") ? val : "https://" + val;
-                  return `<a href="${url}" target="_blank" class="owner-link">${val}</a>`;
+                  const url = safeHttpUrl(
+                    val.startsWith("http") ? val : "https://" + val,
+                  );
+                  return url
+                    ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="owner-link">${label}</a>`
+                    : label;
                 }
-                return val;
+                return label;
               });
               ownerHtml = links.join(" &bull; ");
             }
