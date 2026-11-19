@@ -388,10 +388,12 @@
       >
         <h1 data-i18n="admin_title_main">Admin Bereich</h1>
         <div id="loading-container">
-          <p>Status wird geprüft...</p>
+          <p data-i18n="admin_status_checking">Status wird geprüft...</p>
         </div>
         <div class="hidden" id="login-container">
-          <p>Bitte melde dich an, um den Administrationsbereich zu betreten.</p>
+          <p data-i18n="admin_login_hint">
+            Bitte melde dich an, um den Administrationsbereich zu betreten.
+          </p>
           <button class="btn" id="btn-login">
             <svg
               fill="none"
@@ -688,7 +690,7 @@
                           style="margin-bottom: 2px"
                           type="button"
                         >
-                          🗺️ Auf Karte wählen
+                          🗺️ <span data-i18n="admin_btn_pick_on_map">Auf Karte wählen</span>
                         </button>
                         <div style="display: flex; gap: 10px; width: 100%">
                           <div style="flex: 1">
@@ -987,6 +989,7 @@
                           "
                         >
                           <h3
+                            data-i18n="admin_label_wetter_header"
                             style="
                               margin: 0;
                               color: var(--color-primary);
@@ -994,10 +997,11 @@
                               font-size: 1.1rem;
                             "
                           >
-                            Sonnen- &amp; Wetter-Berechnungen
+                            Wetter &amp; Astro Daten
                           </h3>
                           <button
                             class="btn btn-secondary btn-small"
+                            data-i18n="admin_btn_fill_weather"
                             id="btn-calc"
                             type="button"
                           >
@@ -1400,12 +1404,12 @@
                 id="country-form-container"
                 style="margin-top: 20px"
               >
-                <h2 id="country-form-title">Land bearbeiten</h2>
+                <h2 id="country-form-title" data-i18n="admin_country_form_edit">Land bearbeiten</h2>
                 <form id="country-form" autocomplete="off">
                   <input id="country-id" name="id" type="hidden" value="" />
                   <div class="form-grid">
                     <div class="form-group">
-                      <label for="country-code">Ländercode (z.B. ch, de, it)</label>
+                      <label for="country-code" data-i18n="admin_country_code_label">Ländercode (z.B. ch, de, it)</label>
                       <input
                         class="form-control"
                         id="country-code"
@@ -1416,7 +1420,7 @@
                       />
                     </div>
                     <div class="form-group">
-                      <label for="country-flag">Flagge (Emoji oder SVG-URL)</label>
+                      <label for="country-flag" data-i18n="admin_country_flag_label">Flagge (Emoji oder SVG-URL)</label>
                       <input
                         class="form-control"
                         id="country-flag"
@@ -1427,7 +1431,7 @@
                       />
                     </div>
                     <div class="form-group">
-                      <label for="country-lat">Breitengrad (lat)</label>
+                      <label for="country-lat" data-i18n="admin_label_lat">Breitengrad (lat)</label>
                       <input
                         class="form-control"
                         id="country-lat"
@@ -1439,7 +1443,7 @@
                       />
                     </div>
                     <div class="form-group">
-                      <label for="country-lng">Längengrad (lng)</label>
+                      <label for="country-lng" data-i18n="admin_label_lng">Längengrad (lng)</label>
                       <input
                         class="form-control"
                         id="country-lng"
@@ -1451,7 +1455,7 @@
                       />
                     </div>
                     <div class="form-group">
-                      <label for="country-zoom">Zoom-Level</label>
+                      <label for="country-zoom" data-i18n="admin_country_zoom_label">Zoom-Level</label>
                       <input
                         class="form-control"
                         id="country-zoom"
@@ -1463,7 +1467,7 @@
                       />
                     </div>
                     <div class="form-group">
-                      <label for="country-sort">Sortierung (Reihenfolge)</label>
+                      <label for="country-sort" data-i18n="admin_country_sort_label">Sortierung (Reihenfolge)</label>
                       <input
                         class="form-control"
                         id="country-sort"
@@ -1475,7 +1479,9 @@
                       />
                     </div>
                     <div class="form-group">
-                      <label for="country-name-de">Name DE</label>
+                      <label for="country-name-de"
+                        ><span data-i18n="admin_country_name_label">Name</span> DE</label
+                      >
                       <input
                         class="form-control"
                         id="country-name-de"
@@ -1486,7 +1492,9 @@
                       />
                     </div>
                     <div class="form-group">
-                      <label for="country-name-en">Name EN</label>
+                      <label for="country-name-en"
+                        ><span data-i18n="admin_country_name_label">Name</span> EN</label
+                      >
                       <input
                         class="form-control"
                         id="country-name-en"
@@ -1496,7 +1504,9 @@
                       />
                     </div>
                     <div class="form-group">
-                      <label for="country-name-fr">Name FR</label>
+                      <label for="country-name-fr"
+                        ><span data-i18n="admin_country_name_label">Name</span> FR</label
+                      >
                       <input
                         class="form-control"
                         id="country-name-fr"
@@ -1506,7 +1516,9 @@
                       />
                     </div>
                     <div class="form-group">
-                      <label for="country-name-it">Name IT</label>
+                      <label for="country-name-it"
+                        ><span data-i18n="admin_country_name_label">Name</span> IT</label
+                      >
                       <input
                         class="form-control"
                         id="country-name-it"
@@ -1516,7 +1528,9 @@
                       />
                     </div>
                     <div class="form-group">
-                      <label for="country-name-uk">Name UK</label>
+                      <label for="country-name-uk"
+                        ><span data-i18n="admin_country_name_label">Name</span> UK</label
+                      >
                       <input
                         class="form-control"
                         id="country-name-uk"
@@ -1526,7 +1540,9 @@
                       />
                     </div>
                     <div class="form-group">
-                      <label for="country-name-ru">Name RU</label>
+                      <label for="country-name-ru"
+                        ><span data-i18n="admin_country_name_label">Name</span> RU</label
+                      >
                       <input
                         class="form-control"
                         id="country-name-ru"
@@ -1536,7 +1552,9 @@
                       />
                     </div>
                     <div class="form-group full-width">
-                      <label for="country-name-es">Name ES</label>
+                      <label for="country-name-es"
+                        ><span data-i18n="admin_country_name_label">Name</span> ES</label
+                      >
                       <input
                         class="form-control"
                         id="country-name-es"
@@ -1558,6 +1576,7 @@
                       class="btn btn-danger"
                       id="btn-delete-country"
                       style="display: none"
+                      data-i18n="admin_btn_delete"
                       type="button"
                     >
                       Löschen
