@@ -1,12 +1,49 @@
 -- =====================================================================
--- Security Hardening Solargrafie  (im Supabase SQL-Editor ausführen)
--- 1) E-Mail-Adressen nicht mehr öffentlich lesbar (nDSG / DSGVO)
--- 2) Schreibrechte nur für eingeloggte Admins (serverseitig, nicht nur UI)
--- WICHTIG: ZUERST das neue Frontend (index.html) deployen, das keine
---          "select *" mehr auf solargrafien macht – sonst bricht die Karte.
+-- Security Hardening Solargrafie  (Supabase SQL-Editor, in einem Rutsch)
+-- Basiert auf dem tatsächlichen pg_policies-Ist-Stand vom 2026-11-19.
+--
+-- Befunde im Ist-Stand:
+--  (A) KRITISCH: countries hat "Vollzugriff ... authenticated USING true".
+--      Jeder, der sich mit irgendeinem Google-Konto anmeldet, ist
+--      "authenticated" und könnte Länder ändern/löschen.
+--  (B) email-Spalte in solargrafien ist für anon lesbar (Personendaten).
+--  (C) solargrafien UPDATE/DELETE: "OR email = eigene E-Mail" gilt auch für
+--      Nicht-Admins (jeder Google-Nutzer, dessen Adresse in einer Zeile steht).
+--  (D) Storage-Policies sind nicht in dieser Liste -> unten setzen.
+--  (E) Doppelte/redundante SELECT-Policies auf translations/admins.
+--
+-- WICHTIG: ZUERST das neue Frontend (index.html ohne select "*") deployen,
+--          erst DANN diesen Block ausführen, sonst bricht die Karte.
 -- =====================================================================
+BEGIN;
 
--- ---- 1) Spaltenrechte: anon darf alles ausser "email" lesen ----------
+-- ---- Hilfsfunktionen (SECURITY DEFINER, fester search_path) ----------
+CREATE OR REPLACE FUNCTION public.ist_superadmin()
+RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.admins a
+    WHERE a.email = (auth.jwt() ->> 'email') AND a.rolle = 'superadmin'
+  );
+$$;
+
+CREATE OR REPLACE FUNCTION public.ist_admin()
+RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.admins a
+    WHERE a.email = (auth.jwt() ->> 'email')
+  );
+$$;
+
+REVOKE ALL ON FUNCTION public.ist_superadmin() FROM public, anon;
+REVOKE ALL ON FUNCTION public.ist_admin()      FROM public, anon;
+GRANT EXECUTE ON FUNCTION public.ist_superadmin() TO authenticated;
+GRANT EXECUTE ON FUNCTION public.ist_admin()      TO authenticated;
+
+-- ---- (B) email nicht mehr öffentlich lesbar --------------------------
 REVOKE SELECT ON public.solargrafien FROM anon;
 GRANT SELECT (
   id, zeitstempel, titel, lat, lng, status, placed, opened,
@@ -15,73 +52,62 @@ GRANT SELECT (
   tage_belichtung, tage_verdeckt, sichtbare_boegen,
   sonnenhoehe_max, sonnenhoehe_min
 ) ON public.solargrafien TO anon;
--- Eingeloggte Admins behalten vollen Zugriff (inkl. email)
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.solargrafien TO authenticated;
 
--- ---- 2) Hilfsfunktion: Rolle des eingeloggten Admins -----------------
-CREATE OR REPLACE FUNCTION public.current_admin_role()
-RETURNS text
-LANGUAGE sql STABLE SECURITY DEFINER
-SET search_path = public
-AS $$
-  SELECT a.rolle
-  FROM public.admins a
-  WHERE a.email = (auth.jwt() ->> 'email')
-  LIMIT 1;
-$$;
-REVOKE ALL ON FUNCTION public.current_admin_role() FROM public;
-GRANT EXECUTE ON FUNCTION public.current_admin_role() TO authenticated;
+-- ---- solargrafien: alte Policies ersetzen ----------------------------
+DROP POLICY IF EXISTS "Admins einfuegen Solargrafien"        ON public.solargrafien;
+DROP POLICY IF EXISTS "Rollenbasiertes Aendern Solargrafien" ON public.solargrafien;
+DROP POLICY IF EXISTS "Rollenbasiertes Loeschen Solargrafien" ON public.solargrafien;
+DROP POLICY IF EXISTS "Lesezugriff Solargrafien alle"        ON public.solargrafien;
 
--- ---- 3) RLS-Policies (alte Schreib-Policies vorher prüfen/löschen!) --
--- Kontrolle: SELECT * FROM pg_policies WHERE schemaname='public';
-ALTER TABLE public.admins        ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.translations  ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.countries     ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.solargrafien  ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "sg read all" ON public.solargrafien
+  FOR SELECT TO anon, authenticated USING (true);
 
--- admins: nur Superadmin darf lesen/schreiben; jeder Admin sieht sich selbst
-DROP POLICY IF EXISTS "hardening admins select" ON public.admins;
-CREATE POLICY "hardening admins select" ON public.admins FOR SELECT
-  TO authenticated
-  USING (email = (auth.jwt() ->> 'email') OR public.current_admin_role() = 'superadmin');
-DROP POLICY IF EXISTS "hardening admins write" ON public.admins;
-CREATE POLICY "hardening admins write" ON public.admins FOR ALL
-  TO authenticated
-  USING (public.current_admin_role() = 'superadmin')
-  WITH CHECK (public.current_admin_role() = 'superadmin');
+CREATE POLICY "sg insert admins" ON public.solargrafien
+  FOR INSERT TO authenticated
+  WITH CHECK (
+    public.ist_superadmin()
+    OR (public.ist_admin() AND email = (auth.jwt() ->> 'email'))
+  );
 
--- translations / countries: Lesen öffentlich, Schreiben nur Superadmin
-DROP POLICY IF EXISTS "hardening translations write" ON public.translations;
-CREATE POLICY "hardening translations write" ON public.translations FOR ALL
-  TO authenticated
-  USING (public.current_admin_role() = 'superadmin')
-  WITH CHECK (public.current_admin_role() = 'superadmin');
+CREATE POLICY "sg update admins" ON public.solargrafien
+  FOR UPDATE TO authenticated
+  USING (
+    public.ist_superadmin()
+    OR (public.ist_admin() AND email = (auth.jwt() ->> 'email'))
+  )
+  WITH CHECK (
+    public.ist_superadmin()
+    OR (public.ist_admin() AND email = (auth.jwt() ->> 'email'))
+  );
 
-DROP POLICY IF EXISTS "hardening countries write" ON public.countries;
-CREATE POLICY "hardening countries write" ON public.countries FOR ALL
-  TO authenticated
-  USING (public.current_admin_role() = 'superadmin')
-  WITH CHECK (public.current_admin_role() = 'superadmin');
+CREATE POLICY "sg delete admins" ON public.solargrafien
+  FOR DELETE TO authenticated
+  USING (
+    public.ist_superadmin()
+    OR (public.ist_admin() AND email = (auth.jwt() ->> 'email'))
+  );
 
--- solargrafien: Lesen öffentlich; Superadmin alles, Erfasser nur eigene (email)
-DROP POLICY IF EXISTS "hardening solargrafien write super" ON public.solargrafien;
-CREATE POLICY "hardening solargrafien write super" ON public.solargrafien FOR ALL
-  TO authenticated
-  USING (public.current_admin_role() = 'superadmin')
-  WITH CHECK (public.current_admin_role() = 'superadmin');
+-- ---- (A) countries: nur Superadmin darf schreiben --------------------
+DROP POLICY IF EXISTS "Vollzugriff für authentifizierte Admins auf countries" ON public.countries;
+DROP POLICY IF EXISTS "Lesezugriff für alle auf countries"                    ON public.countries;
 
-DROP POLICY IF EXISTS "hardening solargrafien write erfasser" ON public.solargrafien;
-CREATE POLICY "hardening solargrafien write erfasser" ON public.solargrafien FOR ALL
-  TO authenticated
-  USING (public.current_admin_role() = 'erfasser' AND email = (auth.jwt() ->> 'email'))
-  WITH CHECK (public.current_admin_role() = 'erfasser' AND email = (auth.jwt() ->> 'email'));
+CREATE POLICY "countries read all" ON public.countries
+  FOR SELECT TO anon, authenticated USING (true);
+CREATE POLICY "countries write superadmin" ON public.countries
+  FOR ALL TO authenticated
+  USING (public.ist_superadmin()) WITH CHECK (public.ist_superadmin());
 
--- Öffentliches Lesen (falls noch nicht vorhanden)
-DROP POLICY IF EXISTS "hardening solargrafien read" ON public.solargrafien;
-CREATE POLICY "hardening solargrafien read" ON public.solargrafien FOR SELECT
-  TO anon, authenticated USING (true);
+-- ---- (E) translations / admins: Duplikate bereinigen -----------------
+-- (Schreib-Policies mit ist_superadmin() bleiben unverändert bestehen.)
+DROP POLICY IF EXISTS "Lesezugriff Solargrafien alle"          ON public.translations;
+DROP POLICY IF EXISTS "Öffentlicher Lesezugriff Übersetzungen" ON public.translations;
+-- "Lesezugriff Übersetzungen alle" (public, true) bleibt als einzige Leserichtlinie.
 
--- ---- 4) Constraints (Datenqualität) ----------------------------------
+DROP POLICY IF EXISTS "Admins lesen Admins" ON public.admins;
+-- "Admins Lesezugriff" (eigene Zeile ODER Superadmin) bleibt.
+
+-- ---- Datenqualität ---------------------------------------------------
 ALTER TABLE public.solargrafien
   DROP CONSTRAINT IF EXISTS solargrafien_lat_chk,
   DROP CONSTRAINT IF EXISTS solargrafien_lng_chk;
@@ -89,14 +115,21 @@ ALTER TABLE public.solargrafien
   ADD CONSTRAINT solargrafien_lat_chk CHECK (lat BETWEEN -90 AND 90),
   ADD CONSTRAINT solargrafien_lng_chk CHECK (lng BETWEEN -180 AND 180);
 
--- ---- 5) Storage: nur Admins dürfen schreiben/löschen -----------------
--- Bucket "solargrafien-bilder" bleibt öffentlich lesbar.
+-- ---- (D) Storage: Lesen öffentlich, Schreiben nur Admins -------------
 DROP POLICY IF EXISTS "hardening storage write" ON storage.objects;
-CREATE POLICY "hardening storage write" ON storage.objects FOR ALL
-  TO authenticated
-  USING (bucket_id = 'solargrafien-bilder' AND public.current_admin_role() IS NOT NULL)
-  WITH CHECK (bucket_id = 'solargrafien-bilder' AND public.current_admin_role() IS NOT NULL);
+CREATE POLICY "hardening storage write" ON storage.objects
+  FOR ALL TO authenticated
+  USING (bucket_id = 'solargrafien-bilder' AND public.ist_admin())
+  WITH CHECK (bucket_id = 'solargrafien-bilder' AND public.ist_admin());
+-- Achtung: bestehende (evtl. zu offene) Storage-Policies prüfen:
+--   SELECT policyname, roles, cmd, qual, with_check
+--   FROM pg_policies WHERE schemaname='storage' AND tablename='objects';
 
--- ---- Verifikation (als anon, z.B. per curl) --------------------------
---   GET /rest/v1/solargrafien?select=email  -> muss 401/403 liefern
---   GET /rest/v1/solargrafien?select=titel  -> muss Daten liefern
+COMMIT;
+
+-- ---- Verifikation -----------------------------------------------------
+-- anon:  GET /rest/v1/solargrafien?select=email  -> Fehler 401/403
+-- anon:  GET /rest/v1/solargrafien?select=titel  -> Daten
+-- Google-Konto, das NICHT in admins steht: INSERT/UPDATE/DELETE auf
+--   solargrafien, countries, translations, admins -> alles abgelehnt
+-- Erfasser: nur eigene Zeilen änderbar; Superadmin: alles
