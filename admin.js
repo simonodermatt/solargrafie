@@ -120,6 +120,11 @@ function applyAdminTranslations() {
   }
 }
 
+function tr(key, fallback) {
+  const v = getTranslation(key);
+  return v === key ? fallback : v;
+}
+
 function getTranslation(key) {
   const browserLang = (navigator.language || navigator.userLanguage || "en")
     .substring(0, 2)
@@ -473,7 +478,7 @@ function renderList(data) {
         </div>
       </div>
       <div class="list-item-actions" style="display: flex; gap: 8px;">
-        <button class="btn btn-small btn-edit" data-id="${item.id}" ${disabledAttr} style="padding: 4px 8px; font-size: 0.75rem;">Edit</button>
+        <button class="btn btn-small btn-edit" data-id="${item.id}" ${disabledAttr} style="padding: 4px 8px; font-size: 0.75rem;">${escapeHtml(tr("admin_btn_edit", "Bearbeiten"))}</button>
         <button class="btn btn-small btn-delete" data-id="${item.id}" ${disabledAttr} style="padding: 4px 8px; font-size: 0.75rem; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171;" title="Löschen">
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="3 6 5 6 21 6"></polyline>
@@ -1476,7 +1481,7 @@ function renderTranslationsList(data) {
 
     const btnDelete = document.createElement("button");
     btnDelete.className = "btn btn-small btn-secondary";
-    btnDelete.textContent = "Löschen";
+    btnDelete.textContent = tr("admin_btn_delete", "Löschen");
     btnDelete.onclick = () => deleteTranslation(item.key);
 
     actionDiv.appendChild(btnEdit);
@@ -1509,7 +1514,7 @@ function editTranslation(item) {
 async function deleteTranslation(id) {
   if (!confirm("Diese Übersetzung wirklich löschen?")) return;
 
-  showMessage("Lösche...");
+  showMessage(tr("admin_msg_deleting", "Lösche..."));
   try {
     const { error } = await supabaseClient
       .from("translations")
@@ -1639,7 +1644,7 @@ function renderAdminsList(data) {
 
     const btnDelete = document.createElement("button");
     btnDelete.className = "btn btn-small btn-secondary";
-    btnDelete.textContent = "Löschen";
+    btnDelete.textContent = tr("admin_btn_delete", "Löschen");
     btnDelete.onclick = () => deleteAdmin(item.email);
 
     actionDiv.appendChild(btnEdit);
@@ -1668,7 +1673,7 @@ function editAdmin(item) {
 async function deleteAdmin(id) {
   if (!confirm("Diesen Benutzer wirklich löschen?")) return;
 
-  showMessage("Lösche...");
+  showMessage(tr("admin_msg_deleting", "Lösche..."));
   try {
     const { error } = await supabaseClient
       .from("admins")
@@ -1931,7 +1936,7 @@ function renderCountriesList(countries) {
 
 function openNewCountryForm() {
   document.getElementById("country-form-title").innerText =
-    "Neues Land anlegen";
+    tr("admin_country_form_new", "Neues Land anlegen");
   countryForm.reset();
   document.getElementById("country-id").value = "";
   document.getElementById("country-zoom").value = "7";
@@ -1942,7 +1947,10 @@ function openNewCountryForm() {
 }
 
 function openEditCountryForm(country) {
-  document.getElementById("country-form-title").innerText = "Land bearbeiten";
+  document.getElementById("country-form-title").innerText = tr(
+    "admin_country_form_edit",
+    "Land bearbeiten",
+  );
   document.getElementById("country-id").value = country.id;
   document.getElementById("country-code").value = country.country_code || "";
   document.getElementById("country-flag").value = country.flag || "";
@@ -1989,7 +1997,7 @@ async function saveCountry(e) {
 
   const submitBtn = countryForm.querySelector('button[type="submit"]');
   const originalText = submitBtn.innerHTML;
-  submitBtn.innerHTML = "Wird gespeichert...";
+  submitBtn.innerHTML = tr("admin_msg_saving", "Wird gespeichert...");
   submitBtn.disabled = true;
 
   try {
@@ -2024,7 +2032,7 @@ async function deleteCountry() {
   const confirmMsg = "Soll dieses Land wirklich endgültig gelöscht werden?";
   if (!confirm(confirmMsg)) return;
 
-  btnDeleteCountry.innerHTML = "Lösche...";
+  btnDeleteCountry.innerHTML = tr("admin_msg_deleting", "Lösche...");
   btnDeleteCountry.disabled = true;
 
   try {
@@ -2042,7 +2050,7 @@ async function deleteCountry() {
     console.error(error);
     showMessage("Fehler beim Löschen: " + error.message, true);
   } finally {
-    btnDeleteCountry.innerHTML = "Löschen";
+    btnDeleteCountry.innerHTML = tr("admin_btn_delete", "Löschen");
     btnDeleteCountry.disabled = false;
   }
 }
